@@ -48,6 +48,14 @@ class UserResource extends Resource
                     )
                     ->maxLength(255),
                 DateTimePicker::make('email_verified_at'),
+
+                TextInput::make('fingerprint_id')
+                    ->label('Fingerprint ID')
+                    ->numeric()
+                    ->unique(ignoreRecord: true)
+                    ->helperText('ID dari mesin fingerprint/face recognition (contoh: 6120004)')
+                    ->placeholder('Contoh: 6120004'),
+
                 TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : null
@@ -74,6 +82,12 @@ class UserResource extends Resource
                 TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('fingerprint_id')
+                    ->label('Fingerprint ID')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('roles.name')
                     ->label('Roles')

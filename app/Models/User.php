@@ -28,6 +28,7 @@ class User extends Authenticatable implements FilamentUser
         'email_verified_at',
         'password',
         'google_id',
+        'fingerprint_id',
     ];
 
     /**
@@ -97,6 +98,23 @@ class User extends Authenticatable implements FilamentUser
     public function getUnreadNotificationsCountAttribute(): int
     {
         return $this->unreadNotifications()->count();
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class)->orderBy('attendance_date', 'desc');
+    }
+
+    public function todayAttendance()
+    {
+        return $this->hasOne(Attendance::class)
+            ->whereDate('attendance_date', today())
+            ->latest();
+    }
+
+    public function createdEvents(): HasMany
+    {
+        return $this->hasMany(Event::class, 'created_by');
     }
 
     public function canAccessPanel(Panel $panel): bool
