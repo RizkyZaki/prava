@@ -12,6 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section as ComponentsSection;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -31,7 +32,7 @@ class WorkScheduleResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Schedule Information')
+                ComponentsSection::make('Schedule Information')
                     ->description('Basic schedule information')
                     ->schema([
                         TextInput::make('name')
@@ -53,7 +54,7 @@ class WorkScheduleResource extends Resource
                     ])
                     ->columns(2),
 
-                Section::make('Work Hours')
+                ComponentsSection::make('Work Hours')
                     ->description('Define work hours and break times')
                     ->schema([
                         TimePicker::make('start_time')
@@ -87,7 +88,7 @@ class WorkScheduleResource extends Resource
                     ])
                     ->columns(2),
 
-                Section::make('Tolerance & Deductions')
+                ComponentsSection::make('Tolerance & Deductions')
                     ->description('Configure tolerances and deduction rates')
                     ->schema([
                         TextInput::make('late_tolerance_minutes')
