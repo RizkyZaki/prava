@@ -2,7 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Pages\Dashboard;
+use Filament\Pages\Dashboard as FilamentDashboard;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Auth\Login;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;

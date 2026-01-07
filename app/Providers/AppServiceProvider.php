@@ -10,6 +10,7 @@ use Filament\Pages\BasePage as Page;
 use Filament\Resources\Resource;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register policies
+        Gate::policy(\App\Models\Salary::class, \App\Policies\SalaryPolicy::class);
+        Gate::policy(\App\Models\MonthlyPayroll::class, \App\Policies\MonthlyPayrollPolicy::class);
+        Gate::policy(\App\Models\SalaryDeduction::class, \App\Policies\SalaryDeductionPolicy::class);
+
         Livewire::component('edit-comment-modal', EditCommentModal::class);
         FilamentShield::buildPermissionKeyUsing(
             function (string $entity, string $affix, string $subject, string $case, string $separator) {

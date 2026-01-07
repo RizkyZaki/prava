@@ -15,7 +15,9 @@ class StatsOverview extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected ?string $pollingInterval = '30s';
+    protected static ?int $sort = 1;
+
+    protected ?string $pollingInterval = null;
 
     protected ?string $heading = 'Overview';
 
@@ -67,9 +69,9 @@ class StatsOverview extends BaseWidget
     protected function getUserStats(): array
     {
         $user = auth()->user();
-        
+
         $myProjects = $user->projects()->count();
-        
+
         $myProjectIds = $user->projects()->pluck('projects.id')->toArray();
 
         $projectTickets = Ticket::whereIn('project_id', $myProjectIds)->count();

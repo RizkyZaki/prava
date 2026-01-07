@@ -17,7 +17,10 @@ class MonthlyTicketTrendChart extends ChartWidget
     protected static ?int $sort = 4;
 
     protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full',
         'md' => 2,
+        'lg' => 2,
         'xl' => 2,
     ];
 

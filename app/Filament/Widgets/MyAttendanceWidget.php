@@ -13,7 +13,14 @@ class MyAttendanceWidget extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full',
+        'md' => 'full',
+        'lg' => 1,
+        'xl' => 1,
+        '2xl' => 1,
+    ];
 
     protected static ?int $sort = 2;
 

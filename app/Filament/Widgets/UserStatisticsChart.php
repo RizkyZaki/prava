@@ -9,20 +9,24 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 class UserStatisticsChart extends ChartWidget
 {
     use HasWidgetShield;
-    
+
     protected ?string $heading = 'User Statistics Chart';
-    
+
     protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full',
         'md' => 2,
+        'lg' => 1,
         'xl' => 1,
+        '2xl' => 1,
     ];
-    
-    protected static ?int $sort = 3;
-    
+
+    protected static ?int $sort = 6;
+
     protected ?string $maxHeight = '300px';
-    
+
     protected ?string $pollingInterval = '30s';
-    
+
     protected function getData(): array
     {
         $users = User::query()
@@ -35,11 +39,11 @@ class UserStatisticsChart extends ChartWidget
             ])
             ->orderBy('name')
             ->get();
-        
+
         $labels = $users->pluck('name')->toArray();
         $projectsData = $users->pluck('total_projects')->toArray();
         $ticketsData = $users->pluck('total_assigned_tickets')->toArray();
-        
+
         return [
             'datasets' => [
                 [
@@ -60,12 +64,12 @@ class UserStatisticsChart extends ChartWidget
             'labels' => $labels,
         ];
     }
-    
+
     protected function getType(): string
     {
         return 'bar';
     }
-    
+
     protected function getOptions(): array
     {
         return [

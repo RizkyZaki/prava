@@ -13,16 +13,22 @@ class ProjectTimeline extends Widget
 {
     use HasWidgetShield;
     protected ?string $heading = 'Project Timeline';
-    
+
     protected string $view = 'filament.widgets.project-timeline';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full',
+        'md' => 'full',
+        'lg' => 'full',
+        'xl' => 'full',
+    ];
 
-    static ?int $sort = 4;
-    
+    protected static ?int $sort = 8;
+
     public string $filter = 'pinned';
     public string $viewMode = 'projects';
-    
+
     public function getProjects()
     {
         $query = Project::query()
@@ -32,14 +38,14 @@ class ProjectTimeline extends Widget
             }])
             ->whereNotNull('start_date')
             ->whereNotNull('end_date');
-            
+
         if ($this->filter === 'pinned') {
             $query->whereNotNull('pinned_date')
                   ->orderBy('pinned_date', 'desc');
         } else {
             $query->orderBy('start_date');
         }
-            
+
         $userIsSuperAdmin = auth()->user() && (
             (method_exists(auth()->user(), 'hasRole') && auth()->user()->hasRole('super_admin'))
             || (isset(auth()->user()->role) && auth()->user()->role === 'super_admin')
@@ -50,26 +56,26 @@ class ProjectTimeline extends Widget
                 $query->where('user_id', auth()->id());
             });
         }
-            
+
         return $query->get();
     }
-    
+
     public function setFilter($filter)
     {
         $this->filter = $filter;
     }
-    
+
     public function setViewMode($mode)
     {
         $this->viewMode = $mode;
     }
-    
+
     public function getTotalProjects()
     {
         $query = Project::query()
             ->whereNotNull('start_date')
             ->whereNotNull('end_date');
-            
+
         $userIsSuperAdmin = auth()->user() && (
             (method_exists(auth()->user(), 'hasRole') && auth()->user()->hasRole('super_admin'))
             || (isset(auth()->user()->role) && auth()->user()->role === 'super_admin')
@@ -80,17 +86,17 @@ class ProjectTimeline extends Widget
                 $query->where('user_id', auth()->id());
             });
         }
-            
+
         return [
             'all' => $query->count(),
             'pinned' => $query->whereNotNull('pinned_date')->count(),
         ];
     }
-    
+
     public function getTimelineRange()
     {
         $projects = $this->getProjects();
-        
+
         if ($projects->isEmpty()) {
             $startDate = Carbon::now()->startOfMonth();
             $endDate = Carbon::now()->addMonths(6)->endOfMonth();
@@ -101,20 +107,20 @@ class ProjectTimeline extends Widget
                 'total_days' => $startDate->diffInDays($endDate)
             ];
         }
-        
+
         $earliestStart = $projects->min('start_date');
         $latestEnd = $projects->max('end_date');
-        
+
         $startDate = Carbon::parse($earliestStart)->startOfMonth();
         $endDate = Carbon::parse($latestEnd)->endOfMonth();
-        
+
         // Extend range to show context
         $startDate->subMonth();
         $endDate->addMonth();
-        
+
         $months = [];
         $current = $startDate->copy();
-        
+
         while ($current->lte($endDate)) {
             $months[] = [
                 'date' => $current->copy(),
@@ -124,7 +130,7 @@ class ProjectTimeline extends Widget
             ];
             $current->addMonth();
         }
-        
+
         return [
             'start' => $startDate,
             'end' => $endDate,
@@ -132,43 +138,43 @@ class ProjectTimeline extends Widget
             'total_days' => $startDate->diffInDays($endDate)
         ];
     }
-    
+
     protected function getViewData(): array
     {
         $projects = $this->getProjects();
         $today = Carbon::today();
         $counts = $this->getTotalProjects();
         $timelineRange = $this->getTimelineRange();
-        
+
         $timelineData = [];
-        
+
         foreach ($projects as $project) {
             if (!$project->start_date || !$project->end_date) {
                 continue;
             }
-            
+
             $startDate = Carbon::parse($project->start_date);
             $endDate = Carbon::parse($project->end_date);
             $totalDays = $startDate->diffInDays($endDate) + 1;
-            
+
             if ($endDate->lt($startDate)) {
                 continue;
             }
-            
+
             // Calculate position and width for Gantt bar
             $rangeStart = $timelineRange['start'];
             $totalRangeDays = $timelineRange['total_days'];
-            
+
             $startOffset = $rangeStart->diffInDays($startDate);
             $endOffset = $rangeStart->diffInDays($endDate);
-            
+
             $leftPercent = ($startOffset / $totalRangeDays) * 100;
             $widthPercent = (($endOffset - $startOffset + 1) / $totalRangeDays) * 100;
-            
+
             $pastDays = 0;
             $remainingDays = 0;
             $progressPercent = 0;
-            
+
             if ($today->lt($startDate)) {
                 $pastDays = 0;
                 $remainingDays = $totalDays;
@@ -182,10 +188,10 @@ class ProjectTimeline extends Widget
                 $remainingDays = $today->diffInDays($endDate);
                 $progressPercent = ($pastDays / $totalDays) * 100;
             }
-            
+
             $status = 'In Progress';
             $statusColor = 'blue';
-            
+
             if ($today->gt($endDate)) {
                 $status = 'Completed';
                 $statusColor = 'green';
@@ -199,7 +205,7 @@ class ProjectTimeline extends Widget
                 $status = 'Not Started';
                 $statusColor = 'gray';
             }
-            
+
             // Get ticket statistics
             $ticketStats = [
                 'total' => $project->tickets->count(),
@@ -210,7 +216,7 @@ class ProjectTimeline extends Widget
                     return $ticket->due_date && Carbon::parse($ticket->due_date)->isPast();
                 })->count(),
             ];
-            
+
             $timelineData[] = [
                 'id' => $project->id,
                 'name' => $project->name,
@@ -230,11 +236,11 @@ class ProjectTimeline extends Widget
                 'ticket_stats' => $ticketStats,
                 'tickets' => $project->tickets->map(function($ticket) use ($rangeStart, $totalRangeDays) {
                     if (!$ticket->due_date) return null;
-                    
+
                     $dueDate = Carbon::parse($ticket->due_date);
                     $dueDayOffset = $rangeStart->diffInDays($dueDate);
                     $duePercent = ($dueDayOffset / $totalRangeDays) * 100;
-                    
+
                     return [
                         'id' => $ticket->id,
                         'name' => $ticket->name,
@@ -248,12 +254,12 @@ class ProjectTimeline extends Widget
                 })->filter()->values(),
             ];
         }
-        
+
         // Sort by start date
         usort($timelineData, function($a, $b) {
             return $a['start_date_obj']->timestamp <=> $b['start_date_obj']->timestamp;
         });
-        
+
         return [
             'projects' => $timelineData,
             'filter' => $this->filter,

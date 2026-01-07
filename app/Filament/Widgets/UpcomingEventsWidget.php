@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Event;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Actions\Action;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -14,7 +15,7 @@ class UpcomingEventsWidget extends BaseWidget
 
     protected int | string | array $columnSpan = 'full';
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     public function table(Table $table): Table
     {
@@ -77,7 +78,7 @@ class UpcomingEventsWidget extends BaseWidget
                     ->color(fn ($record) => $record->status_color),
             ])
             ->actions([
-                Tables\Actions\Action::make('view')
+                Action::make('view')
                     ->label('Lihat')
                     ->icon('heroicon-m-eye')
                     ->url(fn ($record) => route('filament.admin.resources.events.view', $record))

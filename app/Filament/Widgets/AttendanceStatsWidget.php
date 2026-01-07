@@ -14,7 +14,7 @@ class AttendanceStatsWidget extends BaseWidget
 
     protected ?string $pollingInterval = '60s';
 
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 2;
 
     protected function getStats(): array
     {

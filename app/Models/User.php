@@ -112,6 +112,37 @@ class User extends Authenticatable implements FilamentUser
             ->latest();
     }
 
+    public function salaries(): HasMany
+    {
+        return $this->hasMany(Salary::class);
+    }
+
+    public function activeSalary()
+    {
+        return $this->hasOne(Salary::class)
+            ->where('is_active', true)
+            ->whereDate('effective_from', '<=', now())
+            ->where(function ($q) {
+                $q->whereNull('effective_to')
+                    ->orWhereDate('effective_to', '>=', now());
+            });
+    }
+
+    public function salaryDeductions(): HasMany
+    {
+        return $this->hasMany(SalaryDeduction::class);
+    }
+
+    public function monthlyPayrolls(): HasMany
+    {
+        return $this->hasMany(MonthlyPayroll::class);
+    }
+
+    public function permittedAbsences(): HasMany
+    {
+        return $this->hasMany(PermittedAbsence::class);
+    }
+
     public function createdEvents(): HasMany
     {
         return $this->hasMany(Event::class, 'created_by');

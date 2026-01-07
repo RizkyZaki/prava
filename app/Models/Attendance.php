@@ -5,11 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 
 class Attendance extends Model
 {
     use HasFactory;
+
+    protected $table = 'attendance_records';
 
     protected $fillable = [
         'user_id',
@@ -52,16 +55,39 @@ class Attendance extends Model
             }
 
             // Auto-determine status based on check-in time
-            if ($attendance->check_in && empty($attendance->status)) {
+            // Only auto-calculate if status is empty OR if status is 'present' but check-in is actually late
+            if ($attendance->check_in) {
                 $checkInTime = Carbon::parse($attendance->check_in);
                 $scheduledStart = $checkInTime->copy()->setTime(self::WORK_START_HOUR, 0, 0);
                 $lateThreshold = $scheduledStart->copy()->addMinutes(self::LATE_THRESHOLD_MINUTES);
 
-                if ($checkInTime->greaterThan($lateThreshold)) {
-                    $attendance->status = 'late';
-                } else {
-                    $attendance->status = 'present';
+                // Set status if empty
+                if (empty($attendance->status)) {
+                    if ($checkInTime->greaterThan($lateThreshold)) {
+                        $attendance->status = 'late';
+                    } else {
+                        $attendance->status = 'present';
+                    }
                 }
+                // Also update if currently 'present' but check-in time indicates late
+                elseif ($attendance->status === 'present' && $checkInTime->greaterThan($lateThreshold)) {
+                    $attendance->status = 'late';
+                }
+            }
+        });
+
+        // Auto-calculate deduction after save (when attendance is complete)
+        static::saved(function ($attendance) {
+            // Calculate deduction when attendance has check-in (even without checkout yet)
+            if ($attendance->check_in) {
+                app(\App\Services\SalaryDeductionService::class)->calculateDeduction($attendance);
+            }
+        });
+
+        // Also trigger on update
+        static::updated(function ($attendance) {
+            if ($attendance->check_in) {
+                app(\App\Services\SalaryDeductionService::class)->calculateDeduction($attendance);
             }
         });
     }
@@ -69,6 +95,11 @@ class Attendance extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function deductions(): HasMany
+    {
+        return $this->hasMany(SalaryDeduction::class);
     }
 
     /**
@@ -80,9 +111,30 @@ class Attendance extends Model
             return false;
         }
 
+        // Get user's active salary with work schedule
+        $salary = Salary::where('user_id', $this->user_id)
+            ->where('is_active', true)
+            ->whereDate('effective_from', '<=', $this->attendance_date)
+            ->where(function ($q) {
+                $q->whereNull('effective_to')
+                    ->orWhereDate('effective_to', '>=', $this->attendance_date);
+            })
+            ->first();
+
+        // Get work schedule (use default if not configured)
+        $workSchedule = $salary?->workSchedule ?? WorkSchedule::getDefault();
+
+        if (!$workSchedule) {
+            // Fallback to constants if no schedule
+            $checkInTime = Carbon::parse($this->check_in);
+            $scheduledStart = $checkInTime->copy()->setTime(self::WORK_START_HOUR, 0, 0);
+            $lateThreshold = $scheduledStart->copy()->addMinutes(self::LATE_THRESHOLD_MINUTES);
+            return $checkInTime->greaterThan($lateThreshold);
+        }
+
         $checkInTime = Carbon::parse($this->check_in);
-        $scheduledStart = $checkInTime->copy()->setTime(self::WORK_START_HOUR, 0, 0);
-        $lateThreshold = $scheduledStart->copy()->addMinutes(self::LATE_THRESHOLD_MINUTES);
+        $scheduledStart = $checkInTime->copy()->setTimeFrom(Carbon::parse($workSchedule->start_time));
+        $lateThreshold = $scheduledStart->copy()->addMinutes($workSchedule->late_tolerance_minutes);
 
         return $checkInTime->greaterThan($lateThreshold);
     }
@@ -92,14 +144,39 @@ class Attendance extends Model
      */
     public function getLateDurationAttribute(): ?int
     {
-        if (!$this->isLate()) {
+        if (!$this->check_in) {
             return null;
         }
 
-        $checkInTime = Carbon::parse($this->check_in);
-        $scheduledStart = $checkInTime->copy()->setTime(self::WORK_START_HOUR, 0, 0);
+        // Get user's active salary with work schedule
+        $salary = Salary::where('user_id', $this->user_id)
+            ->where('is_active', true)
+            ->whereDate('effective_from', '<=', $this->attendance_date)
+            ->where(function ($q) {
+                $q->whereNull('effective_to')
+                    ->orWhereDate('effective_to', '>=', $this->attendance_date);
+            })
+            ->first();
 
-        return $checkInTime->diffInMinutes($scheduledStart);
+        // Get work schedule (use default if not configured)
+        $workSchedule = $salary?->workSchedule ?? WorkSchedule::getDefault();
+
+        $checkInTime = Carbon::parse($this->check_in);
+
+        if (!$workSchedule) {
+            // Fallback to constants
+            $scheduledStart = $checkInTime->copy()->setTime(self::WORK_START_HOUR, 0, 0);
+        } else {
+            $scheduledStart = $checkInTime->copy()->setTimeFrom(Carbon::parse($workSchedule->start_time));
+        }
+
+        // Return 0 if not late, otherwise return positive minutes late
+        if ($checkInTime->lessThanOrEqualTo($scheduledStart)) {
+            return 0;
+        }
+
+        // Use absolute value to ensure positive result
+        return (int) $checkInTime->diffInMinutes($scheduledStart, true);
     }
 
     /**
