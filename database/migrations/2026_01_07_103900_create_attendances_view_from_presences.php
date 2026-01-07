@@ -14,42 +14,42 @@ return new class extends Migration
     public function up(): void
     {
         DB::statement("
-            CREATE VIEW attendances AS
-            (
-                SELECT
-                    presences.id,
-                    presences.enhancer,
-                    presences.company AS opd,
-                    presences.position,
-                    presences.fingerprint,
-                    presences.time,
-                    presences.piece,
-                    presences.price,
-                    presences.late,
-                    presences.earlier,
-                    presences.type,
-                    presences.category,
-                    presences.coordinate,
-                    presences.biometric,
-                    presences.created_at
-                FROM (
-                    SELECT DISTINCT fingerprint, MAX(time) AS time
-                    FROM presences
-                    WHERE type = '1' AND deleted_at IS NULL
-                    GROUP BY fingerprint, DATE(time)
-                    UNION ALL
-                    SELECT DISTINCT fingerprint, MIN(time) AS time
-                    FROM presences
-                    WHERE type = '0' AND deleted_at IS NULL
-                    GROUP BY fingerprint, DATE(time)
-                ) AS combined
-                JOIN presences ON combined.fingerprint = presences.fingerprint
-                    AND combined.time = presences.time
-                WHERE presences.deleted_at IS NULL
-                GROUP BY combined.fingerprint, combined.time
-            )
-            ORDER BY time DESC
-        ");
+    CREATE VIEW attendances AS
+    SELECT
+        p.id,
+        p.enhancer,
+        p.company AS opd,
+        p.position,
+        p.fingerprint,
+        p.time,
+        p.piece,
+        p.price,
+        p.late,
+        p.earlier,
+        p.type,
+        p.category,
+        p.coordinate,
+        p.biometric,
+        p.created_at
+    FROM (
+        SELECT fingerprint, MAX(time) AS time
+        FROM presences
+        WHERE type = '1' AND deleted_at IS NULL
+        GROUP BY fingerprint, DATE(time)
+
+        UNION ALL
+
+        SELECT fingerprint, MIN(time) AS time
+        FROM presences
+        WHERE type = '0' AND deleted_at IS NULL
+        GROUP BY fingerprint, DATE(time)
+    ) combined
+    JOIN presences p
+        ON p.fingerprint = combined.fingerprint
+       AND p.time = combined.time
+    WHERE p.deleted_at IS NULL
+    ORDER BY p.time DESC
+");
     }
 
     /**
