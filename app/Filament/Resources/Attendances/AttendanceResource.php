@@ -206,14 +206,37 @@ class AttendanceResource extends Resource
                         'holiday' => 'Libur',
                     ]),
 
+                Filter::make('specific_date')
+                    ->form([
+                        DatePicker::make('date')
+                            ->label('Tanggal Spesifik')
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['date'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('attendance_date', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['date']) {
+                            return null;
+                        }
+
+                        return 'Tanggal: ' . Carbon::parse($data['date'])->format('d/m/Y');
+                    }),
+
                 Filter::make('date_range')
                     ->form([
                         DatePicker::make('from')
                             ->label('Dari Tanggal')
-                            ->native(false),
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
                         DatePicker::make('until')
                             ->label('Sampai Tanggal')
-                            ->native(false),
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

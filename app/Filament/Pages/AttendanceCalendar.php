@@ -33,6 +33,8 @@ class AttendanceCalendar extends Page
 
     public Collection $attendances;
 
+    public ?string $selectedDate = null;
+
     public function mount(): void
     {
         // Super admin default lihat semua user, non-admin cuma lihat diri sendiri
@@ -112,7 +114,9 @@ class AttendanceCalendar extends Page
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dateString = $date->toDateString();
-            $attendance = $this->attendances->first(function ($att) use ($dateString) {
+
+            // Get all attendances for this date
+            $dayAttendances = $this->attendances->filter(function ($att) use ($dateString) {
                 return $att->attendance_date->toDateString() === $dateString;
             });
 
@@ -120,7 +124,8 @@ class AttendanceCalendar extends Page
                 'date' => $date->copy(),
                 'isCurrentMonth' => $date->month == $this->currentMonth,
                 'isToday' => $date->isToday(),
-                'attendance' => $attendance,
+                'attendances' => $dayAttendances,
+                'summary' => $this->getDateSummary($dayAttendances),
             ];
 
             // If Sunday (end of week), add to weeks array
@@ -131,6 +136,35 @@ class AttendanceCalendar extends Page
         }
 
         return $weeks;
+    }
+
+    public function getDateSummary($attendances): array
+    {
+        return [
+            'present' => $attendances->where('status', 'present')->count(),
+            'late' => $attendances->where('status', 'late')->count(),
+            'half_day' => $attendances->where('status', 'half_day')->count(),
+            'absent' => $attendances->where('status', 'absent')->count(),
+            'leave' => $attendances->where('status', 'leave')->count(),
+            'holiday' => $attendances->where('status', 'holiday')->count(),
+        ];
+    }
+
+    public function viewDateDetails($date): void
+    {
+        $this->selectedDate = $date;
+        $this->dispatch('open-modal', id: 'attendance-details');
+    }
+
+    public function getSelectedDateAttendances()
+    {
+        if (!$this->selectedDate) {
+            return collect();
+        }
+
+        return $this->attendances->filter(function ($att) {
+            return $att->attendance_date->toDateString() === $this->selectedDate;
+        })->sortBy('user.name');
     }
 
     public function getMonthName(): string
