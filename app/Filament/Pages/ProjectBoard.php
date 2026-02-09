@@ -155,14 +155,6 @@ class ProjectBoard extends Page
             ->orderBy('sort_order')
             ->get();
 
-        // Filter out status columns where all tickets are completed
-        $this->ticketStatuses = $this->ticketStatuses->filter(function ($status) {
-            // Keep the status if it has at least one ticket that is not in a completed status
-            return $status->tickets->count() > 0 && !$status->tickets->every(function ($ticket) {
-                return $ticket->status && $ticket->status->is_completed;
-            });
-        });
-
         $this->ticketStatuses->each(function ($status) {
             $sortOrder = $this->sortOrders[$status->id] ?? 'date_created_newest';
             $status->tickets = $this->applySorting($status->tickets, $sortOrder);
