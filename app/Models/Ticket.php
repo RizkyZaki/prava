@@ -48,6 +48,17 @@ class Ticket extends Model
             }
         });
 
+        // Kalau project sudah completed tapi ada ticket baru, reopen otomatis
+        static::created(function ($ticket) {
+            $project = $ticket->project;
+            if ($project && $project->status === 'completed') {
+                $project->update([
+                    'status' => 'active',
+                    'completed_at' => null,
+                ]);
+            }
+        });
+
         static::updating(function ($ticket) {
             if ($ticket->isDirty('ticket_status_id')) {
                 TicketHistory::create([

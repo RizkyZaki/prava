@@ -78,7 +78,7 @@ class ProjectResource extends Resource
                     ->default(true)
                     ->dehydrated(false)
                     ->visible(fn ($livewire) => $livewire instanceof CreateProject),
-                
+
                 Toggle::make('is_pinned')
                     ->label('Pin Project')
                     ->helperText('Pinned projects will appear in the dashboard timeline')
@@ -99,6 +99,32 @@ class ProjectResource extends Resource
                     ->native(false)
                     ->displayFormat('d/m/Y H:i')
                     ->visible(fn ($get) => $get('is_pinned'))
+                    ->dehydrated(true),
+
+                Forms\Components\Select::make('status')
+                    ->label('Project Status')
+                    ->options([
+                        'active' => 'Active',
+                        'completed' => 'Completed',
+                        'on_hold' => 'On Hold',
+                        'cancelled' => 'Cancelled',
+                    ])
+                    ->default('active')
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state, $set) {
+                        if ($state === 'completed') {
+                            $set('completed_at', now());
+                        } else {
+                            $set('completed_at', null);
+                        }
+                    }),
+
+                DateTimePicker::make('completed_at')
+                    ->label('Completed At')
+                    ->native(false)
+                    ->displayFormat('d/m/Y H:i')
+                    ->visible(fn ($get) => $get('status') === 'completed')
                     ->dehydrated(true),
             ]);
     }
@@ -121,7 +147,7 @@ class ProjectResource extends Resource
                         return $record->progress_percentage . '%';
                     })
                     ->badge()
-                    ->color(fn (Project $record): string => 
+                    ->color(fn (Project $record): string =>
                         $record->progress_percentage >= 100 ? 'success' :
                         ($record->progress_percentage >= 75 ? 'info' :
                         ($record->progress_percentage >= 50 ? 'warning' :
@@ -140,15 +166,35 @@ class ProjectResource extends Resource
                         if (!$record->end_date) {
                             return null;
                         }
-                        
+
                         return $record->remaining_days . ' days';
                     })
                     ->badge()
-                    ->color(fn (Project $record): string => 
+                    ->color(fn (Project $record): string =>
                         !$record->end_date ? 'gray' :
-                        ($record->remaining_days <= 0 ? 'danger' : 
+                        ($record->remaining_days <= 0 ? 'danger' :
                         ($record->remaining_days <= 7 ? 'warning' : 'success'))
                     ),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'completed' => 'info',
+                        'on_hold' => 'warning',
+                        'cancelled' => 'danger',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'active' => 'Active',
+                        'completed' => 'Completed',
+                        'on_hold' => 'On Hold',
+                        'cancelled' => 'Cancelled',
+                    })
+                    ->sortable(),
+                TextColumn::make('completed_at')
+                    ->label('Completed')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ToggleColumn::make('is_pinned')
                     ->label('Pinned')
                     ->updateStateUsing(function ($record, $state) {
@@ -177,7 +223,65 @@ class ProjectResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make()
+                EditAction::make(),
+                Action::make('mark_completed')
+                    ->label('Mark as Completed')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalDescription('All tickets in this project will be moved to "Done" status. Are you sure?')
+                    ->visible(fn (Project $record): bool => $record->status !== 'completed')
+                    ->action(function (Project $record) {
+                        // Cari status "done/completed" di project ini
+                        $completedStatus = $record->ticketStatuses()
+                            ->where('is_completed', true)
+                            ->first();
+
+                        if ($completedStatus) {
+                            // Pindahkan semua ticket yang belum done ke status completed
+                            $record->tickets()
+                                ->where('ticket_status_id', '!=', $completedStatus->id)
+                                ->update(['ticket_status_id' => $completedStatus->id]);
+                        }
+
+                        $record->update([
+                            'status' => 'completed',
+                            'completed_at' => now(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Project marked as completed')
+                            ->body('All tickets have been moved to Done.')
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('reopen')
+                    ->label('Reopen Project')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->visible(fn (Project $record): bool => $record->status === 'completed')
+                    ->action(function (Project $record) {
+                        $record->update([
+                            'status' => 'active',
+                            'completed_at' => null,
+                        ]);
+
+                        Notification::make()
+                            ->title('Project reopened')
+                            ->success()
+                            ->send();
+                    }),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'active' => 'Active',
+                        'completed' => 'Completed',
+                        'on_hold' => 'On Hold',
+                        'cancelled' => 'Cancelled',
+                    ])
+                    ->multiple(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

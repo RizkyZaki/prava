@@ -25,8 +25,24 @@ class TicketCommentForm extends Component implements HasForms
                     ->label('Add a Comment')
                     ->placeholder('Write your comment here...')
                     ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsDirectory('attachments')
+                    ->fileAttachmentsDirectory('attachments/comments')
                     ->fileAttachmentsVisibility('public')
+                    ->toolbarButtons([
+                        'attachFiles',
+                        'blockquote',
+                        'bold',
+                        'bulletList',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'strike',
+                        'underline',
+                        'undo',
+                    ])
                     ->required()
                     ->extraInputAttributes(['style' => 'min-height: 10rem;']),
             ]);

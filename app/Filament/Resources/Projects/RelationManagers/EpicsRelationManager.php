@@ -81,11 +81,40 @@ class EpicsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->visible(function () {
+                        $project = $this->getOwnerRecord();
+
+                        // Super admin can always create
+                        if (auth()->user()->hasRole(['super_admin'])) {
+                            return true;
+                        }
+
+                        // Check if user is a member of the project
+                        return $project->members()->where('users.id', auth()->id())->exists();
+                    }),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(function ($record) {
+                        // Super admin can always edit
+                        if (auth()->user()->hasRole(['super_admin'])) {
+                            return true;
+                        }
+
+                        // Check if user is a member of the project
+                        return $record->project->members()->where('users.id', auth()->id())->exists();
+                    }),
+                DeleteAction::make()
+                    ->visible(function ($record) {
+                        // Super admin can always delete
+                        if (auth()->user()->hasRole(['super_admin'])) {
+                            return true;
+                        }
+
+                        // Check if user is a member of the project
+                        return $record->project->members()->where('users.id', auth()->id())->exists();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

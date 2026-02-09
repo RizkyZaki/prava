@@ -12,6 +12,11 @@ class TicketComment extends Model
         'ticket_id',
         'user_id',
         'comment',
+        'attachments',
+    ];
+
+    protected $casts = [
+        'attachments' => 'array',
     ];
 
     protected static function booted()

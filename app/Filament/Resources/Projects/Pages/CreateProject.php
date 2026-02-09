@@ -15,11 +15,11 @@ class CreateProject extends CreateRecord
 
         if ($createDefaultStatuses) {
             $defaultStatuses = [
-                ['name' => 'Backlog', 'color' => '#6B7280', 'sort_order' => 0],
-                ['name' => 'To Do', 'color' => '#F59E0B', 'sort_order' => 1],
-                ['name' => 'In Progress', 'color' => '#3B82F6', 'sort_order' => 2],
-                ['name' => 'Review', 'color' => '#8B5CF6', 'sort_order' => 3],
-                ['name' => 'Done', 'color' => '#10B981', 'sort_order' => 4]
+                ['name' => 'Backlog', 'color' => '#6B7280', 'sort_order' => 0, 'is_completed' => false],
+                ['name' => 'To Do', 'color' => '#F59E0B', 'sort_order' => 1, 'is_completed' => false],
+                ['name' => 'In Progress', 'color' => '#3B82F6', 'sort_order' => 2, 'is_completed' => false],
+                ['name' => 'Review', 'color' => '#8B5CF6', 'sort_order' => 3, 'is_completed' => false],
+                ['name' => 'Done', 'color' => '#10B981', 'sort_order' => 4, 'is_completed' => true],
             ];
 
             foreach ($defaultStatuses as $status) {

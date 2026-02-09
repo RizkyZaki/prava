@@ -54,12 +54,14 @@ class ProjectBoard extends Page
     public function mount($project_id = null): void
     {
         if (auth()->user()->hasRole(['super_admin'])) {
-            $this->projects = Project::orderByRaw('pinned_date IS NULL')
+            $this->projects = Project::where('status', '!=', 'completed')
+                ->orderByRaw('pinned_date IS NULL')
                 ->orderBy('pinned_date', 'desc')
                 ->orderBy('name')
                 ->get();
         } else {
             $this->projects = auth()->user()->projects()
+                ->where('status', '!=', 'completed')
                 ->orderByRaw('pinned_date IS NULL')
                 ->orderBy('pinned_date', 'desc')
                 ->orderBy('name')
@@ -152,6 +154,14 @@ class ProjectBoard extends Page
             ->select('id', 'project_id', 'name', 'color', 'sort_order', 'is_completed')
             ->orderBy('sort_order')
             ->get();
+
+        // Filter out status columns where all tickets are completed
+        $this->ticketStatuses = $this->ticketStatuses->filter(function ($status) {
+            // Keep the status if it has at least one ticket that is not in a completed status
+            return $status->tickets->count() > 0 && !$status->tickets->every(function ($ticket) {
+                return $ticket->status && $ticket->status->is_completed;
+            });
+        });
 
         $this->ticketStatuses->each(function ($status) {
             $sortOrder = $this->sortOrders[$status->id] ?? 'date_created_newest';

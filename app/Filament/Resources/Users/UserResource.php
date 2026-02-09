@@ -16,8 +16,10 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -68,6 +70,10 @@ class UserResource extends Resource
                     ->multiple()
                     ->preload()
                     ->searchable(),
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->helperText('Inactive users cannot log in to the system')
+                    ->default(true),
             ]);
     }
 
@@ -116,6 +122,16 @@ class UserResource extends Resource
                     ->tooltip('Number of tickets created by this user')
                     ->sortable(),
 
+                IconColumn::make('is_active')
+                    ->label('Status')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->tooltip(fn (User $record): string => $record->is_active ? 'Active' : 'Inactive')
+                    ->sortable(),
+
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable()
@@ -154,6 +170,14 @@ class UserResource extends Resource
                 Filter::make('email_unverified')
                     ->label('Email Unverified')
                     ->query(fn (Builder $query): Builder => $query->whereNull('email_verified_at')),
+
+                Filter::make('active')
+                    ->label('Active Users')
+                    ->query(fn (Builder $query): Builder => $query->where('is_active', true)),
+
+                Filter::make('inactive')
+                    ->label('Inactive Users')
+                    ->query(fn (Builder $query): Builder => $query->where('is_active', false)),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -163,7 +187,29 @@ class UserResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
 
-                    // NEW: Bulk action to assign role
+                    // Bulk action to activate users
+                    BulkAction::make('activate')
+                        ->label('Activate Users')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->each->update(['is_active' => true]);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Bulk action to deactivate users
+                    BulkAction::make('deactivate')
+                        ->label('Deactivate Users')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->each->update(['is_active' => false]);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    // Bulk action to assign role
                     BulkAction::make('assignRole')
                         ->label('Assign Role')
                         ->icon('heroicon-o-shield-check')
