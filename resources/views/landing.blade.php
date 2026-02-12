@@ -62,54 +62,7 @@
             background: #ffffff;
         }
 
-        /* Navigation */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 1.5rem 3rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(14, 14, 14, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
 
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo img {
-            height: 44px;
-            width: auto;
-        }
-
-        .nav-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.65rem 1.5rem;
-            background: #fff;
-            color: #0e0e0e;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .nav-btn svg {
-            width: 16px;
-            height: 16px;
-        }
 
         /* Hero Section */
         .hero {
@@ -121,48 +74,30 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 8rem 2rem 6rem;
+            padding: 4rem 2rem 6rem;
         }
 
-        .hero-badge {
-            display: inline-flex;
+        .hero-logos {
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.45rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: #888;
-            letter-spacing: 0.03em;
-            margin-bottom: 2.5rem;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
         }
 
-        .hero-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: #4ade80;
-            border-radius: 50%;
+        .hero-logos .divider {
+            width: 1px;
+            height: 60px;
+            background: #333;
         }
 
-        .hero-logo {
-            margin-bottom: 2.5rem;
-        }
-
-        .hero-logo img {
-            height: 100px;
+        .hero-logos img.logo-pst {
+            height: 70px;
             width: auto;
         }
 
-        .hero-company-logo {
-            margin-bottom: 2rem;
-        }
-
-        .hero-company-logo img {
-            height: 40px;
+        .hero-logos img.logo-prava {
+            height: 140px;
             width: auto;
-            opacity: 0.7;
         }
 
         .hero h1 {
@@ -366,7 +301,23 @@
             }
 
             .hero {
-                padding: 7rem 1.5rem 4rem;
+                padding: 3rem 1.5rem 4rem;
+            }
+
+            .hero-logos {
+                gap: 1.5rem;
+            }
+
+            .hero-logos img.logo-pst {
+                height: 50px;
+            }
+
+            .hero-logos img.logo-prava {
+                height: 100px;
+            }
+
+            .hero-logos .divider {
+                height: 45px;
             }
 
             .hero-actions {
@@ -399,29 +350,12 @@
 <div class="glow-accent glow-1"></div>
 <div class="glow-accent glow-2"></div>
 
-<!-- Navigation -->
-<nav>
-    <div class="logo">
-        <img src="{{ asset('logo-darkmode.png') }}" alt="Prava">
-    </div>
-    <a href="{{ route('filament.admin.auth.login') }}" class="nav-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-            <polyline points="10 17 15 12 10 7"/>
-            <line x1="15" y1="12" x2="3" y2="12"/>
-        </svg>
-        Masuk
-    </a>
-</nav>
-
 <!-- Hero -->
 <section class="hero">
-    <div class="hero-company-logo">
-        <img src="https://pratamatechsolution.co.id/pst-brand-logo-bg-none.png" alt="PT Pratama Teknologi Solusi">
-    </div>
-
-    <div class="hero-logo">
-        <img src="{{ asset('logo-darkmode.png') }}" alt="Prava">
+    <div class="hero-logos">
+        <img src="https://pratamatechsolution.co.id/pst-brand-logo-bg-none.png" alt="PT Pratama Teknologi Solusi" class="logo-pst">
+        <div class="divider"></div>
+        <img src="{{ asset('logo-darkmode.png') }}" alt="Prava" class="logo-prava">
     </div>
 
     <h1>Sistem ERP Internal</h1>
