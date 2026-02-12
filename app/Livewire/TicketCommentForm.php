@@ -5,14 +5,17 @@ namespace App\Livewire;
 use App\Models\Ticket;
 use Livewire\Component;
 use Filament\Schemas\Schema;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Concerns\InteractsWithForms;
 
-class TicketCommentForm extends Component implements HasForms
+class TicketCommentForm extends Component implements HasForms, HasActions
 {
     use InteractsWithForms;
+    use InteractsWithActions;
 
     public Ticket $ticket;
     public $newComment = '';
@@ -27,6 +30,13 @@ class TicketCommentForm extends Component implements HasForms
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('attachments/comments')
                     ->fileAttachmentsVisibility('public')
+                    ->fileAttachmentsAcceptedFileTypes([
+                        'image/jpeg',
+                        'image/png',
+                        'image/gif',
+                        'image/webp',
+                        'application/pdf',
+                    ])
                     ->toolbarButtons([
                         'attachFiles',
                         'blockquote',
