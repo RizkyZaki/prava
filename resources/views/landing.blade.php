@@ -101,19 +101,31 @@
         }
 
         .hero h1 {
-            font-size: clamp(2rem, 4vw, 3rem);
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .hero-brand {
+            font-size: clamp(3.5rem, 8vw, 6rem);
             font-weight: 700;
             letter-spacing: -0.03em;
-            line-height: 1.15;
-            margin-bottom: 1rem;
-            max-width: 600px;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero p {
             font-size: 1.05rem;
             color: #777;
             line-height: 1.7;
-            max-width: 460px;
+            max-width: 520px;
             font-weight: 300;
             margin-bottom: 2.5rem;
         }
@@ -360,8 +372,10 @@
 
     <h1>Sistem ERP Internal</h1>
 
+    <div class="hero-brand">PRAVA</div>
+
     <p>
-        Platform terpadu untuk mengelola proyek, tiket, tim, keuangan, dan pelaporan operasional perusahaan.
+        Aplikasi internal PT Pratama Teknologi Solusi untuk pengelolaan proyek, tiket & helpdesk, manajemen tim, absensi & kehadiran, penggajian, serta pelaporan operasional — terintegrasi dalam satu platform.
     </p>
 
     <div class="hero-actions">
