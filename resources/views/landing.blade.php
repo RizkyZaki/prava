@@ -79,19 +79,13 @@
         }
 
         .logo {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: #fff;
+            display: flex;
+            align-items: center;
         }
 
-        .logo span {
-            color: #555;
-            font-weight: 400;
-            font-size: 0.85rem;
-            margin-left: 0.75rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+        .logo img {
+            height: 32px;
+            width: auto;
         }
 
         .nav-btn {
@@ -152,26 +146,31 @@
             border-radius: 50%;
         }
 
-        .hero h1 {
-            font-size: clamp(3rem, 7vw, 5.5rem);
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-            margin-bottom: 1.5rem;
-            max-width: 800px;
+        .hero-logo {
+            margin-bottom: 2rem;
         }
 
-        .hero h1 .text-dim {
-            color: #444;
+        .hero-logo img {
+            height: 64px;
+            width: auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            max-width: 600px;
         }
 
         .hero p {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             color: #777;
             line-height: 1.7;
-            max-width: 520px;
+            max-width: 460px;
             font-weight: 300;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
         }
 
         .hero-actions {
@@ -320,62 +319,7 @@
             font-weight: 300;
         }
 
-        /* Stats Section */
-        .stats {
-            position: relative;
-            z-index: 1;
-            padding: 5rem 2rem;
-            max-width: 900px;
-            margin: 0 auto;
-        }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            text-align: center;
-        }
-
-        .stat-item h4 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-item p {
-            font-size: 0.8rem;
-            color: #555;
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        /* CTA Section */
-        .cta {
-            position: relative;
-            z-index: 1;
-            padding: 6rem 2rem 4rem;
-            text-align: center;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 1rem;
-        }
-
-        .cta p {
-            font-size: 1rem;
-            color: #666;
-            font-weight: 300;
-            margin-bottom: 2.5rem;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.6;
-        }
 
         /* Footer */
         footer {
@@ -411,10 +355,6 @@
                 padding: 1rem 1.5rem;
             }
 
-            .logo span {
-                display: none;
-            }
-
             .hero {
                 padding: 7rem 1.5rem 4rem;
             }
@@ -435,11 +375,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 2.5rem;
-            }
-
             footer {
                 flex-direction: column;
                 gap: 1rem;
@@ -457,7 +392,7 @@
 <!-- Navigation -->
 <nav>
     <div class="logo">
-        Prava<span>ERP System</span>
+        <img src="{{ asset('logo-darkmode.png') }}" alt="Prava">
     </div>
     <a href="{{ route('filament.admin.auth.login') }}" class="nav-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -473,24 +408,24 @@
 <section class="hero">
     <div class="hero-badge">PT Pratama Teknologi Solusi</div>
 
-    <h1>
-        Kelola Bisnis<br>
-        <span class="text-dim">Lebih Cerdas.</span>
-    </h1>
+    <div class="hero-logo">
+        <img src="{{ asset('logo-darkmode.png') }}" alt="Prava">
+    </div>
+
+    <h1>Sistem ERP Internal</h1>
 
     <p>
-        Prava adalah sistem Enterprise Resource Planning yang dirancang untuk menyederhanakan operasional bisnis Anda secara menyeluruh — dari proyek hingga pelaporan.
+        Platform terpadu untuk mengelola proyek, tiket, tim, keuangan, dan pelaporan operasional perusahaan.
     </p>
 
     <div class="hero-actions">
         <a href="{{ route('filament.admin.auth.login') }}" class="btn-primary">
-            Mulai Sekarang
+            Masuk
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/>
                 <polyline points="12 5 19 12 12 19"/>
             </svg>
         </a>
-        <a href="#fitur" class="btn-secondary">Pelajari Fitur</a>
     </div>
 </section>
 
@@ -498,9 +433,9 @@
 
 <!-- Features -->
 <section class="features" id="fitur">
-    <div class="section-label">Fitur Utama</div>
-    <h2 class="section-title">Semua yang Anda Butuhkan</h2>
-    <p class="section-subtitle">Satu platform terintegrasi untuk mengelola seluruh aspek operasional perusahaan Anda.</p>
+    <div class="section-label">Modul</div>
+    <h2 class="section-title">Fitur yang Tersedia</h2>
+    <p class="section-subtitle">Modul-modul yang terintegrasi dalam sistem Prava.</p>
 
     <div class="features-grid">
         <!-- Feature 1 -->
@@ -514,7 +449,7 @@
                 </svg>
             </div>
             <h3>Manajemen Proyek</h3>
-            <p>Pantau progres proyek secara real-time dengan timeline, tiket, dan pelaporan yang terintegrasi.</p>
+            <p>Pengelolaan proyek dengan timeline, milestone, dan tracking progres.</p>
         </div>
 
         <!-- Feature 2 -->
@@ -528,7 +463,7 @@
                 </svg>
             </div>
             <h3>Tim & Kolaborasi</h3>
-            <p>Kelola anggota tim, tetapkan peran, dan fasilitasi kolaborasi lintas departemen.</p>
+            <p>Pengaturan anggota tim, peran, dan koordinasi antar departemen.</p>
         </div>
 
         <!-- Feature 3 -->
@@ -540,7 +475,7 @@
                 </svg>
             </div>
             <h3>Keuangan</h3>
-            <p>Lacak anggaran, pengeluaran, dan buat laporan keuangan dengan akurat dan efisien.</p>
+            <p>Pencatatan anggaran, pengeluaran, dan laporan keuangan.</p>
         </div>
 
         <!-- Feature 4 -->
@@ -555,7 +490,7 @@
                 </svg>
             </div>
             <h3>Tiket & Helpdesk</h3>
-            <p>Sistem tiket terintegrasi untuk menangani permintaan dan melacak penyelesaian masalah.</p>
+            <p>Sistem tiket untuk pencatatan permintaan dan pelacakan penyelesaian.</p>
         </div>
 
         <!-- Feature 5 -->
@@ -568,7 +503,7 @@
                 </svg>
             </div>
             <h3>Laporan & Analitik</h3>
-            <p>Dapatkan insight bisnis melalui dashboard analitik dan laporan yang dapat diekspor.</p>
+            <p>Dashboard analitik dan laporan yang dapat diekspor.</p>
         </div>
 
         <!-- Feature 6 -->
@@ -579,48 +514,13 @@
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
             </div>
-            <h3>Keamanan Data</h3>
-            <p>Perlindungan data berlapis dengan kontrol akses berbasis peran dan enkripsi end-to-end.</p>
+            <h3>Kontrol Akses</h3>
+            <p>Manajemen hak akses berbasis peran untuk setiap pengguna.</p>
         </div>
     </div>
 </section>
 
-<!-- Stats -->
-<section class="stats">
-    <div class="section-divider" style="margin-bottom: 5rem;"></div>
-    <div class="stats-grid">
-        <div class="stat-item">
-            <h4>99.9%</h4>
-            <p>Uptime</p>
-        </div>
-        <div class="stat-item">
-            <h4>24/7</h4>
-            <p>Support</p>
-        </div>
-        <div class="stat-item">
-            <h4>100+</h4>
-            <p>Fitur</p>
-        </div>
-        <div class="stat-item">
-            <h4>∞</h4>
-            <p>Skalabilitas</p>
-        </div>
-    </div>
-</section>
 
-<!-- CTA -->
-<section class="cta">
-    <div class="section-divider" style="margin-bottom: 4rem;"></div>
-    <h2>Siap untuk Memulai?</h2>
-    <p>Optimalkan operasional bisnis Anda hari ini dengan Prava ERP.</p>
-    <a href="{{ route('filament.admin.auth.login') }}" class="btn-primary">
-        Masuk ke Dashboard
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
-            <line x1="5" y1="12" x2="19" y2="12"/>
-            <polyline points="12 5 19 12 12 19"/>
-        </svg>
-    </a>
-</section>
 
 <!-- Footer -->
 <footer>
