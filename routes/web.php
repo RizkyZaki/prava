@@ -18,3 +18,19 @@ Route::prefix('external')->name('external.')->group(function () {
     Route::get('/{token}', ExternalLogin::class)->name('login');
     Route::get('/{token}/dashboard', ExternalDashboard::class)->name('dashboard');
 });
+
+// Error Pages Preview (dev only)
+Route::prefix('error-preview')->group(function () {
+    Route::get('/', function () {
+        $errors = [403, 404, 419, 500, 503];
+        return view('errors.preview', compact('errors'));
+    })->name('error.preview');
+
+    Route::get('/{code}', function ($code) {
+        $validCodes = [403, 404, 419, 500, 503];
+        if (!in_array((int) $code, $validCodes)) {
+            abort(404);
+        }
+        return response()->view("errors.{$code}", [], (int) $code);
+    })->name('error.show');
+});
