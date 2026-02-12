@@ -84,7 +84,7 @@
         }
 
         .logo img {
-            height: 32px;
+            height: 44px;
             width: auto;
         }
 
@@ -147,12 +147,22 @@
         }
 
         .hero-logo {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .hero-logo img {
-            height: 64px;
+            height: 100px;
             width: auto;
+        }
+
+        .hero-company-logo {
+            margin-bottom: 2rem;
+        }
+
+        .hero-company-logo img {
+            height: 40px;
+            width: auto;
+            opacity: 0.7;
         }
 
         .hero h1 {
@@ -406,7 +416,9 @@
 
 <!-- Hero -->
 <section class="hero">
-    <div class="hero-badge">PT Pratama Teknologi Solusi</div>
+    <div class="hero-company-logo">
+        <img src="https://pratamatechsolution.co.id/pst-brand-logo-bg-none.png" alt="PT Pratama Teknologi Solusi">
+    </div>
 
     <div class="hero-logo">
         <img src="{{ asset('logo-darkmode.png') }}" alt="Prava">
