@@ -6,6 +6,8 @@ use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\EditorCommand;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -30,6 +32,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
+use Filament\Support\Enums\Width;
+use Livewire\Component;
 use App\Models\Epic;
 
 class TicketResource extends Resource
@@ -118,11 +123,11 @@ class TicketResource extends Resource
                     ->label('Epic')
                     ->options(function (callable $get) {
                         $projectId = $get('project_id');
-                        
+
                         if (!$projectId) {
                             return [];
                         }
-                        
+
                         return Epic::where('project_id', $projectId)
                             ->pluck('name', 'id')
                             ->toArray();
@@ -139,7 +144,125 @@ class TicketResource extends Resource
 
                 RichEditor::make('description')
                     ->label('Description')
+                    ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('attachments')
+                    ->fileAttachmentsVisibility('public')
+                    ->fileAttachmentsAcceptedFileTypes([
+                        'image/jpeg',
+                        'image/png',
+                        'image/gif',
+                        'image/webp',
+                        'application/pdf',
+                    ])
+                    ->registerActions([
+                        Action::make('attachFiles')
+                            ->label(__('filament-forms::components.rich_editor.actions.attach_files.label'))
+                            ->modalHeading(__('filament-forms::components.rich_editor.actions.attach_files.modal.heading'))
+                            ->modalWidth(Width::Large)
+                            ->fillForm(fn (array $arguments): array => [
+                                'alt' => $arguments['alt'] ?? null,
+                            ])
+                            ->schema(fn (array $arguments, RichEditor $component): array => [
+                                FileUpload::make('file')
+                                    ->label(filled($arguments['src'] ?? null)
+                                        ? __('filament-forms::components.rich_editor.actions.attach_files.modal.form.file.label.existing')
+                                        : __('filament-forms::components.rich_editor.actions.attach_files.modal.form.file.label.new'))
+                                    ->acceptedFileTypes($component->getFileAttachmentsAcceptedFileTypes())
+                                    ->maxSize($component->getFileAttachmentsMaxSize())
+                                    ->storeFiles(false)
+                                    ->required(blank($arguments['src'] ?? null))
+                                    ->hiddenLabel(blank($arguments['src'] ?? null)),
+                                TextInput::make('alt')
+                                    ->label(filled($arguments['src'] ?? null)
+                                        ? __('filament-forms::components.rich_editor.actions.attach_files.modal.form.alt.label.existing')
+                                        : __('filament-forms::components.rich_editor.actions.attach_files.modal.form.alt.label.new'))
+                                    ->maxLength(1000),
+                            ])
+                            ->action(function (array $arguments, array $data, RichEditor $component, Component $livewire): void {
+                                if ($data['file'] ?? null) {
+                                    $id = (string) Str::orderedUuid();
+                                    $file = $data['file'];
+                                    $isImage = Str::startsWith($file->getMimeType(), 'image/');
+                                    $fileName = $file->getClientOriginalName();
+
+                                    data_set($livewire, "componentFileAttachments.{$component->getStatePath()}.{$id}", $file);
+                                    $src = $component->getUploadedFileAttachmentTemporaryUrl($file);
+                                }
+
+                                if (filled($arguments['src'] ?? null)) {
+                                    if ($arguments['editorSelection']['type'] !== 'node') {
+                                        $arguments['editorSelection']['type'] = 'node';
+                                        $arguments['editorSelection']['anchor']--;
+                                        unset($arguments['editorSelection']['head']);
+                                    }
+
+                                    $id ??= $arguments['id'] ?? null;
+                                    $src ??= $arguments['src'];
+
+                                    $component->runCommands(
+                                        [
+                                            EditorCommand::make('updateAttributes', arguments: [
+                                                'image',
+                                                [
+                                                    'alt' => $data['alt'] ?? null,
+                                                    'id' => $id,
+                                                    'src' => $src,
+                                                ],
+                                            ]),
+                                        ],
+                                        editorSelection: $arguments['editorSelection'],
+                                    );
+
+                                    return;
+                                }
+
+                                if (blank($id ?? null) || blank($src ?? null)) {
+                                    return;
+                                }
+
+                                if ($isImage ?? true) {
+                                    $component->runCommands(
+                                        [
+                                            EditorCommand::make('insertContent', arguments: [[
+                                                'type' => 'image',
+                                                'attrs' => [
+                                                    'alt' => $data['alt'] ?? null,
+                                                    'id' => $id,
+                                                    'src' => $src,
+                                                ],
+                                            ]]),
+                                        ],
+                                        editorSelection: $arguments['editorSelection'],
+                                    );
+                                } else {
+                                    $label = $data['alt'] ?? ($fileName ?? 'Lampiran');
+                                    $component->runCommands(
+                                        [
+                                            EditorCommand::make('insertContent', arguments: [
+                                                '<a href="' . e($src) . '" target="_blank" rel="noopener noreferrer">📎 ' . e($label) . '</a> ',
+                                            ]),
+                                        ],
+                                        editorSelection: $arguments['editorSelection'],
+                                    );
+                                }
+                            }),
+                    ])
+                    ->toolbarButtons([
+                        'attachFiles',
+                        'blockquote',
+                        'bold',
+                        'bulletList',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'strike',
+                        'underline',
+                        'undo',
+                    ])
                     ->columnSpanFull(),
 
                 // Multi-user assignment
@@ -170,12 +293,12 @@ class TicketResource extends Resource
                     ->helperText('Select multiple users to assign this ticket to. Only project members can be assigned.')
                     ->hidden(fn (callable $get): bool => !$get('project_id'))
                     ->live(),
-                
+
                 DatePicker::make('start_date')
                     ->label('Start Date')
                     ->default(now())
                     ->nullable(),
-                
+
                 DatePicker::make('due_date')
                     ->label('Due Date')
                     ->nullable(),
@@ -248,7 +371,7 @@ class TicketResource extends Resource
                     ->label('Due Date')
                     ->date()
                     ->sortable(),
-                    
+
                 TextColumn::make('epic.name')
                     ->label('Epic')
                     ->sortable()
@@ -268,37 +391,37 @@ class TicketResource extends Resource
                         if (auth()->user()->hasRole(['super_admin'])) {
                             return Project::pluck('name', 'id')->toArray();
                         }
-            
+
                         return auth()->user()->projects()->pluck('name', 'projects.id')->toArray();
                     })
                     ->searchable()
                     ->preload(),
-            
+
                 SelectFilter::make('ticket_status_id')
                     ->label('Status')
                     ->options(function () {
                         $projectId = request()->input('tableFilters.project_id');
-                        
+
                         if (!$projectId) {
                             return [];
                         }
-                        
+
                         return TicketStatus::where('project_id', $projectId)
                             ->pluck('name', 'id')
                             ->toArray();
                     })
                     ->searchable()
                     ->preload(),
-                    
+
                 SelectFilter::make('epic_id')
                     ->label('Epic')
                     ->options(function () {
                         $projectId = request()->input('tableFilters.project_id');
-                        
+
                         if (!$projectId) {
                             return [];
                         }
-                        
+
                         return Epic::where('project_id', $projectId)
                             ->pluck('name', 'id')
                             ->toArray();
@@ -326,7 +449,7 @@ class TicketResource extends Resource
                     ->relationship('creator', 'name')
                     ->searchable()
                     ->preload(),
-            
+
                 Filter::make('due_date')
                     ->schema([
                         DatePicker::make('due_from'),
