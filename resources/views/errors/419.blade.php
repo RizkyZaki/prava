@@ -9,73 +9,28 @@
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #fafafa;
-            color: #111;
+            background: #0e0e0e;
+            color: #e5e5e5;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .page {
-            text-align: center;
-            padding: 2rem;
-            max-width: 460px;
-        }
-        .code {
-            font-size: 7rem;
-            font-weight: 600;
-            letter-spacing: -4px;
-            color: #111;
-            line-height: 1;
-        }
-        .divider {
-            width: 40px;
-            height: 3px;
-            background: #111;
-            margin: 1.5rem auto;
-            border-radius: 2px;
-        }
-        h1 {
-            font-size: 1.15rem;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-            letter-spacing: -0.01em;
-        }
-        p {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.7;
-            margin-bottom: 2rem;
-        }
-        .actions {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-        }
+        .page { text-align: center; padding: 2rem; max-width: 460px; }
+        .code { font-size: 7rem; font-weight: 600; letter-spacing: -4px; color: #fff; line-height: 1; }
+        .divider { width: 40px; height: 3px; background: #333; margin: 1.5rem auto; border-radius: 2px; }
+        h1 { font-size: 1.15rem; font-weight: 500; margin-bottom: 0.75rem; color: #fff; }
+        p { font-size: 0.9rem; color: #777; line-height: 1.7; margin-bottom: 2rem; }
+        .actions { display: flex; gap: 0.75rem; justify-content: center; }
         a {
-            font-family: inherit;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-decoration: none;
-            padding: 10px 24px;
-            border-radius: 6px;
+            font-family: inherit; font-size: 0.8rem; font-weight: 500;
+            text-decoration: none; padding: 10px 24px; border-radius: 6px;
             transition: all 0.2s ease;
         }
-        .btn-dark {
-            background: #111;
-            color: #fff;
-        }
-        .btn-dark:hover {
-            background: #333;
-        }
-        .btn-light {
-            background: transparent;
-            color: #111;
-            border: 1px solid #ddd;
-        }
-        .btn-light:hover {
-            border-color: #999;
-        }
+        .btn-light { background: #fff; color: #0e0e0e; }
+        .btn-light:hover { background: #e0e0e0; }
+        .btn-outline { background: transparent; color: #999; border: 1px solid #2a2a2a; }
+        .btn-outline:hover { border-color: #555; color: #fff; }
     </style>
 </head>
 <body>
@@ -85,8 +40,8 @@
         <h1>Sesi Kedaluwarsa</h1>
         <p>Sesi Anda telah berakhir karena tidak ada aktivitas. Silakan muat ulang halaman dan coba lagi.</p>
         <div class="actions">
-            <a href="javascript:location.reload()" class="btn-dark">Muat Ulang</a>
-            <a href="{{ url('/') }}" class="btn-light">Beranda</a>
+            <a href="javascript:location.reload()" class="btn-light">Muat Ulang</a>
+            <a href="{{ url('/') }}" class="btn-outline">Beranda</a>
         </div>
     </div>
 </body>

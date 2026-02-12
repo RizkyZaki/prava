@@ -6,7 +6,7 @@ use App\Livewire\ExternalDashboard;
 use App\Http\Controllers\Auth\GoogleController;
 
 Route::get('/', function () {
-    return redirect()->route('filament.admin.auth.login');
+    return view('landing');
 });
 
 // Google Authentication Routes
