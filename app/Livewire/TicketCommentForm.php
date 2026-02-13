@@ -53,13 +53,16 @@ class TicketCommentForm extends Component implements HasForms, HasActions
             ])
             ->action(function (array $arguments, array $data, RichEditor $component, Component $livewire): void {
                 if ($data['file'] ?? null) {
-                    $id = (string) Str::orderedUuid();
                     $file = $data['file'];
                     $isImage = Str::startsWith($file->getMimeType(), 'image/');
                     $fileName = $file->getClientOriginalName();
 
-                    data_set($livewire, "componentFileAttachments.{$component->getStatePath()}.{$id}", $file);
-                    $src = $component->getUploadedFileAttachmentTemporaryUrl($file);
+                    // Store file permanently to public disk
+                    $disk = $component->getFileAttachmentsDisk() ?? 'public';
+                    $directory = $component->getFileAttachmentsDirectory() ?? 'attachments/comments';
+                    $storedPath = $file->store($directory, $disk);
+                    $src = asset('storage/' . $storedPath);
+                    $id = (string) Str::orderedUuid();
                 }
 
                 if (filled($arguments['src'] ?? null)) {
