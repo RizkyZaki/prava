@@ -58,9 +58,8 @@ class TicketCommentForm extends Component implements HasForms, HasActions
                     $fileName = $file->getClientOriginalName();
 
                     // Store file permanently to public disk
-                    $disk = $component->getFileAttachmentsDisk() ?? 'public';
-                    $directory = $component->getFileAttachmentsDirectory() ?? 'attachments/comments';
-                    $storedPath = $file->store($directory, $disk);
+                    $directory = 'attachments/comments';
+                    $storedPath = $file->store($directory, 'public');
                     $src = asset('storage/' . $storedPath);
                     $id = (string) Str::orderedUuid();
                 }

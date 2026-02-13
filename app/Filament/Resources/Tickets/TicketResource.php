@@ -185,9 +185,8 @@ class TicketResource extends Resource
                                     $fileName = $file->getClientOriginalName();
 
                                     // Store file permanently to public disk
-                                    $disk = $component->getFileAttachmentsDisk() ?? 'public';
-                                    $directory = $component->getFileAttachmentsDirectory() ?? 'attachments';
-                                    $storedPath = $file->store($directory, $disk);
+                                    $directory = 'attachments';
+                                    $storedPath = $file->store($directory, 'public');
                                     $src = asset('storage/' . $storedPath);
                                     $id = (string) Str::orderedUuid();
                                 }
