@@ -85,6 +85,11 @@ class Project extends Model
         return $this->hasMany(Disbursement::class);
     }
 
+    public function projectItems(): HasMany
+    {
+        return $this->hasMany(ProjectItem::class);
+    }
+
     public function getTotalExpensesAttribute(): float
     {
         return $this->expenses()->where('status', 'approved')->sum('amount');
@@ -93,6 +98,11 @@ class Project extends Model
     public function getTotalDisbursementsAttribute(): float
     {
         return $this->disbursements()->sum('amount');
+    }
+
+    public function getTotalItemsValueAttribute(): float
+    {
+        return $this->projectItems()->sum('total_price');
     }
 
     public function ticketStatuses(): HasMany

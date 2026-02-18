@@ -8,6 +8,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Repeater;
 use App\Filament\Resources\Projects\Pages\CreateProject;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -155,6 +156,68 @@ class ProjectResource extends Resource
                     ->helperText('Nilai kontrak project ini (pemasukan)')
                     ->nullable()
                     ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance'])),
+
+                Repeater::make('projectItems')
+                    ->relationship('projectItems')
+                    ->label('Breakdown Item Kegiatan/Pengadaan')
+                    ->schema([
+                        TextInput::make('item_name')
+                            ->label('Nama Item / Barang / Jasa')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(2),
+                        Textarea::make('description')
+                            ->label('Keterangan')
+                            ->maxLength(500)
+                            ->rows(2)
+                            ->columnSpan(2),
+                        TextInput::make('quantity')
+                            ->label('Jumlah')
+                            ->numeric()
+                            ->default(1)
+                            ->minValue(0.01)
+                            ->step(0.01)
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                $qty = floatval($state ?? 1);
+                                $unitPrice = floatval($get('unit_price') ?? 0);
+                                $set('total_price', $qty * $unitPrice);
+                            }),
+                        TextInput::make('unit')
+                            ->label('Satuan')
+                            ->default('unit')
+                            ->placeholder('pcs, unit, paket, bulan, dll')
+                            ->required()
+                            ->maxLength(50),
+                        TextInput::make('unit_price')
+                            ->label('Harga Satuan')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->required()
+                            ->minValue(0)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                $qty = floatval($get('quantity') ?? 1);
+                                $unitPrice = floatval($state ?? 0);
+                                $set('total_price', $qty * $unitPrice);
+                            }),
+                        TextInput::make('total_price')
+                            ->label('Total Harga')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->dehydrated()
+                            ->required(),
+                    ])
+                    ->columns(4)
+                    ->reorderable()
+                    ->collapsible()
+                    ->itemLabel(fn (array $state): ?string => $state['item_name'] ?? null)
+                    ->collapsed()
+                    ->addActionLabel('Tambah Item')
+                    ->helperText('Optional. Breakdown barang/jasa untuk project pengadaan atau hybrid.')
+                    ->columnSpanFull(),
 
                 ColorPicker::make('color')
                     ->label('Project Color')

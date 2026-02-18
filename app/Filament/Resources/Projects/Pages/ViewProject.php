@@ -49,12 +49,33 @@ class ViewProject extends ViewRecord
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
                 ->form([
+                    Select::make('cash_account_id')
+                        ->label('Sumber Dana Tujuan')
+                        ->options(function () {
+                            if (!$this->record->company_id) return [];
+                            return CashAccount::where('company_id', $this->record->company_id)
+                                ->where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
+                        ->required()
+                        ->searchable()
+                        ->helperText('Pilih rekening/kas tujuan pencairan'),
                     TextInput::make('amount')
                         ->label('Nominal Pencairan')
                         ->numeric()
                         ->prefix('Rp')
                         ->required()
-                        ->minValue(1),
+                        ->minValue(1)
+                        ->maxValue(fn () => $this->record->project_value ?? 99999999999)
+                        ->default(fn () => max(0, $this->record->total_expenses - $this->record->total_disbursements))
+                        ->helperText(function () {
+                            $totalExpenses = $this->record->total_expenses;
+                            $totalDisbursements = $this->record->total_disbursements;
+                            $sisaBelumCair = max(0, $totalExpenses - $totalDisbursements);
+                            $maxNilai = $this->record->project_value ?? 0;
+                            return 'Max: Rp ' . number_format($maxNilai, 0, ',', '.') . ' (Nilai Kegiatan) | ' .
+                                   'Sisa Belum Dicairkan: Rp ' . number_format($sisaBelumCair, 0, ',', '.');
+                        }),
                     DatePicker::make('disbursement_date')
                         ->label('Tanggal Pencairan')
                         ->required()
@@ -77,18 +98,13 @@ class ViewProject extends ViewRecord
                         'created_by' => auth()->id(),
                     ]);
 
-                    if ($record->company_id) {
-                        $cashAccount = \App\Models\CashAccount::where('company_id', $record->company_id)
-                            ->where('is_active', true)
-                            ->first();
-
-                        if ($cashAccount) {
-                            Income::create([
-                                'company_id' => $record->company_id,
-                                'cash_account_id' => $cashAccount->id,
-                                'project_id' => $record->id,
-                                'title' => 'Pencairan: ' . $record->name . ' - ' . ($data['description'] ?? 'Pencairan'),
-                                'amount' => $data['amount'],
+                    if ($record->company_id && isset($data['cash_account_id'])) {
+                        Income::create([
+                            'company_id' => $record->company_id,
+                            'cash_account_id' => $data['cash_account_id'],
+                            'project_id' => $record->id,
+                            'title' => 'Pencairan: ' . $record->name . ' - ' . ($data['description'] ?? 'Pencairan'),
+                            'amount' => $data['amount'],
                                 'income_date' => $data['disbursement_date'],
                                 'source' => 'project',
                                 'status' => 'approved',
@@ -96,8 +112,10 @@ class ViewProject extends ViewRecord
                                 'approved_by' => auth()->id(),
                             ]);
 
-                            $cashAccount->recalculateBalance();
-                        }
+                            $cashAccount = CashAccount::find($data['cash_account_id']);
+                            if ($cashAccount) {
+                                $cashAccount->recalculateBalance();
+                            }
                     }
 
                     Notification::make()
@@ -111,6 +129,8 @@ class ViewProject extends ViewRecord
                 ->label('Pengeluaran')
                 ->icon('heroicon-o-arrow-trending-down')
                 ->color('danger')
+                ->disabled(fn () => $this->record->disbursements()->exists())
+                ->tooltip(fn () => $this->record->disbursements()->exists() ? 'Tidak dapat menambah pengeluaran setelah ada pencairan' : null)
                 ->form([
                     Select::make('company_id')
                         ->label('Perusahaan')
@@ -357,6 +377,20 @@ class ViewProject extends ViewRecord
                                 \Filament\Infolists\Components\ViewEntry::make('finance_section')
                                     ->view('filament.components.project-finance-section')
                                     ->columnSpanFull(),
+                            ]),
+
+                        Tab::make('Breakdown Items')
+                            ->icon('heroicon-o-clipboard-document-list')
+                            ->visible(fn () => $this->record->projectItems()->exists())
+                            ->badge(fn () => $this->record->projectItems()->count())
+                            ->schema([
+                                Section::make('Item Kegiatan/Pengadaan')
+                                    ->description('Detail barang/jasa yang termasuk dalam project ini')
+                                    ->schema([
+                                        \Filament\Infolists\Components\ViewEntry::make('items_section')
+                                            ->view('filament.components.project-items-section')
+                                            ->columnSpanFull(),
+                                    ]),
                             ]),
                     ])
                     ->columnSpanFull(),

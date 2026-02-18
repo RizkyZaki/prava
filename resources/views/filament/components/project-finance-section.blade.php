@@ -5,7 +5,6 @@
     $totalExpenses = $record->total_expenses;
     $totalDisbursements = $record->total_disbursements;
     $projectValue = $record->project_value ?? 0;
-    $sisa = $totalDisbursements - $totalExpenses;
 
     // Monthly data for chart (last 6 months)
     $months = collect();
@@ -35,7 +34,7 @@
 
 <div class="space-y-6">
     {{-- Summary Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-center">
             <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">Nilai Kontrak</p>
             <p class="text-lg font-bold text-blue-700 dark:text-blue-300">Rp {{ number_format($projectValue, 0, ',', '.') }}</p>
@@ -47,10 +46,6 @@
         <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
             <p class="text-xs text-red-600 dark:text-red-400 font-medium">Total Pengeluaran</p>
             <p class="text-lg font-bold text-red-700 dark:text-red-300">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-50 dark:bg-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-900/20 border border-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-200 dark:border-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-800 rounded-lg p-4 text-center">
-            <p class="text-xs text-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-600 dark:text-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-400 font-medium">Sisa Dana</p>
-            <p class="text-lg font-bold text-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-700 dark:text-{{ $sisa >= 0 ? 'emerald' : 'orange' }}-300">Rp {{ number_format($sisa, 0, ',', '.') }}</p>
         </div>
     </div>
 
