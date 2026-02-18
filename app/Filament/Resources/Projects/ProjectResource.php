@@ -421,12 +421,13 @@ class ProjectResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        $userIsSuperAdmin = auth()->user() && (
-            (method_exists(auth()->user(), 'hasRole') && auth()->user()->hasRole('super_admin'))
-            || (isset(auth()->user()->role) && auth()->user()->role === 'super_admin')
+        $user = auth()->user();
+        $canSeeAll = $user && (
+            (method_exists($user, 'hasRole') && $user->hasRole(['super_admin', 'finance']))
+            || (isset($user->role) && $user->role === 'super_admin')
         );
 
-        if (! $userIsSuperAdmin) {
+        if (! $canSeeAll) {
             $query->whereHas('members', function (Builder $query) {
                 $query->where('user_id', auth()->id());
             });
