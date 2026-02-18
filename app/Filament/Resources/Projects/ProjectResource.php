@@ -140,7 +140,8 @@ class ProjectResource extends Resource
                     ->numeric()
                     ->prefix('Rp')
                     ->helperText('Nilai kontrak project ini (pemasukan)')
-                    ->nullable(),
+                    ->nullable()
+                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
 
                 ColorPicker::make('color')
                     ->label('Project Color')

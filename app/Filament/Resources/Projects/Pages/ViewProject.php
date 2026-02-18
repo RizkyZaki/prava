@@ -102,7 +102,8 @@ class ViewProject extends ViewRecord
                                     ->getStateUsing(fn ($record) => $record->total_expenses)
                                     ->badge()
                                     ->color(fn ($record) => $record->project_value && $record->total_expenses > $record->project_value ? 'danger' : 'success'),
-                            ]),
+                            ])
+                            ->visible(fn () => auth()->user()->hasRole('super_admin')),
                         TextEntry::make('description')
                             ->label('Description')
                             ->html()
