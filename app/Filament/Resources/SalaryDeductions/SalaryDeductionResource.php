@@ -6,7 +6,7 @@ use App\Filament\Resources\SalaryDeductions\Pages\ListSalaryDeductions;
 use App\Models\SalaryDeduction;
 use Filament\Resources\Resource;
 use Filament\Actions\Action;
-use Filament\Tables\Actions\BulkAction;
+use Filament\Actions\BulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
