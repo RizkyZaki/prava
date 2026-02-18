@@ -72,10 +72,7 @@ class ProjectResource extends Resource
                             ->required()
                             ->maxLength(255),
                     ])
-                    ->createOptionUsing(function (array $data): int {
-                        return Region::create($data)->getKey();
-                    })
-                    ->helperText('Pilih atau tambahkan wilayah baru'),
+                    ->helperText('Ketik untuk cari, atau tambahkan baru dengan klik +'),
 
                 Forms\Components\Select::make('institution_id')
                     ->label('Instansi')
@@ -96,15 +93,27 @@ class ProjectResource extends Resource
                             ->default('government')
                             ->required(),
                     ])
-                    ->createOptionUsing(function (array $data): int {
-                        return Institution::create($data)->getKey();
-                    })
-                    ->helperText('Contoh: Disdik, Dinkes, atau perusahaan swasta'),
+                    ->helperText('Ketik untuk cari, atau tambahkan baru dengan klik +'),
 
-                TextInput::make('sub_institution')
+                Forms\Components\Select::make('sub_institution')
                     ->label('Sub Instansi')
-                    ->maxLength(255)
-                    ->helperText('Opsional, bisa dikosongkan'),
+                    ->searchable()
+                    ->options(function () {
+                        return Project::whereNotNull('sub_institution')
+                            ->distinct()
+                            ->pluck('sub_institution', 'sub_institution')
+                            ->toArray();
+                    })
+                    ->createOptionForm([
+                        TextInput::make('sub_institution')
+                            ->label('Nama Sub Instansi')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->createOptionUsing(function (array $data): string {
+                        return $data['sub_institution'];
+                    })
+                    ->helperText('Opsional. Ketik untuk cari, atau tambahkan baru dengan klik +'),
 
                 TextInput::make('name')
                     ->required()
