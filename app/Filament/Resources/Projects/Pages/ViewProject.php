@@ -9,10 +9,15 @@ use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use App\Filament\Resources\Projects\ProjectResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Enums\FontWeight;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
+use App\Models\Disbursement;
+use App\Models\Income;
+use Illuminate\Contracts\View\View;
 
 class ViewProject extends ViewRecord
 {
@@ -20,21 +25,109 @@ class ViewProject extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [
+        $actions = [
             EditAction::make(),
             Action::make('board')
                 ->label('Project Board')
                 ->icon('heroicon-o-view-columns')
                 ->color('info')
                 ->url(fn () => ProjectBoard::getUrl(['project_id' => $this->record->id])),
-            Action::make('external_access')
-                ->label('External Dashboard')
-                ->icon('heroicon-o-globe-alt')
+        ];
+
+        // Finance actions
+        if (auth()->user()->hasRole(['super_admin', 'finance'])) {
+            $actions[] = Action::make('pencairan')
+                ->label('Pencairan')
+                ->icon('heroicon-o-banknotes')
                 ->color('success')
-                ->visible(fn () => auth()->user()->hasRole('super_admin'))
-                ->modalHeading('External Dashboard Access')
-                ->modalDescription('Share these credentials with external users to access the project dashboard.')
-                ->modalContent(function () {
+                ->form([
+                    TextInput::make('amount')
+                        ->label('Nominal Pencairan')
+                        ->numeric()
+                        ->prefix('Rp')
+                        ->required()
+                        ->minValue(1),
+                    DatePicker::make('disbursement_date')
+                        ->label('Tanggal Pencairan')
+                        ->required()
+                        ->default(now())
+                        ->native(false)
+                        ->displayFormat('d/m/Y'),
+                    TextInput::make('description')
+                        ->label('Keterangan')
+                        ->maxLength(255)
+                        ->placeholder('Contoh: Termin 1, Pelunasan, dll'),
+                ])
+                ->action(function (array $data) {
+                    $record = $this->record;
+
+                    Disbursement::create([
+                        'project_id' => $record->id,
+                        'amount' => $data['amount'],
+                        'disbursement_date' => $data['disbursement_date'],
+                        'description' => $data['description'] ?? null,
+                        'created_by' => auth()->id(),
+                    ]);
+
+                    if ($record->company_id) {
+                        $cashAccount = \App\Models\CashAccount::where('company_id', $record->company_id)
+                            ->where('is_active', true)
+                            ->first();
+
+                        if ($cashAccount) {
+                            Income::create([
+                                'company_id' => $record->company_id,
+                                'cash_account_id' => $cashAccount->id,
+                                'project_id' => $record->id,
+                                'title' => 'Pencairan: ' . $record->name . ' - ' . ($data['description'] ?? 'Pencairan'),
+                                'amount' => $data['amount'],
+                                'income_date' => $data['disbursement_date'],
+                                'source' => 'project',
+                                'status' => 'approved',
+                                'created_by' => auth()->id(),
+                                'approved_by' => auth()->id(),
+                            ]);
+
+                            $cashAccount->recalculateBalance();
+                        }
+                    }
+
+                    Notification::make()
+                        ->title('Pencairan berhasil dicatat')
+                        ->body('Rp ' . number_format($data['amount'], 0, ',', '.'))
+                        ->success()
+                        ->send();
+                });
+
+            $actions[] = Action::make('invoice')
+                ->label('Invoice')
+                ->icon('heroicon-o-document-text')
+                ->color('warning')
+                ->modalHeading(fn () => 'Invoice - ' . $this->record->name)
+                ->modalContent(function (): View {
+                    $record = $this->record;
+                    $disbursements = $record->disbursements()->orderBy('disbursement_date', 'desc')->get();
+
+                    return view('filament.modals.project-invoice', [
+                        'record' => $record,
+                        'disbursements' => $disbursements,
+                        'totalDisbursed' => $record->total_disbursements,
+                        'totalExpenses' => $record->total_expenses,
+                        'projectValue' => $record->project_value ?? 0,
+                    ]);
+                })
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Tutup');
+        }
+
+        $actions[] = Action::make('external_access')
+            ->label('External Dashboard')
+            ->icon('heroicon-o-globe-alt')
+            ->color('gray')
+            ->visible(fn () => auth()->user()->hasRole('super_admin'))
+            ->modalHeading('External Dashboard Access')
+            ->modalDescription('Share these credentials with external users to access the project dashboard.')
+            ->modalContent(function () {
                     $record = $this->record;
                     $externalAccess = $record->externalAccess;
 
@@ -52,8 +145,9 @@ class ViewProject extends ViewRecord
                     ]);
                 })
                 ->modalSubmitAction(false)
-                ->modalCancelActionLabel('Close'),
-        ];
+                ->modalCancelActionLabel('Close');
+
+        return $actions;
     }
 
     public function infolist(Schema $schema): Schema
@@ -86,7 +180,7 @@ class ViewProject extends ViewRecord
                                 TextEntry::make('institution.name')
                                     ->label('Instansi')
                                     ->placeholder('Belum diatur'),
-                                TextEntry::make('sub_institution')
+                                TextEntry::make('subInstitution.name')
                                     ->label('Sub Instansi')
                                     ->placeholder('Belum diatur'),
                             ]),
@@ -177,6 +271,16 @@ class ViewProject extends ViewRecord
                                     ->color('success'),
                             ]),
                     ]),
+
+                Section::make('Keuangan Project')
+                    ->icon('heroicon-o-chart-bar')
+                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance']))
+                    ->schema([
+                        \Filament\Infolists\Components\ViewEntry::make('finance_section')
+                            ->view('filament.components.project-finance-section')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
 
                 Section::make('Timestamps')
                     ->schema([

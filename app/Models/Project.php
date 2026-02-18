@@ -28,6 +28,7 @@ class Project extends Model
         'region_id',
         'institution_id',
         'sub_institution',
+        'sub_institution_id',
         'project_value',
     ];
 
@@ -67,6 +68,11 @@ class Project extends Model
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
+    }
+
+    public function subInstitution(): BelongsTo
+    {
+        return $this->belongsTo(SubInstitution::class);
     }
 
     public function expenses(): HasMany

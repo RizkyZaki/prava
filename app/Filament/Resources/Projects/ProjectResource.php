@@ -32,6 +32,7 @@ use App\Models\Project;
 use App\Models\Company;
 use App\Models\Region;
 use App\Models\Institution;
+use App\Models\SubInstitution;
 use App\Models\Disbursement;
 use App\Models\Income;
 use Filament\Forms;
@@ -118,17 +119,25 @@ class ProjectResource extends Resource
                     ])
                     ->helperText('Ketik untuk cari, klik + untuk tambah, klik pensil untuk edit'),
 
-                TextInput::make('sub_institution')
+                Select::make('sub_institution_id')
                     ->label('Sub Instansi')
-                    ->maxLength(255)
-                    ->datalist(
-                        Project::whereNotNull('sub_institution')
-                            ->where('sub_institution', '!=', '')
-                            ->distinct()
-                            ->pluck('sub_institution')
-                            ->toArray()
-                    )
-                    ->helperText('Ketik nama sub instansi, atau pilih dari saran yang muncul. Opsional.'),
+                    ->relationship('subInstitution', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->nullable()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Sub Instansi')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->editOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Sub Instansi')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->helperText('Ketik untuk cari, klik + untuk tambah, klik pensil untuk edit'),
 
                 TextInput::make('name')
                     ->required()
@@ -242,7 +251,7 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-                TextColumn::make('sub_institution')
+                TextColumn::make('subInstitution.name')
                     ->label('Sub Instansi')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -333,96 +342,6 @@ class ProjectResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                Action::make('pencairan')
-                    ->label('Pencairan')
-                    ->icon('heroicon-o-banknotes')
-                    ->color('success')
-                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance']))
-                    ->form([
-                        TextInput::make('amount')
-                            ->label('Nominal Pencairan')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->required()
-                            ->minValue(1),
-                        DatePicker::make('disbursement_date')
-                            ->label('Tanggal Pencairan')
-                            ->required()
-                            ->default(now())
-                            ->native(false)
-                            ->displayFormat('d/m/Y'),
-                        TextInput::make('description')
-                            ->label('Keterangan')
-                            ->maxLength(255)
-                            ->placeholder('Contoh: Termin 1, Pelunasan, dll'),
-                    ])
-                    ->action(function (Project $record, array $data) {
-                        Disbursement::create([
-                            'project_id' => $record->id,
-                            'amount' => $data['amount'],
-                            'disbursement_date' => $data['disbursement_date'],
-                            'description' => $data['description'] ?? null,
-                            'created_by' => auth()->id(),
-                        ]);
-
-                        // Auto-create Income record if project has company + cash account
-                        if ($record->company_id) {
-                            $cashAccount = \App\Models\CashAccount::where('company_id', $record->company_id)
-                                ->where('is_active', true)
-                                ->first();
-
-                            if ($cashAccount) {
-                                Income::create([
-                                    'company_id' => $record->company_id,
-                                    'cash_account_id' => $cashAccount->id,
-                                    'project_id' => $record->id,
-                                    'title' => 'Pencairan: ' . $record->name . ' - ' . ($data['description'] ?? 'Pencairan'),
-                                    'amount' => $data['amount'],
-                                    'income_date' => $data['disbursement_date'],
-                                    'source' => 'project',
-                                    'status' => 'approved',
-                                    'created_by' => auth()->id(),
-                                    'approved_by' => auth()->id(),
-                                ]);
-
-                                $cashAccount->recalculateBalance();
-                            }
-                        }
-
-                        Notification::make()
-                            ->title('Pencairan berhasil dicatat')
-                            ->body('Rp ' . number_format($data['amount'], 0, ',', '.') . ' untuk project ' . $record->name)
-                            ->success()
-                            ->send();
-                    }),
-                Action::make('pengeluaran')
-                    ->label('Pengeluaran')
-                    ->icon('heroicon-o-receipt-percent')
-                    ->color('warning')
-                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance']))
-                    ->url(fn (Project $record) => route('filament.admin.resources.expenses.index', ['tableFilters' => ['project_id' => ['value' => $record->id]]])),
-                Action::make('invoice')
-                    ->label('Invoice')
-                    ->icon('heroicon-o-document-text')
-                    ->color('info')
-                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance']))
-                    ->modalHeading(fn (Project $record) => 'Invoice - ' . $record->name)
-                    ->modalContent(function (Project $record) {
-                        $disbursements = $record->disbursements()->orderBy('disbursement_date', 'desc')->get();
-                        $totalDisbursed = $record->total_disbursements;
-                        $totalExpenses = $record->total_expenses;
-                        $projectValue = $record->project_value ?? 0;
-
-                        return view('filament.modals.project-invoice', [
-                            'record' => $record,
-                            'disbursements' => $disbursements,
-                            'totalDisbursed' => $totalDisbursed,
-                            'totalExpenses' => $totalExpenses,
-                            'projectValue' => $projectValue,
-                        ]);
-                    })
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Tutup'),
                 Action::make('mark_completed')
                     ->label('Mark as Completed')
                     ->icon('heroicon-o-check-circle')
