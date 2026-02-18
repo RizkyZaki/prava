@@ -74,9 +74,19 @@ class Project extends Model
         return $this->hasMany(Expense::class);
     }
 
+    public function disbursements(): HasMany
+    {
+        return $this->hasMany(Disbursement::class);
+    }
+
     public function getTotalExpensesAttribute(): float
     {
         return $this->expenses()->where('status', 'approved')->sum('amount');
+    }
+
+    public function getTotalDisbursementsAttribute(): float
+    {
+        return $this->disbursements()->sum('amount');
     }
 
     public function ticketStatuses(): HasMany

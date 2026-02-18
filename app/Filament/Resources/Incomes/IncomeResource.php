@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Expenses;
+namespace App\Filament\Resources\Incomes;
 
-use App\Filament\Resources\Expenses\Pages\CreateExpense;
-use App\Filament\Resources\Expenses\Pages\EditExpense;
-use App\Filament\Resources\Expenses\Pages\ListExpenses;
+use App\Filament\Resources\Incomes\Pages\CreateIncome;
+use App\Filament\Resources\Incomes\Pages\EditIncome;
+use App\Filament\Resources\Incomes\Pages\ListIncomes;
 use App\Models\CashAccount;
 use App\Models\Company;
-use App\Models\Expense;
-use App\Models\ExpenseCategory;
+use App\Models\Income;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -25,30 +24,29 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class ExpenseResource extends Resource
+class IncomeResource extends Resource
 {
-    protected static ?string $model = Expense::class;
+    protected static ?string $model = Income::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-receipt-percent';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-trending-up';
 
-    protected static ?string $navigationLabel = 'Pengeluaran';
+    protected static ?string $navigationLabel = 'Pemasukan';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Detail Pengeluaran')
+                Section::make('Detail Pemasukan')
                     ->schema([
                         Select::make('company_id')
                             ->label('Perusahaan')
@@ -72,19 +70,24 @@ class ExpenseResource extends Resource
                             ->required()
                             ->searchable(),
 
-                        Select::make('expense_category_id')
-                            ->label('Kategori')
-                            ->options(ExpenseCategory::where('is_active', true)->pluck('name', 'id'))
-                            ->required()
-                            ->searchable(),
-
                         Select::make('project_id')
                             ->label('Project')
                             ->relationship('project', 'name')
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->helperText('Opsional. Pilih project terkait pengeluaran ini.'),
+                            ->helperText('Opsional. Pilih project terkait pemasukan ini.'),
+
+                        Select::make('source')
+                            ->label('Sumber Pemasukan')
+                            ->options([
+                                'project' => 'Pencairan Project',
+                                'jasa' => 'Jasa / Konsultasi',
+                                'penjualan' => 'Penjualan',
+                                'lainnya' => 'Lainnya',
+                            ])
+                            ->required()
+                            ->searchable(),
 
                         TextInput::make('title')
                             ->label('Judul')
@@ -103,8 +106,8 @@ class ExpenseResource extends Resource
                             ->required()
                             ->minValue(1),
 
-                        DatePicker::make('expense_date')
-                            ->label('Tanggal Pengeluaran')
+                        DatePicker::make('income_date')
+                            ->label('Tanggal Pemasukan')
                             ->required()
                             ->default(now())
                             ->native(false)
@@ -112,15 +115,15 @@ class ExpenseResource extends Resource
                     ])
                     ->columns(2),
 
-                Section::make('Bukti Pengeluaran')
+                Section::make('Bukti Pemasukan')
                     ->schema([
                         FileUpload::make('receipt')
                             ->label('Bukti/Kwitansi')
-                            ->directory('expense-receipts')
+                            ->directory('income-receipts')
                             ->disk('public')
                             ->acceptedFileTypes(['image/*', 'application/pdf'])
                             ->maxSize(5120)
-                            ->helperText('Upload foto/scan bukti pengeluaran (maks 5MB)'),
+                            ->helperText('Upload foto/scan bukti pemasukan (maks 5MB)'),
                     ]),
 
                 Hidden::make('created_by')
@@ -133,7 +136,7 @@ class ExpenseResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('expense_date')
+                TextColumn::make('income_date')
                     ->label('Tanggal')
                     ->date('d M Y')
                     ->sortable(),
@@ -149,11 +152,22 @@ class ExpenseResource extends Resource
                     ->label('Sumber Dana')
                     ->searchable(),
 
-                TextColumn::make('category.name')
-                    ->label('Kategori')
+                TextColumn::make('source')
+                    ->label('Sumber')
                     ->badge()
-                    ->color('warning')
-                    ->searchable(),
+                    ->color(fn (?string $state): string => match ($state) {
+                        'project' => 'info',
+                        'jasa' => 'success',
+                        'penjualan' => 'warning',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'project' => 'Project',
+                        'jasa' => 'Jasa',
+                        'penjualan' => 'Penjualan',
+                        'lainnya' => 'Lainnya',
+                        default => '-',
+                    }),
 
                 TextColumn::make('project.name')
                     ->label('Project')
@@ -208,9 +222,14 @@ class ExpenseResource extends Resource
                     ->searchable()
                     ->preload(),
 
-                SelectFilter::make('expense_category_id')
-                    ->label('Kategori')
-                    ->relationship('category', 'name'),
+                SelectFilter::make('source')
+                    ->label('Sumber')
+                    ->options([
+                        'project' => 'Pencairan Project',
+                        'jasa' => 'Jasa / Konsultasi',
+                        'penjualan' => 'Penjualan',
+                        'lainnya' => 'Lainnya',
+                    ]),
 
                 SelectFilter::make('status')
                     ->label('Status')
@@ -220,7 +239,7 @@ class ExpenseResource extends Resource
                         'rejected' => 'Ditolak',
                     ]),
 
-                Filter::make('expense_date')
+                Filter::make('income_date')
                     ->form([
                         DatePicker::make('from')
                             ->label('Dari Tanggal'),
@@ -231,28 +250,28 @@ class ExpenseResource extends Resource
                         return $query
                             ->when(
                                 $data['from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('expense_date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('income_date', '>=', $date),
                             )
                             ->when(
                                 $data['until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('expense_date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('income_date', '<=', $date),
                             );
                     }),
             ])
             ->actions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn (Expense $record) => $record->status === 'pending'),
+                    ->visible(fn (Income $record) => $record->status === 'pending'),
 
                 Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Setujui Pengeluaran')
-                    ->modalDescription('Apakah Anda yakin ingin menyetujui pengeluaran ini? Saldo sumber dana akan berkurang.')
-                    ->visible(fn (Expense $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
-                    ->action(function (Expense $record) {
+                    ->modalHeading('Setujui Pemasukan')
+                    ->modalDescription('Apakah Anda yakin ingin menyetujui pemasukan ini? Saldo sumber dana akan bertambah.')
+                    ->visible(fn (Income $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
+                    ->action(function (Income $record) {
                         $record->update([
                             'status' => 'approved',
                             'approved_by' => auth()->id(),
@@ -261,7 +280,7 @@ class ExpenseResource extends Resource
                         $record->cashAccount->recalculateBalance();
 
                         Notification::make()
-                            ->title('Pengeluaran disetujui')
+                            ->title('Pemasukan disetujui')
                             ->success()
                             ->send();
                     }),
@@ -271,14 +290,14 @@ class ExpenseResource extends Resource
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Tolak Pengeluaran')
+                    ->modalHeading('Tolak Pemasukan')
                     ->form([
                         Textarea::make('rejection_reason')
                             ->label('Alasan Penolakan')
                             ->required(),
                     ])
-                    ->visible(fn (Expense $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
-                    ->action(function (Expense $record, array $data) {
+                    ->visible(fn (Income $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
+                    ->action(function (Income $record, array $data) {
                         $record->update([
                             'status' => 'rejected',
                             'approved_by' => auth()->id(),
@@ -286,7 +305,7 @@ class ExpenseResource extends Resource
                         ]);
 
                         Notification::make()
-                            ->title('Pengeluaran ditolak')
+                            ->title('Pemasukan ditolak')
                             ->danger()
                             ->send();
                     }),
@@ -301,9 +320,9 @@ class ExpenseResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListExpenses::route('/'),
-            'create' => CreateExpense::route('/create'),
-            'edit' => EditExpense::route('/{record}/edit'),
+            'index' => ListIncomes::route('/'),
+            'create' => CreateIncome::route('/create'),
+            'edit' => EditIncome::route('/{record}/edit'),
         ];
     }
 }

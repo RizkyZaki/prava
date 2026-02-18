@@ -41,14 +41,23 @@ class CashAccount extends Model
         return $this->hasMany(Expense::class);
     }
 
+    public function incomes(): HasMany
+    {
+        return $this->hasMany(Income::class);
+    }
+
     public function recalculateBalance(): void
     {
         $totalExpenses = $this->expenses()
             ->where('status', 'approved')
             ->sum('amount');
 
+        $totalIncomes = $this->incomes()
+            ->where('status', 'approved')
+            ->sum('amount');
+
         $this->update([
-            'current_balance' => $this->initial_balance - $totalExpenses,
+            'current_balance' => $this->initial_balance + $totalIncomes - $totalExpenses,
         ]);
     }
 }
