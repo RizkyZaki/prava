@@ -37,13 +37,13 @@ class ViewProject extends ViewRecord
                 ->modalContent(function () {
                     $record = $this->record;
                     $externalAccess = $record->externalAccess;
-                
+
                     if (!$externalAccess) {
                         $externalAccess = $record->generateExternalAccess();
                     }
-                
+
                     $dashboardUrl = url('/external/' . $externalAccess->access_token);
-                
+
                     return view('filament.components.external-access-modal', [
                         'dashboardUrl' => $dashboardUrl,
                         'password' => $externalAccess->password,
@@ -73,6 +73,23 @@ class ViewProject extends ViewRecord
                                     ->badge()
                                     ->color('primary'),
                             ]),
+                        Grid::make(4)
+                            ->schema([
+                                TextEntry::make('company.name')
+                                    ->label('Perusahaan (PT)')
+                                    ->badge()
+                                    ->color('info')
+                                    ->placeholder('Belum diatur'),
+                                TextEntry::make('region.name')
+                                    ->label('Wilayah / Kota')
+                                    ->placeholder('Belum diatur'),
+                                TextEntry::make('institution.name')
+                                    ->label('Instansi')
+                                    ->placeholder('Belum diatur'),
+                                TextEntry::make('sub_institution')
+                                    ->label('Sub Instansi')
+                                    ->placeholder('Belum diatur'),
+                            ]),
                         TextEntry::make('description')
                             ->label('Description')
                             ->html()
@@ -99,9 +116,9 @@ class ViewProject extends ViewRecord
                                         return $record->remaining_days . ' days';
                                     })
                                     ->badge()
-                                    ->color(fn ($record): string => 
+                                    ->color(fn ($record): string =>
                                         !$record->end_date ? 'gray' :
-                                        ($record->remaining_days <= 0 ? 'danger' : 
+                                        ($record->remaining_days <= 0 ? 'danger' :
                                         ($record->remaining_days <= 7 ? 'warning' : 'success'))
                                     ),
                                 TextEntry::make('pinned_date')
@@ -113,7 +130,7 @@ class ViewProject extends ViewRecord
                                     ->color(fn ($record): string => $record->pinned_date ? 'success' : 'gray'),
                             ]),
                     ]),
-                
+
                 Section::make('Project Statistics')
                     ->schema([
                         Grid::make(4)
@@ -140,7 +157,7 @@ class ViewProject extends ViewRecord
                                     ->color('success'),
                             ]),
                     ]),
-                    
+
                 Section::make('Timestamps')
                     ->schema([
                         Grid::make(2)
