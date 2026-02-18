@@ -118,7 +118,7 @@ class CompanyResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('cash_accounts_count')
-                    ->label('Jumlah Kas')
+                    ->label('Jumlah Sumber Dana')
                     ->counts('cashAccounts')
                     ->badge()
                     ->color('success'),

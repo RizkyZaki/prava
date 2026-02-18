@@ -59,7 +59,7 @@ class ExpenseResource extends Resource
                             ->afterStateUpdated(fn ($set) => $set('cash_account_id', null)),
 
                         Select::make('cash_account_id')
-                            ->label('Kas')
+                            ->label('Sumber Dana')
                             ->options(function (Get $get) {
                                 $companyId = $get('company_id');
                                 if (!$companyId) {
@@ -146,7 +146,7 @@ class ExpenseResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('cashAccount.name')
-                    ->label('Kas')
+                    ->label('Sumber Dana')
                     ->searchable(),
 
                 TextColumn::make('category.name')
@@ -243,7 +243,7 @@ class ExpenseResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Pengeluaran')
-                    ->modalDescription('Apakah Anda yakin ingin menyetujui pengeluaran ini? Saldo kas akan berkurang.')
+                    ->modalDescription('Apakah Anda yakin ingin menyetujui pengeluaran ini? Saldo sumber dana akan berkurang.')
                     ->visible(fn (Expense $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
                     ->action(function (Expense $record) {
                         $record->update([

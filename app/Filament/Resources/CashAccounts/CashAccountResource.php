@@ -29,7 +29,7 @@ class CashAccountResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-wallet';
 
-    protected static ?string $navigationLabel = 'Kas';
+    protected static ?string $navigationLabel = 'Sumber Dana';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
@@ -39,7 +39,7 @@ class CashAccountResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Informasi Kas')
+                Section::make('Informasi Sumber Dana')
                     ->schema([
                         Select::make('company_id')
                             ->label('Perusahaan')
@@ -49,10 +49,10 @@ class CashAccountResource extends Resource
                             ->preload(),
 
                         TextInput::make('name')
-                            ->label('Nama Kas')
+                            ->label('Nama Sumber Dana')
                             ->required()
                             ->maxLength(255)
-                            ->helperText('Contoh: Kas Kecil, Kas Besar, Bank BCA'),
+                            ->helperText('Contoh: Kas Kecil, Bank BCA, Dana Proyek'),
 
                         TextInput::make('account_number')
                             ->label('Nomor Rekening')
@@ -108,7 +108,7 @@ class CashAccountResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('name')
-                    ->label('Nama Kas')
+                    ->label('Nama Sumber Dana')
                     ->searchable()
                     ->sortable(),
 
