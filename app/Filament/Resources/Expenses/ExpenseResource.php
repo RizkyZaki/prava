@@ -78,6 +78,14 @@ class ExpenseResource extends Resource
                             ->required()
                             ->searchable(),
 
+                        Select::make('project_id')
+                            ->label('Project')
+                            ->relationship('project', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->helperText('Opsional. Pilih project terkait pengeluaran ini.'),
+
                         TextInput::make('title')
                             ->label('Judul')
                             ->required()
@@ -146,6 +154,13 @@ class ExpenseResource extends Resource
                     ->badge()
                     ->color('warning')
                     ->searchable(),
+
+                TextColumn::make('project.name')
+                    ->label('Project')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('—')
+                    ->toggleable(),
 
                 TextColumn::make('title')
                     ->label('Judul')

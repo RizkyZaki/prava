@@ -90,6 +90,19 @@ class ViewProject extends ViewRecord
                                     ->label('Sub Instansi')
                                     ->placeholder('Belum diatur'),
                             ]),
+                        Grid::make(2)
+                            ->schema([
+                                TextEntry::make('project_value')
+                                    ->label('Nilai Kegiatan / Kontrak')
+                                    ->money('IDR')
+                                    ->placeholder('Belum diatur'),
+                                TextEntry::make('total_expenses')
+                                    ->label('Total Pengeluaran')
+                                    ->money('IDR')
+                                    ->getStateUsing(fn ($record) => $record->total_expenses)
+                                    ->badge()
+                                    ->color(fn ($record) => $record->project_value && $record->total_expenses > $record->project_value ? 'danger' : 'success'),
+                            ]),
                         TextEntry::make('description')
                             ->label('Description')
                             ->html()

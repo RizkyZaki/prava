@@ -14,6 +14,7 @@ class Expense extends Model
         'company_id',
         'cash_account_id',
         'expense_category_id',
+        'project_id',
         'created_by',
         'approved_by',
         'title',
@@ -36,6 +37,11 @@ class Expense extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function cashAccount(): BelongsTo

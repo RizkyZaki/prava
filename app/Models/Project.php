@@ -28,6 +28,7 @@ class Project extends Model
         'region_id',
         'institution_id',
         'sub_institution',
+        'project_value',
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ class Project extends Model
         'end_date' => 'date',
         'pinned_date' => 'datetime',
         'completed_at' => 'datetime',
+        'project_value' => 'decimal:2',
     ];
 
     public function getIsPinnedAttribute(): bool
@@ -65,6 +67,16 @@ class Project extends Model
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
+    }
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function getTotalExpensesAttribute(): float
+    {
+        return $this->expenses()->where('status', 'approved')->sum('amount');
     }
 
     public function ticketStatuses(): HasMany

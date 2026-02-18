@@ -6,6 +6,7 @@ use App\Filament\Resources\SalaryDeductions\Pages\ListSalaryDeductions;
 use App\Models\SalaryDeduction;
 use Filament\Resources\Resource;
 use Filament\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -146,13 +147,14 @@ class SalaryDeductionResource extends Resource
                     ->modalSubmitAction(false),
             ])
             ->bulkActions([
-                Action::make('approve_selected')
+                BulkAction::make('approve_selected')
                     ->label('Approve Selected')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn () => Auth::user()->hasRole('super_admin'))
                     ->requiresConfirmation()
-                    ->action(function ($records) {
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (\Illuminate\Support\Collection $records) {
                         foreach ($records as $record) {
                             $record->update([
                                 'is_approved' => true,

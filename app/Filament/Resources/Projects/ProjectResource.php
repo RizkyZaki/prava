@@ -72,7 +72,13 @@ class ProjectResource extends Resource
                             ->required()
                             ->maxLength(255),
                     ])
-                    ->helperText('Ketik untuk cari, atau tambahkan baru dengan klik +'),
+                    ->editOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Wilayah / Kota')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->helperText('Ketik untuk cari, klik + untuk tambah, klik pensil untuk edit'),
 
                 Forms\Components\Select::make('institution_id')
                     ->label('Instansi')
@@ -93,27 +99,32 @@ class ProjectResource extends Resource
                             ->default('government')
                             ->required(),
                     ])
-                    ->helperText('Ketik untuk cari, atau tambahkan baru dengan klik +'),
-
-                Forms\Components\Select::make('sub_institution')
-                    ->label('Sub Instansi')
-                    ->searchable()
-                    ->options(function () {
-                        return Project::whereNotNull('sub_institution')
-                            ->distinct()
-                            ->pluck('sub_institution', 'sub_institution')
-                            ->toArray();
-                    })
-                    ->createOptionForm([
-                        TextInput::make('sub_institution')
-                            ->label('Nama Sub Instansi')
+                    ->editOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Instansi')
                             ->required()
                             ->maxLength(255),
+                        Forms\Components\Select::make('type')
+                            ->label('Tipe')
+                            ->options([
+                                'government' => 'Pemerintah',
+                                'private' => 'Swasta',
+                            ])
+                            ->required(),
                     ])
-                    ->createOptionUsing(function (array $data): string {
-                        return $data['sub_institution'];
-                    })
-                    ->helperText('Opsional. Ketik untuk cari, atau tambahkan baru dengan klik +'),
+                    ->helperText('Ketik untuk cari, klik + untuk tambah, klik pensil untuk edit'),
+
+                TextInput::make('sub_institution')
+                    ->label('Sub Instansi')
+                    ->maxLength(255)
+                    ->datalist(
+                        Project::whereNotNull('sub_institution')
+                            ->where('sub_institution', '!=', '')
+                            ->distinct()
+                            ->pluck('sub_institution')
+                            ->toArray()
+                    )
+                    ->helperText('Ketik nama sub instansi, atau pilih dari saran yang muncul. Opsional.'),
 
                 TextInput::make('name')
                     ->required()
@@ -123,6 +134,14 @@ class ProjectResource extends Resource
                 TextInput::make('ticket_prefix')
                     ->required()
                     ->maxLength(255),
+
+                TextInput::make('project_value')
+                    ->label('Nilai Kegiatan / Kontrak')
+                    ->numeric()
+                    ->prefix('Rp')
+                    ->helperText('Nilai kontrak project ini (pemasukan)')
+                    ->nullable(),
+
                 ColorPicker::make('color')
                     ->label('Project Color')
                     ->helperText('Choose a color for the project card and badge')
