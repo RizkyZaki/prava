@@ -31,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(\App\Models\Salary::class, \App\Policies\SalaryPolicy::class);
         Gate::policy(\App\Models\MonthlyPayroll::class, \App\Policies\MonthlyPayrollPolicy::class);
         Gate::policy(\App\Models\SalaryDeduction::class, \App\Policies\SalaryDeductionPolicy::class);
+        Gate::policy(\App\Models\Company::class, \App\Policies\CompanyPolicy::class);
+        Gate::policy(\App\Models\ExpenseCategory::class, \App\Policies\ExpenseCategoryPolicy::class);
+        Gate::policy(\App\Models\CashAccount::class, \App\Policies\CashAccountPolicy::class);
+        Gate::policy(\App\Models\Expense::class, \App\Policies\ExpensePolicy::class);
 
         Livewire::component('edit-comment-modal', EditCommentModal::class);
         FilamentShield::buildPermissionKeyUsing(

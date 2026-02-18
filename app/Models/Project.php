@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -23,6 +24,10 @@ class Project extends Model
         'pinned_date',
         'status',
         'completed_at',
+        'company_id',
+        'region_id',
+        'institution_id',
+        'sub_institution',
     ];
 
     protected $casts = [
@@ -45,6 +50,21 @@ class Project extends Model
     public function unpin(): void
     {
         $this->update(['pinned_date' => null]);
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function institution(): BelongsTo
+    {
+        return $this->belongsTo(Institution::class);
     }
 
     public function ticketStatuses(): HasMany

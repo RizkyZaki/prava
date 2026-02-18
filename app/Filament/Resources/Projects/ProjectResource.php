@@ -29,6 +29,9 @@ use App\Filament\Actions\ImportTicketsAction;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Models\Project;
+use App\Models\Company;
+use App\Models\Region;
+use App\Models\Institution;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -51,6 +54,58 @@ class ProjectResource extends Resource
     {
         return $schema
             ->components([
+                Forms\Components\Select::make('company_id')
+                    ->label('Perusahaan (PT)')
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->helperText('Pilih perusahaan yang menangani project ini'),
+
+                Forms\Components\Select::make('region_id')
+                    ->label('Wilayah / Kota')
+                    ->relationship('region', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Wilayah / Kota')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        return Region::create($data)->getKey();
+                    })
+                    ->helperText('Pilih atau tambahkan wilayah baru'),
+
+                Forms\Components\Select::make('institution_id')
+                    ->label('Instansi')
+                    ->relationship('institution', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Nama Instansi')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('type')
+                            ->label('Tipe')
+                            ->options([
+                                'government' => 'Pemerintah',
+                                'private' => 'Swasta',
+                            ])
+                            ->default('government')
+                            ->required(),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        return Institution::create($data)->getKey();
+                    })
+                    ->helperText('Contoh: Disdik, Dinkes, atau perusahaan swasta'),
+
+                TextInput::make('sub_institution')
+                    ->label('Sub Instansi')
+                    ->maxLength(255)
+                    ->helperText('Opsional, bisa dikosongkan'),
+
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -137,6 +192,27 @@ class ProjectResource extends Resource
                     ->label('')
                     ->width('40px')
                     ->default('#6B7280'),
+                TextColumn::make('company.name')
+                    ->label('Perusahaan')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('region.name')
+                    ->label('Wilayah')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('institution.name')
+                    ->label('Instansi')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('sub_institution')
+                    ->label('Sub Instansi')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('ticket_prefix')
