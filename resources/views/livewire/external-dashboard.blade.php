@@ -210,7 +210,7 @@
                                         <span>Project Tasks</span>
                                     </span>
                                 </button>
-                                
+
                                 <button onclick="switchMobileTab('activity')"
                                     class="mobile-tab-option w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                     data-tab="activity">
@@ -303,7 +303,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($this->tickets as $ticket)
-                                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                    <tr wire:click="viewTicket({{ $ticket->id }})" class="hover:bg-blue-50 cursor-pointer transition-colors duration-150">
                                         <td
                                             class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {{ $ticket->uuid }}
@@ -360,8 +360,8 @@
                         <!-- Mobile Card View -->
                         <div class="sm:hidden">
                             @forelse($this->tickets as $ticket)
-                                <div
-                                    class="border-b border-gray-200 p-4 hover:bg-gray-50 transition-colors duration-150">
+                                <div wire:click="viewTicket({{ $ticket->id }})"
+                                    class="border-b border-gray-200 p-4 hover:bg-blue-50 cursor-pointer transition-colors duration-150">
                                     <div class="space-y-3">
                                         <!-- Header Row -->
                                         <div class="flex items-start justify-between">
@@ -535,6 +535,242 @@
             </div>
         </div>
     </div>
+
+    <!-- Ticket Detail Modal (Read-Only) -->
+    @if ($showTicketDetail && $selectedTicket)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="ticket-detail-title" role="dialog"
+            aria-modal="true">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="closeTicketDetail">
+            </div>
+
+            <!-- Modal Panel -->
+            <div class="flex min-h-full items-start justify-center p-4 sm:p-6">
+                <div
+                    class="relative w-full max-w-3xl transform rounded-xl bg-white shadow-2xl transition-all my-8">
+                    <!-- Modal Header -->
+                    <div class="sticky top-0 z-10 bg-white border-b border-gray-200 rounded-t-xl px-6 py-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0 pr-4">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-mono font-medium bg-gray-100 text-gray-700">
+                                        {{ $selectedTicket->uuid }}
+                                    </span>
+                                    @if ($selectedTicket->priority)
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium text-white"
+                                            style="background-color: {{ $selectedTicket->priority->color ?? '#6B7280' }}">
+                                            {{ $selectedTicket->priority->name }}
+                                        </span>
+                                    @endif
+                                    @if ($selectedTicket->status)
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                                            style="background-color: {{ $selectedTicket->status->color ?? '#6B7280' }}">
+                                            {{ $selectedTicket->status->name }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <h2 id="ticket-detail-title" class="text-lg font-semibold text-gray-900 mt-2">
+                                    {{ $selectedTicket->name }}
+                                </h2>
+                            </div>
+                            <button wire:click="closeTicketDetail"
+                                class="rounded-md bg-white text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 p-1">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="px-6 py-5 space-y-6 max-h-[70vh] overflow-y-auto">
+                        <!-- Ticket Info Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Assignees -->
+                            <div>
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Assignees
+                                </h4>
+                                <div class="flex flex-wrap gap-1">
+                                    @if ($selectedTicket->assignees && $selectedTicket->assignees->count() > 0)
+                                        @foreach ($selectedTicket->assignees as $assignee)
+                                            <span
+                                                class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium">
+                                                {{ $assignee->name }}
+                                            </span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-sm text-gray-400">Unassigned</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Epic -->
+                            <div>
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Epic</h4>
+                                @if ($selectedTicket->epic)
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-md bg-purple-50 text-purple-700 text-xs font-medium">
+                                        {{ $selectedTicket->epic->name }}
+                                    </span>
+                                @else
+                                    <span class="text-sm text-gray-400">No epic</span>
+                                @endif
+                            </div>
+
+                            <!-- Start Date -->
+                            <div>
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Start Date
+                                </h4>
+                                @if ($selectedTicket->start_date)
+                                    <span class="text-sm text-gray-900">
+                                        {{ \Carbon\Carbon::parse($selectedTicket->start_date)->format('M d, Y') }}
+                                    </span>
+                                @else
+                                    <span class="text-sm text-gray-400">Not set</span>
+                                @endif
+                            </div>
+
+                            <!-- Due Date -->
+                            <div>
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Due Date
+                                </h4>
+                                @if ($selectedTicket->due_date)
+                                    <span
+                                        class="text-sm {{ \Carbon\Carbon::parse($selectedTicket->due_date)->isPast() ? 'text-red-600 font-medium' : 'text-gray-900' }}">
+                                        {{ \Carbon\Carbon::parse($selectedTicket->due_date)->format('M d, Y') }}
+                                        @if (\Carbon\Carbon::parse($selectedTicket->due_date)->isPast())
+                                            <span class="text-red-500 text-xs ml-1">(Overdue)</span>
+                                        @endif
+                                    </span>
+                                @else
+                                    <span class="text-sm text-gray-400">No due date</span>
+                                @endif
+                            </div>
+
+                            <!-- Created By -->
+                            <div>
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created By
+                                </h4>
+                                @if ($selectedTicket->creator)
+                                    <span class="text-sm text-gray-900">{{ $selectedTicket->creator->name }}</span>
+                                @else
+                                    <span class="text-sm text-gray-400">Unknown</span>
+                                @endif
+                            </div>
+
+                            <!-- Created At -->
+                            <div>
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Created At
+                                </h4>
+                                <span
+                                    class="text-sm text-gray-900">{{ $selectedTicket->created_at->format('M d, Y H:i') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Description
+                            </h4>
+                            @if ($selectedTicket->description)
+                                <div class="prose prose-sm max-w-none text-gray-700 bg-gray-50 rounded-lg p-4">
+                                    {!! nl2br(e($selectedTicket->description)) !!}
+                                </div>
+                            @else
+                                <p class="text-sm text-gray-400 italic">No description provided.</p>
+                            @endif
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Comments</h4>
+                                <span
+                                    class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                    {{ count($ticketComments) }}
+                                </span>
+                            </div>
+
+                            @if (count($ticketComments) > 0)
+                                <div class="space-y-4">
+                                    @foreach ($ticketComments as $comment)
+                                        <div class="bg-gray-50 rounded-lg p-4">
+                                            <div class="flex items-start justify-between mb-2">
+                                                <div class="flex items-center gap-2">
+                                                    <div
+                                                        class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                                        <span class="text-xs font-semibold text-blue-700">
+                                                            {{ $comment->user ? strtoupper(substr($comment->user->name, 0, 1)) : '?' }}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-sm font-medium text-gray-900">
+                                                            {{ $comment->user->name ?? 'Unknown User' }}
+                                                        </span>
+                                                        <span class="text-xs text-gray-500 ml-2">
+                                                            {{ $comment->created_at->format('M d, Y H:i') }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                @if ($comment->created_at != $comment->updated_at)
+                                                    <span class="text-xs text-gray-400 italic">edited</span>
+                                                @endif
+                                            </div>
+                                            <div class="prose prose-sm max-w-none text-gray-700 ml-9">
+                                                {!! nl2br(e($comment->comment)) !!}
+                                            </div>
+                                            @if ($comment->attachments && count($comment->attachments) > 0)
+                                                <div class="mt-2 ml-9">
+                                                    <div class="flex flex-wrap gap-2">
+                                                        @foreach ($comment->attachments as $attachment)
+                                                            <span
+                                                                class="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-200 text-xs text-gray-600">
+                                                                <svg class="w-3 h-3" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                                                                    </path>
+                                                                </svg>
+                                                                {{ is_string($attachment) ? basename($attachment) : 'Attachment' }}
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-6 bg-gray-50 rounded-lg">
+                                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                        </path>
+                                    </svg>
+                                    <p class="text-sm text-gray-400">No comments yet.</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-xl">
+                        <div class="flex justify-end">
+                            <button wire:click="closeTicketDetail"
+                                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors duration-200">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
 @push('scripts')

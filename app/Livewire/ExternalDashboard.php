@@ -47,6 +47,11 @@ class ExternalDashboard extends Component
 
     public $staticDataLoaded = false;
 
+    // Ticket Detail Modal
+    public $showTicketDetail = false;
+    public $selectedTicket = null;
+    public $ticketComments = [];
+
     protected $paginationTheme = 'tailwind';
 
     protected $listeners = ['refreshData'];
@@ -259,6 +264,29 @@ class ExternalDashboard extends Component
         if ($tabName === 'timeline') {
             $this->dispatch('switch-to-timeline');
         }
+    }
+
+    public function viewTicket($ticketId)
+    {
+        try {
+            $ticket = $this->project->tickets()
+                ->with(['status', 'priority', 'assignees', 'epic', 'creator', 'comments.user'])
+                ->findOrFail($ticketId);
+
+            $this->selectedTicket = $ticket;
+            $this->ticketComments = $ticket->comments;
+            $this->showTicketDetail = true;
+        } catch (Exception $e) {
+            Log::error('Error loading ticket detail: ' . $e->getMessage());
+            session()->flash('error', 'Failed to load ticket details.');
+        }
+    }
+
+    public function closeTicketDetail()
+    {
+        $this->showTicketDetail = false;
+        $this->selectedTicket = null;
+        $this->ticketComments = [];
     }
 
 
