@@ -141,7 +141,7 @@ class ProjectResource extends Resource
                     ->prefix('Rp')
                     ->helperText('Nilai kontrak project ini (pemasukan)')
                     ->nullable()
-                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
+                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance'])),
 
                 ColorPicker::make('color')
                     ->label('Project Color')

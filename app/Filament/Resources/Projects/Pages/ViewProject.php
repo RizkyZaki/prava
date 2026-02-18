@@ -103,7 +103,7 @@ class ViewProject extends ViewRecord
                                     ->badge()
                                     ->color(fn ($record) => $record->project_value && $record->total_expenses > $record->project_value ? 'danger' : 'success'),
                             ])
-                            ->visible(fn () => auth()->user()->hasRole('super_admin')),
+                            ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance'])),
                         TextEntry::make('description')
                             ->label('Description')
                             ->html()
