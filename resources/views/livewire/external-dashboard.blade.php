@@ -312,7 +312,7 @@
                                             <div class="font-medium">{{ $ticket->name }}</div>
                                             @if ($ticket->description)
                                                 <div class="text-gray-500 text-xs mt-1 truncate max-w-xs">
-                                                    {{ Str::limit($ticket->description, 100) }}
+                                                    {{ Str::limit(strip_tags($ticket->description), 100) }}
                                                 </div>
                                             @endif
                                         </td>
@@ -380,7 +380,7 @@
                                         <!-- Description -->
                                         @if ($ticket->description)
                                             <p class="text-sm text-gray-600 line-clamp-2">
-                                                {{ Str::limit($ticket->description, 120) }}
+                                                {{ Str::limit(strip_tags($ticket->description), 120) }}
                                             </p>
                                         @endif
 
@@ -676,8 +676,8 @@
                             <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Description
                             </h4>
                             @if ($selectedTicket->description)
-                                <div class="prose prose-sm max-w-none text-gray-700 bg-gray-50 rounded-lg p-4">
-                                    {!! nl2br(e($selectedTicket->description)) !!}
+                                <div class="prose prose-sm max-w-none text-gray-700 bg-gray-50 rounded-lg p-4 [&_a]:text-blue-600 [&_a]:underline [&_a]:break-all">
+                                    {!! $selectedTicket->description !!}
                                 </div>
                             @else
                                 <p class="text-sm text-gray-400 italic">No description provided.</p>
@@ -719,8 +719,8 @@
                                                     <span class="text-xs text-gray-400 italic">edited</span>
                                                 @endif
                                             </div>
-                                            <div class="prose prose-sm max-w-none text-gray-700 ml-9">
-                                                {!! nl2br(e($comment->comment)) !!}
+                                            <div class="prose prose-sm max-w-none text-gray-700 ml-9 [&_a]:text-blue-600 [&_a]:underline [&_a]:break-all">
+                                                {!! $comment->comment !!}
                                             </div>
                                             @if ($comment->attachments && count($comment->attachments) > 0)
                                                 <div class="mt-2 ml-9">
