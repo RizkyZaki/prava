@@ -32,4 +32,13 @@ class CreateProject extends CreateRecord
             $this->record->members()->syncWithoutDetaching(auth()->id());
         }
     }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (isset($data['project_value'])) {
+            $data['project_value'] = (int) preg_replace('/[^0-9-]/', '', (string) $data['project_value']);
+        }
+
+        return $data;
+    }
 }

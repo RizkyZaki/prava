@@ -154,7 +154,8 @@ class ProjectResource extends Resource
                     ->prefix('Rp')
                     ->helperText('Nilai kontrak project ini (pemasukan)')
                     ->nullable()
-                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance'])),
+                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance']))
+                    ->extraAttributes(['data-money' => '1']),
 
                 Repeater::make('projectItems')
                     ->relationship('projectItems')

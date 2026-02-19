@@ -2,17 +2,19 @@
 // Format input as 1.000.000 saat user mengetik
 
 function attachInputMaskMoney() {
-    const selectors = [
-        'input[name="amount"]',
-        'input[name="initial_balance"]',
-        'input[name="project_value"]',
-        'input[id$=".amount"]',
-        'input[id$=".initial_balance"]',
-        'input[id$=".project_value"]',
-    ];
-    selectors.forEach(function(selector) {
-        document.querySelectorAll(selector).forEach(function(input) {
-            if (input.getAttribute('data-inputmask')) return;
+    // target inputs explicitly marked for money formatting
+    document.querySelectorAll('input[data-money="1"]').forEach(function(input) {
+        if (input.getAttribute('data-inputmask')) return;
+        // if input rendered as number, switch to text so masking can work
+        try {
+            if (input.type === 'number') {
+                input.type = 'text';
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        if (window.Inputmask) {
             Inputmask({
                 alias: 'numeric',
                 groupSeparator: '.',
@@ -22,12 +24,20 @@ function attachInputMaskMoney() {
                 prefix: '',
                 placeholder: '',
                 rightAlign: false,
-                removeMaskOnSubmit: true,
+                removeMaskOnSubmit: false,
                 allowMinus: false,
                 allowPlus: false,
             }).mask(input);
-            input.setAttribute('data-inputmask', '1');
-        });
+        } else {
+            // fallback: simple formatting on input
+            input.addEventListener('input', function () {
+                let v = input.value.replace(/[^0-9]/g, '');
+                if (v === '') { input.value = ''; return; }
+                input.value = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            });
+        }
+
+        input.setAttribute('data-inputmask', '1');
     });
 }
 

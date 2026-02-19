@@ -70,7 +70,8 @@ class CashAccountResource extends Resource
                             ->label('Saldo Awal')
                             ->prefix('Rp')
                             ->required()
-                            ->default(0),
+                            ->default(0)
+                            ->extraAttributes(['data-money' => '1']),
 
                         TextInput::make('current_balance')
                             ->label('Saldo Saat Ini')

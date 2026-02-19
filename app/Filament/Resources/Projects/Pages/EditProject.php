@@ -29,13 +29,13 @@ class EditProject extends EditRecord
                 ->modalContent(function () {
                     $record = $this->record;
                     $externalAccess = $record->externalAccess;
-                
+
                     if (!$externalAccess) {
                         $externalAccess = $record->generateExternalAccess();
                     }
-                
+
                     $dashboardUrl = url('/external/' . $externalAccess->access_token);
-                
+
                     return view('filament.components.external-access-modal', [
                         'dashboardUrl' => $dashboardUrl,
                         'password' => $externalAccess->password,
@@ -57,13 +57,13 @@ class EditProject extends EditRecord
                             $record = $this->record;
                             $record->externalAccess()?->delete();
                             $newAccess = $record->generateExternalAccess();
-                            
+
                             Log::info('Regenerated external access for project: ' . $record->name, [
                                 'project_id' => $record->id,
                                 'access_token' => $newAccess->access_token,
                                 'password' => $newAccess->password
                             ]);
-                            
+
                             Notification::make()
                                 ->title('External access regenerated successfully')
                                 ->success()
@@ -72,5 +72,14 @@ class EditProject extends EditRecord
                         ->visible(fn () => $this->record->externalAccess !== null),
                 ]),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (isset($data['project_value'])) {
+            $data['project_value'] = (int) preg_replace('/[^0-9-]/', '', (string) $data['project_value']);
+        }
+
+        return $data;
     }
 }

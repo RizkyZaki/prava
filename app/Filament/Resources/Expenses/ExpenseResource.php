@@ -21,8 +21,10 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\Placeholder;
 use Filament\Notifications\Notification;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
@@ -60,7 +62,7 @@ class ExpenseResource extends Resource
 
                         Select::make('cash_account_id')
                             ->label('Sumber Dana')
-                            ->options(function (Get $get) {
+                            ->options(function ($get) {
                                 $companyId = $get('company_id');
                                 if (!$companyId) {
                                     return [];
@@ -100,7 +102,8 @@ class ExpenseResource extends Resource
                             ->label('Jumlah')
                             ->prefix('Rp')
                             ->required()
-                            ->minLength(1),
+                            ->minLength(1)
+                            ->extraAttributes(['data-money' => '1']),
 
                         DatePicker::make('expense_date')
                             ->label('Tanggal Pengeluaran')
@@ -121,10 +124,31 @@ class ExpenseResource extends Resource
                             ->acceptedFileTypes(['image/*', 'application/pdf'])
                             ->maxSize(5120)
                             ->helperText('Upload beberapa foto/scan bukti pengeluaran (maks 5MB per file)'),
+                        Placeholder::make('receipt_gallery')
+                            ->label('Preview Bukti')
+                            ->content(function ($get, $record) {
+                                $paths = $record->receipt ?? [];
+                                if (empty($paths)) {
+                                    return '-';
+                                }
+                                $html = '<div class="flex gap-2 flex-wrap">';
+                                foreach ($paths as $p) {
+                                    $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
+                                    $url = asset('storage/' . ltrim($p, '/'));
+                                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                                        $html .= "<a href=\"{$url}\" target=\"_blank\" class=\"block\"><img src=\"{$url}\" style=\"max-width:150px;max-height:150px;object-fit:cover;border-radius:6px;\" alt=\"Bukti\"></a>";
+                                    } else {
+                                        $html .= "<a href=\"{$url}\" target=\"_blank\" class=\"inline-block px-3 py-2 bg-gray-100 rounded border\">Download ({$ext})</a>";
+                                    }
+                                }
+                                $html .= '</div>';
+                                return new \Illuminate\Support\HtmlString($html);
+                            })
+                            ->columnSpanFull(),
                     ]),
 
                 Hidden::make('created_by')
-                    ->default(fn () => auth()->id()),
+                    ->default(fn () => Auth::id()),
             ]);
     }
 
@@ -251,11 +275,11 @@ class ExpenseResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading('Setujui Pengeluaran')
                     ->modalDescription('Apakah Anda yakin ingin menyetujui pengeluaran ini? Saldo sumber dana akan berkurang.')
-                    ->visible(fn (Expense $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
+                    ->visible(fn (\App\Models\Expense $record) => $record->status === 'pending' && ($user = Auth::user()) && $user instanceof \App\Models\User && $user->hasRole(['super_admin', 'finance']))
                     ->action(function (Expense $record) {
                         $record->update([
                             'status' => 'approved',
-                            'approved_by' => auth()->id(),
+                            'approved_by' => Auth::id(),
                         ]);
 
                         $record->cashAccount->recalculateBalance();
@@ -277,11 +301,11 @@ class ExpenseResource extends Resource
                             ->label('Alasan Penolakan')
                             ->required(),
                     ])
-                    ->visible(fn (Expense $record) => $record->status === 'pending' && auth()->user()->hasRole(['super_admin', 'finance']))
+                    ->visible(fn (\App\Models\Expense $record) => $record->status === 'pending' && ($user = Auth::user()) && $user instanceof \App\Models\User && $user->hasRole(['super_admin', 'finance']))
                     ->action(function (Expense $record, array $data) {
                         $record->update([
                             'status' => 'rejected',
-                            'approved_by' => auth()->id(),
+                            'approved_by' => Auth::id(),
                             'rejection_reason' => $data['rejection_reason'],
                         ]);
 

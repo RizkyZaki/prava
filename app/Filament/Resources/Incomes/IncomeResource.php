@@ -20,7 +20,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\Placeholder;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -58,7 +60,7 @@ class IncomeResource extends Resource
 
                         Select::make('cash_account_id')
                             ->label('Sumber Dana')
-                            ->options(function (Get $get) {
+                            ->options(function ($get) {
                                 $companyId = $get('company_id');
                                 if (!$companyId) {
                                     return [];
@@ -103,7 +105,8 @@ class IncomeResource extends Resource
                             ->label('Jumlah')
                             ->prefix('Rp')
                             ->required()
-                            ->minLength(1),
+                            ->minLength(1)
+                            ->extraAttributes(['data-money' => '1']),
 
                         DatePicker::make('income_date')
                             ->label('Tanggal Pemasukan')
@@ -120,13 +123,35 @@ class IncomeResource extends Resource
                             ->label('Bukti/Kwitansi')
                             ->directory('income-receipts')
                             ->disk('public')
+                            ->multiple()
                             ->acceptedFileTypes(['image/*', 'application/pdf'])
                             ->maxSize(5120)
                             ->helperText('Upload foto/scan bukti pemasukan (maks 5MB)'),
+                        Placeholder::make('receipt_gallery')
+                            ->label('Preview Bukti')
+                            ->content(function ($get, $record) {
+                                $paths = $record->receipt ?? [];
+                                if (empty($paths)) {
+                                    return '-';
+                                }
+                                $html = '<div class="flex gap-2 flex-wrap">';
+                                foreach ($paths as $p) {
+                                    $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
+                                    $url = asset('storage/' . ltrim($p, '/'));
+                                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                                        $html .= "<a href=\"{$url}\" target=\"_blank\" class=\"block\"><img src=\"{$url}\" style=\"max-width:150px;max-height:150px;object-fit:cover;border-radius:6px;\" alt=\"Bukti\"></a>";
+                                    } else {
+                                        $html .= "<a href=\"{$url}\" target=\"_blank\" class=\"inline-block px-3 py-2 bg-gray-100 rounded border\">Download ({$ext})</a>";
+                                    }
+                                }
+                                $html .= '</div>';
+                                return new HtmlString($html);
+                            })
+                            ->columnSpanFull(),
                     ]),
 
                 Hidden::make('created_by')
-                    ->default(fn () => auth()->id()),
+                    ->default(fn () => Auth::id()),
             ]);
     }
 

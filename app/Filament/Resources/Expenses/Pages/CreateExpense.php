@@ -11,6 +11,11 @@ class CreateExpense extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // sanitize amount formatting (e.g. 1.000.000 -> 1000000)
+        if (isset($data['amount'])) {
+            $data['amount'] = (int) preg_replace('/[^0-9-]/', '', (string) $data['amount']);
+        }
+
         $data['created_by'] = auth()->id();
         return $data;
     }

@@ -19,6 +19,10 @@ class EditCashAccount extends EditRecord
 
     public function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
     {
+        if (isset($data['initial_balance'])) {
+            $data['initial_balance'] = (int) preg_replace('/[^0-9-]/', '', (string) $data['initial_balance']);
+        }
+
         $result = parent::handleRecordUpdate($record, $data);
         $record->recalculateBalance();
         return $result;
