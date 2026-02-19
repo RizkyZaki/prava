@@ -68,7 +68,6 @@ class CashAccountResource extends Resource
                     ->schema([
                         TextInput::make('initial_balance')
                             ->label('Saldo Awal')
-                            ->numeric()
                             ->prefix('Rp')
                             ->required()
                             ->default(0),

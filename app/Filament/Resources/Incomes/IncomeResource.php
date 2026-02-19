@@ -101,10 +101,9 @@ class IncomeResource extends Resource
 
                         TextInput::make('amount')
                             ->label('Jumlah')
-                            ->numeric()
                             ->prefix('Rp')
                             ->required()
-                            ->minValue(1),
+                            ->minLength(1),
 
                         DatePicker::make('income_date')
                             ->label('Tanggal Pemasukan')

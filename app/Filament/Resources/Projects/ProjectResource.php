@@ -151,7 +151,6 @@ class ProjectResource extends Resource
 
                 TextInput::make('project_value')
                     ->label('Nilai Kegiatan / Kontrak')
-                    ->numeric()
                     ->prefix('Rp')
                     ->helperText('Nilai kontrak project ini (pemasukan)')
                     ->nullable()
