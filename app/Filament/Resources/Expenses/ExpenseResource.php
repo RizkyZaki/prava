@@ -101,7 +101,8 @@ class ExpenseResource extends Resource
                             ->numeric()
                             ->prefix('Rp')
                             ->required()
-                            ->minValue(1),
+                            ->minValue(1)
+                            ->mask(fn ($mask) => $mask->numeric()->thousandsSeparator('.')),
 
                         DatePicker::make('expense_date')
                             ->label('Tanggal Pengeluaran')
