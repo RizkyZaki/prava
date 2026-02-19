@@ -21,7 +21,7 @@ class Expense extends Model
         'description',
         'amount',
         'expense_date',
-        'receipt',
+        'receipt', // now array
         'status',
         'rejection_reason',
     ];
@@ -31,6 +31,7 @@ class Expense extends Model
         return [
             'amount' => 'decimal:2',
             'expense_date' => 'date',
+            'receipt' => 'array',
         ];
     }
 

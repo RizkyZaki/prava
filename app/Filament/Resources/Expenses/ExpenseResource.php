@@ -118,9 +118,10 @@ class ExpenseResource extends Resource
                             ->label('Bukti/Kwitansi')
                             ->directory('expense-receipts')
                             ->disk('public')
+                            ->multiple()
                             ->acceptedFileTypes(['image/*', 'application/pdf'])
                             ->maxSize(5120)
-                            ->helperText('Upload foto/scan bukti pengeluaran (maks 5MB)'),
+                            ->helperText('Upload beberapa foto/scan bukti pengeluaran (maks 5MB per file)'),
                     ]),
 
                 Hidden::make('created_by')

@@ -275,12 +275,12 @@ class EventResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn () => Auth::user()->hasRole('super_admin')),
+                    ->visible(fn () => Auth::user()->can('update_event')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => Auth::user()->hasRole('super_admin')),
+                        ->visible(fn () => Auth::user()->can('delete_event')),
                 ]),
             ]);
     }

@@ -466,7 +466,8 @@ class ProjectResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(auth()->user()->can('delete_project')),
                 ]),
             ]);
     }
@@ -499,8 +500,9 @@ class ProjectResource extends Resource
 
         $user = auth()->user();
         $canSeeAll = $user && (
-            (method_exists($user, 'hasRole') && $user->hasRole(['super_admin', 'finance']))
-            || (isset($user->role) && $user->role === 'super_admin')
+            (method_exists($user, 'hasRole') && $user->hasRole(['finance']))
+            || (isset($user->role) && $user->role === 'finance')
+            || $user->can('view_any_project')
         );
 
         if (! $canSeeAll) {

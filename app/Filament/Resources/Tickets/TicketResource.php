@@ -53,7 +53,7 @@ class TicketResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        if (! auth()->user()->hasRole(['super_admin'])) {
+        if (! auth()->user()->can('view_any_ticket')) {
             $query->where(function ($query) {
                 $query->whereHas('assignees', function ($query) {
                         $query->where('users.id', auth()->id());
@@ -78,10 +78,9 @@ class TicketResource extends Resource
                 Select::make('project_id')
                     ->label('Project')
                     ->options(function () {
-                        if (auth()->user()->hasRole(['super_admin'])) {
+                        if (auth()->user()->can('view_any_project')) {
                             return Project::pluck('name', 'id')->toArray();
                         }
-
                         return auth()->user()->projects()->pluck('name', 'projects.id')->toArray();
                     })
                     ->default($projectId)
@@ -489,7 +488,7 @@ class TicketResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(auth()->user()->hasRole(['super_admin'])),
+                        ->visible(auth()->user()->can('delete_ticket')),
                 ]),
             ]);
     }
