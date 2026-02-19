@@ -43,7 +43,8 @@ class ViewProject extends ViewRecord
         ];
 
         // Finance actions
-        if (auth()->user()->hasRole(['super_admin', 'finance'])) {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && collect($user->roles)->pluck('name')->contains(fn($role) => in_array($role, ['super_admin', 'finance']))) {
             $actions[] = Action::make('pencairan')
                 ->label('Pencairan')
                 ->icon('heroicon-o-banknotes')
@@ -95,7 +96,7 @@ class ViewProject extends ViewRecord
                         'amount' => $data['amount'],
                         'disbursement_date' => $data['disbursement_date'],
                         'description' => $data['description'] ?? null,
-                        'created_by' => auth()->id(),
+                        'created_by' => \Illuminate\Support\Facades\Auth::id(),
                     ]);
 
                     if ($record->company_id && isset($data['cash_account_id'])) {
@@ -108,8 +109,8 @@ class ViewProject extends ViewRecord
                                 'income_date' => $data['disbursement_date'],
                                 'source' => 'project',
                                 'status' => 'approved',
-                                'created_by' => auth()->id(),
-                                'approved_by' => auth()->id(),
+                                'created_by' => \Illuminate\Support\Facades\Auth::id(),
+                                'approved_by' => \Illuminate\Support\Facades\Auth::id(),
                             ]);
 
                             $cashAccount = CashAccount::find($data['cash_account_id']);
@@ -187,7 +188,7 @@ class ViewProject extends ViewRecord
                         'amount' => $data['amount'],
                         'expense_date' => $data['expense_date'],
                         'status' => 'pending',
-                        'created_by' => auth()->id(),
+                        'created_by' => \Illuminate\Support\Facades\Auth::id(),
                     ]);
 
                     Notification::make()
@@ -222,7 +223,7 @@ class ViewProject extends ViewRecord
             ->label('External Dashboard')
             ->icon('heroicon-o-globe-alt')
             ->color('gray')
-            ->visible(fn () => auth()->user()->hasRole('super_admin'))
+            ->visible(fn () => ($user = \Illuminate\Support\Facades\Auth::user()) && collect($user->roles)->pluck('name')->contains('super_admin'))
             ->modalHeading('External Dashboard Access')
             ->modalDescription('Share these credentials with external users to access the project dashboard.')
             ->modalContent(function () {
@@ -337,6 +338,11 @@ class ViewProject extends ViewRecord
                                                     ->getStateUsing(fn ($record) => $record->members()->count())
                                                     ->badge()
                                                     ->color('info'),
+                                                TextEntry::make('member_names')
+                                                    ->label('Member Names')
+                                                    ->getStateUsing(fn ($record) => $record->members->pluck('name')->implode(', '))
+                                                    ->html()
+                                                    ->columnSpanFull(),
                                                 TextEntry::make('tickets_count')
                                                     ->label('Total Tickets')
                                                     ->getStateUsing(fn ($record) => $record->tickets()->count())
@@ -372,7 +378,7 @@ class ViewProject extends ViewRecord
 
                         Tab::make('Keuangan')
                             ->icon('heroicon-o-banknotes')
-                            ->visible(fn () => auth()->user()->hasRole(['super_admin', 'finance']))
+                            ->visible(fn () => ($user = \Illuminate\Support\Facades\Auth::user()) && collect($user->roles)->pluck('name')->contains(fn($role) => in_array($role, ['super_admin', 'finance'])))
                             ->schema([
                                 \Filament\Infolists\Components\ViewEntry::make('finance_section')
                                     ->view('filament.components.project-finance-section')

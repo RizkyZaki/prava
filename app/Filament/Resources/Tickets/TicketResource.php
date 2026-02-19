@@ -36,6 +36,7 @@ use Illuminate\Support\Str;
 use Filament\Support\Enums\Width;
 use Livewire\Component;
 use App\Models\Epic;
+use Illuminate\Support\Facades\Auth;
 
 class TicketResource extends Resource
 {
@@ -53,17 +54,18 @@ class TicketResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        $user = auth()->user();
-        if (!($user && ($user->hasRole('super_admin') || $user->hasRole('finance')))) {
+        $user = Auth::user();
+        $roleNames = collect($user->roles ?? [])->pluck('name');
+        if (!($user && ($roleNames->contains('super_admin') || $roleNames->contains('finance')))) {
             // Hanya tampilkan ticket yang di-assign ke user, dibuat user, atau project-nya user adalah member
-            $query->where(function ($query) {
-                $query->whereHas('assignees', function ($query) {
-                        $query->where('users.id', auth()->id());
-                    })
-                    ->orWhere('created_by', auth()->id())
-                    ->orWhereHas('project.members', function ($query) {
-                        $query->where('users.id', auth()->id());
-                    });
+            $query->where(function ($query) use ($user) {
+                $query->whereHas('assignees', function ($query) use ($user) {
+                    $query->where('users.id', $user ? $user->id : null);
+                })
+                ->orWhere('created_by', $user ? $user->id : null)
+                ->orWhereHas('project.members', function ($query) use ($user) {
+                    $query->where('users.id', $user ? $user->id : null);
+                });
             });
         }
 
@@ -80,10 +82,13 @@ class TicketResource extends Resource
                 Select::make('project_id')
                     ->label('Project')
                     ->options(function () {
-                        if (auth()->user()->can('view_any_project')) {
+                        $user = Auth::user();
+                        if ($user && collect($user->roles ?? [])->pluck('name')->contains('super_admin')) {
                             return Project::pluck('name', 'id')->toArray();
                         }
-                        return auth()->user()->projects()->pluck('name', 'projects.id')->toArray();
+                        return Project::whereHas('members', function ($query) use ($user) {
+                            $query->where('users.id', $user ? $user->id : null);
+                        })->pluck('name', 'id')->toArray();
                     })
                     ->default($projectId)
                     ->required()
@@ -391,11 +396,14 @@ class TicketResource extends Resource
                 SelectFilter::make('project_id')
                     ->label('Project')
                     ->options(function () {
-                        if (auth()->user()->hasRole(['super_admin'])) {
+                        $user = Auth::user();
+                        $roleNames = collect($user->roles ?? [])->pluck('name');
+                        if ($roleNames->contains('super_admin')) {
                             return Project::pluck('name', 'id')->toArray();
                         }
-
-                        return auth()->user()->projects()->pluck('name', 'projects.id')->toArray();
+                        return Project::whereHas('members', function ($query) use ($user) {
+                            $query->where('users.id', $user ? $user->id : null);
+                        })->pluck('name', 'id')->toArray();
                     })
                     ->searchable()
                     ->preload(),
@@ -490,7 +498,7 @@ class TicketResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(auth()->user()->can('delete_ticket')),
+                        ->visible(Auth::user() && collect(Auth::user()->roles ?? [])->pluck('name')->contains('super_admin')),
                 ]),
             ]);
     }
