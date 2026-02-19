@@ -53,16 +53,19 @@ class TicketResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Hanya tampilkan ticket yang di-assign ke user, dibuat user, atau project-nya user adalah member
-        $query->where(function ($query) {
-            $query->whereHas('assignees', function ($query) {
-                    $query->where('users.id', auth()->id());
-                })
-                ->orWhere('created_by', auth()->id())
-                ->orWhereHas('project.members', function ($query) {
-                    $query->where('users.id', auth()->id());
-                });
-        });
+        $user = auth()->user();
+        if (!($user && ($user->hasRole('super_admin') || $user->hasRole('finance')))) {
+            // Hanya tampilkan ticket yang di-assign ke user, dibuat user, atau project-nya user adalah member
+            $query->where(function ($query) {
+                $query->whereHas('assignees', function ($query) {
+                        $query->where('users.id', auth()->id());
+                    })
+                    ->orWhere('created_by', auth()->id())
+                    ->orWhereHas('project.members', function ($query) {
+                        $query->where('users.id', auth()->id());
+                    });
+            });
+        }
 
         return $query;
     }

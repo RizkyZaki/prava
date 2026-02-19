@@ -497,10 +497,13 @@ class ProjectResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Hanya tampilkan project yang user adalah member
-        $query->whereHas('members', function (Builder $query) {
-            $query->where('user_id', auth()->id());
-        });
+        $user = auth()->user();
+        if (!($user && ($user->hasRole('super_admin') || $user->hasRole('finance')))) {
+            // Hanya tampilkan project yang user adalah member
+            $query->whereHas('members', function (Builder $query) {
+                $query->where('user_id', auth()->id());
+            });
+        }
 
         return $query;
     }
