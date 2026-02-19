@@ -16,4 +16,11 @@ class EditCashAccount extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    public function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        $result = parent::handleRecordUpdate($record, $data);
+        $record->recalculateBalance();
+        return $result;
+    }
 }
