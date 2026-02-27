@@ -150,6 +150,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Event::class, 'created_by');
     }
 
+    public function employeeProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(EmployeeProfile::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         // Check if user is active

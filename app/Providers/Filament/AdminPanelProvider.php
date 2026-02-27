@@ -63,7 +63,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->passwordReset()
             ->emailVerification()
-            ->profile()
+            // ->profile() // Profile feature disabled
             ->viteTheme('resources/css/filament/admin/theme.css');
 
         return $panel;

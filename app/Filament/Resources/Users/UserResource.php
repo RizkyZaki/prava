@@ -181,7 +181,11 @@ class UserResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
-                ViewAction::make(),
+                ViewAction::make()
+                    ->url(fn ($record) => static::getUrl('view', ['record' => $record]))
+                    ->openUrlInNewTab(false)
+                    ->label('View Profile'),
+                \App\Filament\Actions\UploadContractAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -257,6 +261,7 @@ class UserResource extends Resource
         return [
             'index' => ListUsers::route('/'),
             'create' => CreateUser::route('/create'),
+            'view' => \App\Filament\Resources\Users\Pages\ViewUser::route('/{record}/view'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
     }
