@@ -7,10 +7,11 @@
         $fields = [
             ['label' => 'NIK', 'value' => $profile?->national_id_number],
             [
-                'label' => 'Tanggal Lahir',
-                'value' => $profile?->birth_date
-                    ? \Carbon\Carbon::parse($profile->birth_date)->format('d M Y')
-                    : '-',
+                'label' => 'Tempat/Tanggal Lahir',
+                'value' => ($profile?->birth_city ? $profile->birth_city . ', ' : '') .
+                          ($profile?->birth_date
+                            ? \Carbon\Carbon::parse($profile->birth_date)->format('d M Y')
+                            : '-'),
             ],
             [
                 'label' => 'Tanggal Masuk',
@@ -73,6 +74,32 @@
                             <div class="mt-3 border-b border-gray-100 dark:border-gray-800"></div>
                         </div>
                     @endforeach
+                </div>
+
+                {{-- show education and employment histories --}}
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold">Riwayat Pendidikan</h3>
+                    @if($profile && $profile->educationHistories->count())
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            @foreach($profile->educationHistories as $edu)
+                                <li>{{ $edu->institution }} ({{ $edu->start_date?->format('Y') }} – {{ $edu->end_date?->format('Y') ?? '...' }})</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-sm text-gray-500">Tidak ada riwayat pendidikan.</p>
+                    @endif
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold">Riwayat Pekerjaan</h3>
+                    @if($profile && $profile->employmentHistories->count())
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            @foreach($profile->employmentHistories as $job)
+                                <li>{{ $job->company_name }} ({{ $job->start_date?->format('Y') }} – {{ $job->end_date?->format('Y') ?? '...' }})</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-sm text-gray-500">Tidak ada riwayat pekerjaan.</p>
+                    @endif
                 </div>
 
                 @php

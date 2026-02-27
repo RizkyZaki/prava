@@ -10,6 +10,7 @@ class EmployeeProfile extends Model
         'user_id',
         'national_id_number',
         'birth_date',
+        'birth_city',
         'hire_date',
         'bjb_bank_account_number',
         'tax_identification_number',
@@ -79,5 +80,15 @@ class EmployeeProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function educationHistories()
+    {
+        return $this->hasMany(\App\Models\EducationHistory::class);
+    }
+
+    public function employmentHistories()
+    {
+        return $this->hasMany(\App\Models\EmploymentHistory::class);
     }
 }

@@ -1,7 +1,7 @@
 @php
     /** @var \App\Models\User $record */
     $user = $record;
-    // make sure profile exists (persist if not)
+
     $profile = $user->employeeProfile;
     if (!$profile) {
         $profile = \App\Models\EmployeeProfile::create(['user_id' => $user->id]);
@@ -9,14 +9,19 @@
 
     $fields = [
         ['label' => 'NIK', 'value' => $profile->national_id_number ?? '-'],
+
         [
-            'label' => 'Tanggal Lahir',
-            'value' => $profile->birth_date ? \Carbon\Carbon::parse($profile->birth_date)->format('d M Y') : '-',
+            'label' => 'Tempat, Tanggal Lahir',
+            'value' => $profile->birth_date
+                ? ($profile->birth_city ?? '-') . ', ' . \Carbon\Carbon::parse($profile->birth_date)->format('d M Y')
+                : '-',
         ],
+
         [
             'label' => 'Tanggal Masuk',
             'value' => $profile->hire_date ? \Carbon\Carbon::parse($profile->hire_date)->format('d M Y') : '-',
         ],
+
         ['label' => 'No HP', 'value' => $profile->phone_number ?? '-'],
         ['label' => 'Alamat', 'value' => $profile->address ?? '-', 'span' => 2],
         ['label' => 'Pendidikan', 'value' => $profile->last_education ?? '-'],
@@ -30,27 +35,25 @@
 <x-filament-panels::page>
     <div class="space-y-8">
 
-        {{-- MAIN PROFILE CARD --}}
+        {{-- ================= MAIN PROFILE CARD ================= --}}
         <div class="bg-white dark:bg-gray-900 shadow-xl rounded-3xl overflow-hidden">
 
             {{-- HEADER --}}
             <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-8 py-8">
                 <div class="flex items-center gap-6">
 
-                    {{-- PHOTO --}}
                     @if ($profile?->profile_photo)
                         <img src="{{ asset('storage/' . $profile->profile_photo) }}"
                             class="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg" />
                     @else
                         <div
                             class="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur
-                            flex items-center justify-center
-                            text-3xl font-bold text-white shadow-lg">
+                                    flex items-center justify-center
+                                    text-3xl font-bold text-white shadow-lg">
                             {{ strtoupper(substr($user->name, 0, 1)) }}
                         </div>
                     @endif
 
-                    {{-- NAME --}}
                     <div class="text-white">
                         <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
                         <p class="text-sm opacity-90">
@@ -66,28 +69,22 @@
             {{-- BODY --}}
             <div class="p-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                     @foreach ($fields as $f)
-                        <div
-                            class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 shadow-sm
-                                    hover:shadow-md transition">
-
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition">
                             <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
                                 {{ $f['label'] }}
                             </p>
-
                             <p class="text-sm font-semibold text-gray-900 dark:text-gray-200">
                                 {{ $f['value'] }}
                             </p>
                         </div>
                     @endforeach
-
                 </div>
             </div>
         </div>
 
 
-        {{-- ATTACHMENT CARD --}}
+        {{-- ================= ATTACHMENTS ================= --}}
         <div class="bg-white dark:bg-gray-900 shadow-xl rounded-3xl p-8">
 
             <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-gray-200">
@@ -106,7 +103,6 @@
 
                 @foreach ($attachments as $label => $path)
                     <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
-
                         <p class="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
                             {{ $label }}
                         </p>
@@ -123,10 +119,93 @@
                                 No file uploaded
                             </p>
                         @endif
-
                     </div>
                 @endforeach
 
+            </div>
+        </div>
+
+
+        {{-- ================= HISTORY ================= --}}
+        <div class="bg-white dark:bg-gray-900 shadow-xl rounded-3xl p-8 space-y-12">
+
+            {{-- EDUCATION --}}
+            <div>
+                <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-gray-200">
+                    🎓 Riwayat Pendidikan
+                </h3>
+
+                @if ($profile->educationHistories->count())
+                    <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800">
+                        <table class="min-w-full text-sm text-left">
+
+                            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Institusi</th>
+                                    <th class="px-6 py-4">Gelar</th>
+                                    <th class="px-6 py-4">Mulai</th>
+                                    <th class="px-6 py-4">Selesai</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                @foreach ($profile->educationHistories as $edu)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
+                                            {{ $edu->institution }}
+                                        </td>
+                                        <td class="px-6 py-4">{{ $edu->degree ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $edu->start_date?->format('d M Y') ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $edu->end_date?->format('d M Y') ?? 'Sekarang' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+
+                        </table>
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500">Tidak ada riwayat pendidikan.</p>
+                @endif
+            </div>
+
+
+            {{-- EMPLOYMENT --}}
+            <div>
+                <h3 class="text-lg font-bold mb-6 text-gray-800 dark:text-gray-200">
+                    💼 Riwayat Pekerjaan
+                </h3>
+
+                @if ($profile->employmentHistories->count())
+                    <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800">
+                        <table class="min-w-full text-sm text-left">
+
+                            <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Perusahaan</th>
+                                    <th class="px-6 py-4">Jabatan</th>
+                                    <th class="px-6 py-4">Mulai</th>
+                                    <th class="px-6 py-4">Selesai</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                @foreach ($profile->employmentHistories as $job)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                                        <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-200">
+                                            {{ $job->company_name }}
+                                        </td>
+                                        <td class="px-6 py-4">{{ $job->position_title ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $job->start_date?->format('d M Y') ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $job->end_date?->format('d M Y') ?? 'Sekarang' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+
+                        </table>
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500">Tidak ada riwayat pekerjaan.</p>
+                @endif
             </div>
 
         </div>
