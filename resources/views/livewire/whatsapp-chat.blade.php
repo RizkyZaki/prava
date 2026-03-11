@@ -27,6 +27,13 @@
         .wa-msg-anim{animation:wa-fadein .15s ease-out}
         @keyframes wa-pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .wa-badge-pulse{animation:wa-pulse 2s ease-in-out infinite}
+
+        @keyframes wa-modal-in{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+        .wa-modal-anim{animation:wa-modal-in .2s ease-out}
+
+        .wa-tab-active{color:#00a884;border-color:#00a884}
+        .wa-tab-inactive{color:#8696a0;border-color:transparent}
+        .wa-tab-inactive:hover{color:#e9edef}
     </style>
 
     @php
@@ -47,7 +54,12 @@
     <div class="flex h-screen overflow-hidden">
 
         {{-- ===== LEFT SIDEBAR ===== --}}
-        <div class="w-[340px] lg:w-[380px] shrink-0 flex flex-col border-r border-[#313d45] bg-[#111b21]">
+        <div class="
+            {{ $showMobileSidebar ? 'flex' : 'hidden' }}
+            md:flex
+            w-full md:w-[340px] lg:w-[380px] shrink-0 flex-col border-r border-[#313d45] bg-[#111b21]
+            absolute md:relative inset-0 z-20 md:z-auto
+        ">
 
             {{-- Top bar --}}
             <div class="wa-topbar px-4 py-3 flex items-center gap-3">
@@ -66,6 +78,20 @@
                 </div>
             </div>
 
+            {{-- Tabs: Aktif / Riwayat --}}
+            <div class="flex border-b border-[#313d45] bg-[#111b21]">
+                <button
+                    wire:click="toggleHistory"
+                    type="button"
+                    class="flex-1 py-2.5 text-[13px] font-medium border-b-2 transition-colors {{ !$showHistory ? 'wa-tab-active' : 'wa-tab-inactive' }}"
+                >Aktif</button>
+                <button
+                    wire:click="toggleHistory"
+                    type="button"
+                    class="flex-1 py-2.5 text-[13px] font-medium border-b-2 transition-colors {{ $showHistory ? 'wa-tab-active' : 'wa-tab-inactive' }}"
+                >Riwayat</button>
+            </div>
+
             {{-- Search --}}
             <div class="px-2.5 py-1.5 bg-[#111b21]">
                 <div class="flex items-center gap-3 rounded-lg bg-[#202c33] px-3 py-[7px]">
@@ -73,7 +99,7 @@
                     <input
                         type="text"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="Cari atau mulai chat baru"
+                        placeholder="Cari percakapan..."
                         class="flex-1 bg-transparent text-[13px] text-[#d1d7db] placeholder-[#8696a0] outline-none border-none focus:ring-0"
                     >
                 </div>
@@ -120,7 +146,9 @@
                                         {{ $conv->phone }}
                                     @endif
                                 </p>
-                                @if ($conv->mode === 'admin')
+                                @if ($showHistory)
+                                    <span class="text-[10px] bg-[#667781] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">SELESAI</span>
+                                @elseif ($conv->mode === 'admin')
                                     <span class="text-[10px] bg-[#25d366] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0 wa-badge-pulse">ADMIN</span>
                                 @elseif ($conv->mode === 'ai')
                                     <span class="text-[10px] bg-[#7c5ce3] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">AI</span>
@@ -128,35 +156,49 @@
                                     <span class="text-[10px] bg-[#667781] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">BARU</span>
                                 @endif
                             </div>
+                            @if ($showHistory && $conv->ended_at)
+                                <p class="text-[11px] text-[#667781] mt-0.5">Berakhir {{ $conv->ended_at->diffForHumans() }}</p>
+                            @endif
                         </div>
                     </button>
                 @empty
                     <div class="flex flex-col items-center justify-center h-full px-8 text-center">
                         <div class="w-20 h-20 rounded-full bg-[#202c33] flex items-center justify-center mb-4">
-                            <svg class="w-10 h-10 text-[#3b4a54]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+                            @if ($showHistory)
+                                <svg class="w-10 h-10 text-[#3b4a54]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            @else
+                                <svg class="w-10 h-10 text-[#3b4a54]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+                            @endif
                         </div>
-                        <p class="text-[#8696a0] text-sm">Belum ada percakapan aktif</p>
-                        <p class="text-[#667781] text-xs mt-1">Chat baru akan muncul di sini</p>
+                        <p class="text-[#8696a0] text-sm">
+                            {{ $showHistory ? 'Belum ada riwayat percakapan' : 'Belum ada percakapan aktif' }}
+                        </p>
+                        <p class="text-[#667781] text-xs mt-1">
+                            {{ $showHistory ? 'Percakapan yang diakhiri akan muncul di sini' : 'Chat baru akan muncul di sini' }}
+                        </p>
                     </div>
                 @endforelse
             </div>
         </div>
 
         {{-- ===== RIGHT PANEL ===== --}}
-        <div class="flex-1 flex flex-col bg-[#0b141a] min-w-0">
+        <div class="flex-1 flex flex-col bg-[#0b141a] min-w-0
+            {{ $showMobileSidebar && $selectedConversationId ? 'hidden md:flex' : '' }}
+            {{ $showMobileSidebar && !$selectedConversationId ? 'hidden md:flex' : '' }}
+        ">
 
             @if (! $selectedConversationId)
             {{-- Welcome screen --}}
             <div class="flex-1 flex flex-col items-center justify-center bg-[#222e35]">
                 <div class="text-center max-w-[480px] px-6">
-                    <div class="mx-auto mb-8 relative w-[200px] h-[200px] flex items-center justify-center">
-                        <div class="absolute w-[200px] h-[200px] rounded-full border border-[#25d366]/10"></div>
-                        <div class="absolute w-[150px] h-[150px] rounded-full border border-[#25d366]/15"></div>
-                        <div class="absolute w-[100px] h-[100px] rounded-full bg-[#25d366]/5"></div>
-                        <svg class="w-16 h-16 text-[#25d366]/50" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    <div class="mx-auto mb-8 relative w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] flex items-center justify-center">
+                        <div class="absolute w-full h-full rounded-full border border-[#25d366]/10"></div>
+                        <div class="absolute w-3/4 h-3/4 rounded-full border border-[#25d366]/15"></div>
+                        <div class="absolute w-1/2 h-1/2 rounded-full bg-[#25d366]/5"></div>
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 text-[#25d366]/50" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </div>
-                    <h2 class="text-[28px] font-light text-[#e9edef]">Prava WhatsApp</h2>
-                    <p class="text-[14px] text-[#8696a0] mt-3 leading-relaxed">
+                    <h2 class="text-[22px] sm:text-[28px] font-light text-[#e9edef]">Prava WhatsApp</h2>
+                    <p class="text-[13px] sm:text-[14px] text-[#8696a0] mt-3 leading-relaxed">
                         Kirim dan terima pesan WhatsApp langsung dari Prava ERP.<br>
                         Pilih percakapan di panel kiri untuk mulai.
                     </p>
@@ -171,8 +213,16 @@
             <div wire:key="wa-chat-{{ $selectedConversationId }}" class="flex flex-col flex-1 min-h-0">
 
                 {{-- Chat header --}}
-                <div class="wa-header-bar px-4 py-2.5 border-b border-[#313d45] flex items-center justify-between shrink-0">
-                    <div class="flex items-center gap-3 min-w-0">
+                <div class="wa-header-bar px-2 sm:px-4 py-2.5 border-b border-[#313d45] flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        {{-- Back button (mobile only) --}}
+                        <button
+                            wire:click="backToList"
+                            type="button"
+                            class="md:hidden w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors shrink-0"
+                        >
+                            <svg class="w-5 h-5 text-[#8696a0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+                        </button>
                         <div class="w-10 h-10 rounded-full {{ $convColor }} flex items-center justify-center text-white font-semibold shrink-0">
                             {{ $convInitial }}
                         </div>
@@ -181,34 +231,35 @@
                                 {{ e($conv0?->customer_name ?? $conv0?->phone ?? '') }}
                             </h3>
                             <p class="text-[12px] text-[#8696a0] flex items-center gap-1 mt-px">
-                                <span>{{ $conv0?->phone ?? '' }}</span>
+                                <span class="truncate">{{ $conv0?->phone ?? '' }}</span>
                                 @if ($conv0)
-                                    <span>&middot;</span>
+                                    <span class="hidden sm:inline">&middot;</span>
                                     @if ($conv0->mode === 'admin')
-                                        <span class="text-[#e65100] font-medium">Admin</span>
+                                        <span class="hidden sm:inline text-[#e65100] font-medium">Admin</span>
                                     @elseif ($conv0->mode === 'ai')
-                                        <span class="text-[#7c5ce3] font-medium">AI Aktif</span>
+                                        <span class="hidden sm:inline text-[#7c5ce3] font-medium">AI Aktif</span>
                                     @else
-                                        <span>Menunggu</span>
+                                        <span class="hidden sm:inline">Menunggu</span>
                                     @endif
                                 @endif
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
+                    @if (! $showHistory)
+                    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
                         <button
                             wire:click="switchToAi"
                             wire:confirm="Alihkan ke mode AI?"
                             type="button"
-                            class="text-[12px] font-medium text-white bg-[#7c5ce3] hover:bg-[#6a4fd4] px-3 py-1.5 rounded-lg transition-colors"
+                            class="text-[11px] sm:text-[12px] font-medium text-white bg-[#7c5ce3] hover:bg-[#6a4fd4] px-2 sm:px-3 py-1.5 rounded-lg transition-colors"
                         >AI Mode</button>
                         <button
-                            wire:click="endChat"
-                            wire:confirm="Akhiri percakapan ini?"
+                            wire:click="confirmEndChat"
                             type="button"
-                            class="text-[12px] font-medium text-white bg-[#ea4335] hover:bg-[#d33426] px-3 py-1.5 rounded-lg transition-colors"
+                            class="text-[11px] sm:text-[12px] font-medium text-white bg-[#ea4335] hover:bg-[#d33426] px-2 sm:px-3 py-1.5 rounded-lg transition-colors"
                         >Akhiri</button>
                     </div>
+                    @endif
                 </div>
 
                 {{-- Messages --}}
@@ -216,7 +267,7 @@
                     id="chatContainer"
                     class="wa-chat-bg wa-scroll flex-1 overflow-y-auto"
                 >
-                    <div class="max-w-[800px] w-full mx-auto px-4 sm:px-8 py-4 flex flex-col gap-[2px]">
+                    <div class="w-full px-3 sm:px-6 lg:px-10 py-4 flex flex-col gap-[2px]">
 
                         @if ($this->messages->isNotEmpty())
                             <div class="flex justify-center my-2">
@@ -236,7 +287,7 @@
                                 </div>
                             @else
                                 <div wire:key="msg-{{ $msg->id }}" class="flex {{ $isCustomer ? 'justify-start' : 'justify-end' }} mb-[2px] wa-msg-anim">
-                                    <div class="max-w-[75%] sm:max-w-[65%] {{ $isCustomer ? 'wa-bubble-in' : 'wa-bubble-out' }} px-2 pt-1.5 pb-2 min-w-[80px]">
+                                    <div class="max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] {{ $isCustomer ? 'wa-bubble-in' : 'wa-bubble-out' }} px-2 pt-1.5 pb-2 min-w-[80px]">
 
                                         @if (! $isCustomer)
                                             <p class="text-[11px] font-semibold mb-0.5 px-1
@@ -300,6 +351,7 @@
                     </div>
                 </div>
 
+                @if (! $showHistory)
                 {{-- Media preview --}}
                 @if ($mediaFile)
                     <div class="wa-input-area px-4 pt-2 pb-0">
@@ -320,7 +372,7 @@
                 @endif
 
                 {{-- Input bar --}}
-                <div class="wa-input-area px-3 py-[5px] flex items-end gap-1.5 shrink-0">
+                <div class="wa-input-area px-2 sm:px-3 py-[5px] flex items-end gap-1 sm:gap-1.5 shrink-0">
                     <label class="w-10 h-10 flex items-center justify-center rounded-full text-[#8696a0] hover:bg-white/5 cursor-pointer transition-colors shrink-0">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/></svg>
                         <input type="file" wire:model="mediaFile" class="hidden" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx">
@@ -349,34 +401,78 @@
                 <div wire:loading wire:target="sendReply,sendMedia" class="wa-input-area px-4 py-1">
                     <p class="text-[11px] text-[#8696a0]">Mengirim...</p>
                 </div>
+                @else
+                {{-- Read-only bar for history --}}
+                <div class="wa-input-area px-4 py-3 text-center">
+                    <p class="text-[13px] text-[#667781]">Percakapan ini sudah berakhir</p>
+                </div>
+                @endif
             </div>
             @endif
 
         </div>
     </div>
 
+    {{-- ===== END CHAT MODAL ===== --}}
+    @if ($showEndChatModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(11,20,26,.85)">
+        <div class="wa-modal-anim bg-[#3b4a54] rounded-xl shadow-2xl w-full max-w-[360px] overflow-hidden">
+            {{-- Modal header --}}
+            <div class="px-6 pt-6 pb-2 text-center">
+                <div class="mx-auto w-14 h-14 rounded-full bg-[#ea4335]/10 flex items-center justify-center mb-4">
+                    <svg class="w-7 h-7 text-[#ea4335]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                    </svg>
+                </div>
+                <h3 class="text-[17px] font-semibold text-[#e9edef]">Akhiri Percakapan?</h3>
+                <p class="text-[13px] text-[#8696a0] mt-2 leading-relaxed">
+                    Percakapan dengan <span class="text-[#e9edef] font-medium">{{ e($conv0?->customer_name ?? $conv0?->phone ?? '') }}</span> akan diakhiri.<br>
+                    Customer akan dikembalikan ke mode AI dan chat berpindah ke riwayat.
+                </p>
+            </div>
+            {{-- Modal actions --}}
+            <div class="px-6 pb-6 pt-4 flex gap-3">
+                <button
+                    wire:click="cancelEndChat"
+                    type="button"
+                    class="flex-1 py-2.5 rounded-lg text-[13px] font-medium text-[#e9edef] bg-[#202c33] hover:bg-[#182229] transition-colors"
+                >Batal</button>
+                <button
+                    wire:click="endChat"
+                    type="button"
+                    class="flex-1 py-2.5 rounded-lg text-[13px] font-medium text-white bg-[#ea4335] hover:bg-[#d33426] transition-colors"
+                >Ya, Akhiri</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @script
     <script>
-        // Echo / Reverb real-time listeners
-        if (window.Echo) {
-            window.Echo.channel('whatsapp-dashboard')
-                .listen('NewWhatsappMessage', (e) => {
-                    $wire.onNewMessage(e);
-                })
-                .listen('ConversationUpdated', (e) => {
-                    $wire.onConversationUpdated(e);
-                });
+        (() => {
+            // Echo / Reverb real-time listeners
+            if (window.Echo) {
+                window.Echo.channel('whatsapp-dashboard')
+                    .listen('NewWhatsappMessage', (e) => {
+                        $wire.onNewMessage(e);
+                    })
+                    .listen('ConversationUpdated', (e) => {
+                        $wire.onConversationUpdated(e);
+                    });
 
-            console.log('[WA Chat] Echo subscribed to whatsapp-dashboard channel');
-        }
+                console.log('[WA Chat] Echo subscribed to whatsapp-dashboard channel');
+            } else {
+                console.warn('[WA Chat] Echo not available');
+            }
 
-        // Scroll to bottom
-        $wire.on('scroll-to-bottom', () => {
-            setTimeout(() => {
-                const el = document.getElementById('chatContainer');
-                if (el) el.scrollTop = el.scrollHeight;
-            }, 50);
-        });
+            // Scroll to bottom
+            $wire.on('scroll-to-bottom', () => {
+                setTimeout(() => {
+                    const el = document.getElementById('chatContainer');
+                    if (el) el.scrollTop = el.scrollHeight;
+                }, 50);
+            });
+        })()
     </script>
     @endscript
 </div>

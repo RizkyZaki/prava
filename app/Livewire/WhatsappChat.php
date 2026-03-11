@@ -21,19 +21,44 @@ class WhatsappChat extends Component
     public string $replyMessage = '';
     public string $search = '';
     public $mediaFile = null;
+    public bool $showHistory = false;
+    public bool $showEndChatModal = false;
+    public bool $showMobileSidebar = true;
 
     public function mount(): void
     {
         abort_unless(Auth::user()?->hasRole('super_admin'), 403);
     }
 
+    public function toggleHistory(): void
+    {
+        $this->showHistory = ! $this->showHistory;
+        unset($this->conversations);
+    }
+
+    public function confirmEndChat(): void
+    {
+        $this->showEndChatModal = true;
+    }
+
+    public function cancelEndChat(): void
+    {
+        $this->showEndChatModal = false;
+    }
+
     #[Computed]
     public function conversations(): Collection
     {
-        $query = WhatsappConversation::active()
+        $query = WhatsappConversation::query()
             ->with(['assignedAdmin', 'messages' => fn ($q) => $q->latest()->limit(1)])
             ->withCount('messages')
             ->orderByDesc('last_message_at');
+
+        if ($this->showHistory) {
+            $query->whereNotNull('ended_at');
+        } else {
+            $query->whereNull('ended_at');
+        }
 
         if ($this->search !== '') {
             $search = $this->search;
@@ -71,8 +96,14 @@ class WhatsappChat extends Component
     public function selectConversation(int $conversationId): void
     {
         $this->selectedConversationId = $conversationId;
+        $this->showMobileSidebar = false;
         unset($this->conversations, $this->messages, $this->selectedConversation);
         $this->dispatch('scroll-to-bottom');
+    }
+
+    public function backToList(): void
+    {
+        $this->showMobileSidebar = true;
     }
 
     public function updatedSearch(): void
@@ -149,7 +180,9 @@ class WhatsappChat extends Component
         $service = app(WhatsappService::class);
         $service->endChat($conversation);
 
+        $this->showEndChatModal = false;
         $this->selectedConversationId = null;
+        $this->showMobileSidebar = true;
         unset($this->conversations, $this->messages, $this->selectedConversation);
     }
 
@@ -167,8 +200,7 @@ class WhatsappChat extends Component
         $service = app(WhatsappService::class);
         $service->switchToAi($conversation);
 
-        $this->selectedConversationId = null;
-        unset($this->conversations, $this->messages, $this->selectedConversation);
+        unset($this->conversations, $this->selectedConversation);
     }
 
     /**
