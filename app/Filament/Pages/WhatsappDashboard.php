@@ -194,11 +194,30 @@ class WhatsappDashboard extends Page
     }
 
     /**
-     * Polling: refresh conversations list every 5 seconds.
+     * Called by Echo when a new WhatsApp message is broadcast.
      */
-    public function poll(): void
+    public function onNewMessage(array $data = []): void
     {
-        unset($this->conversations, $this->messages, $this->selectedConversation);
+        unset($this->conversations);
+
+        $conversationId = $data['message']['conversation_id'] ?? null;
+        if ($conversationId && $conversationId == $this->selectedConversationId) {
+            unset($this->messages, $this->selectedConversation);
+            $this->dispatch('scroll-to-bottom');
+        }
+    }
+
+    /**
+     * Called by Echo when a conversation is updated.
+     */
+    public function onConversationUpdated(array $data = []): void
+    {
+        unset($this->conversations);
+
+        $conversationId = $data['conversation']['id'] ?? null;
+        if ($conversationId && $conversationId == $this->selectedConversationId) {
+            unset($this->selectedConversation);
+        }
     }
 
     public static function canAccess(): bool

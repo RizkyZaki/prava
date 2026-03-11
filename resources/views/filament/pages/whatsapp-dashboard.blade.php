@@ -48,7 +48,6 @@
         .wa-msg-anim{animation:wa-fadein .15s ease-out}
         @keyframes wa-pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .wa-badge-pulse{animation:wa-pulse 2s ease-in-out infinite}
-        [x-cloak]{display:none!important}
     </style>
 
     @php
@@ -66,7 +65,7 @@
         $convColor = $avatarColors[$convInitial] ?? 'bg-[#6a7175]';
     @endphp
 
-    <div class="flex flex-1 min-h-0 overflow-hidden" wire:poll.15s="poll">
+    <div class="flex flex-1 min-h-0 overflow-hidden">
 
         {{-- ===== LEFT SIDEBAR ===== --}}
         <div class="w-[340px] lg:w-[380px] shrink-0 flex flex-col border-r border-gray-200 dark:border-[#313d45] bg-white dark:bg-[#111b21]">
@@ -164,8 +163,9 @@
         {{-- ===== RIGHT PANEL ===== --}}
         <div class="flex-1 flex flex-col bg-[#eae6df] dark:bg-[#0b141a] min-w-0">
 
-            {{-- Welcome screen (visible when no conversation selected) --}}
-            <div x-show="!$wire.selectedConversationId" class="flex-1 flex flex-col items-center justify-center bg-[#f0f2f5] dark:bg-[#222e35]">
+            @if (! $selectedConversationId)
+            {{-- Welcome screen --}}
+            <div wire:key="wa-welcome" class="flex-1 flex flex-col items-center justify-center bg-[#f0f2f5] dark:bg-[#222e35]">
                 <div class="text-center max-w-[480px] px-6">
                     <div class="mx-auto mb-8 relative w-[200px] h-[200px] flex items-center justify-center">
                         <div class="absolute w-[200px] h-[200px] rounded-full border border-[#25d366]/10"></div>
@@ -184,9 +184,9 @@
                     </div>
                 </div>
             </div>
-
-            {{-- Chat view (visible when conversation selected, always in DOM) --}}
-            <div x-show="$wire.selectedConversationId" x-cloak class="flex flex-col flex-1 min-h-0">
+            @else
+            {{-- Chat view --}}
+            <div wire:key="wa-chat-{{ $selectedConversationId }}" class="flex flex-col flex-1 min-h-0">
 
                 {{-- Chat header --}}
                 <div class="wa-header-bar px-4 py-2.5 border-b border-[#d1d7db] dark:border-[#313d45] flex items-center justify-between shrink-0">
@@ -368,12 +368,47 @@
                     <p class="text-[11px] text-[#667781] dark:text-[#8696a0]">Mengirim...</p>
                 </div>
             </div>
+            @endif
 
         </div>
     </div>
 
+    @assets
+    @vite(['resources/js/app.js'])
+    @endassets
+
     @script
     <script>
+        // --- Echo / Reverb real-time listeners ---
+        let echoChannel = null;
+
+        function initEcho() {
+            if (!window.Echo) return;
+
+            echoChannel = window.Echo.channel('whatsapp-dashboard');
+
+            echoChannel.listen('NewWhatsappMessage', (e) => {
+                $wire.onNewMessage(e);
+            });
+
+            echoChannel.listen('ConversationUpdated', (e) => {
+                $wire.onConversationUpdated(e);
+            });
+
+            console.log('[WA Dashboard] Echo subscribed to whatsapp-dashboard channel');
+        }
+
+        initEcho();
+
+        // Cleanup on SPA navigation
+        document.addEventListener('livewire:navigating', () => {
+            if (echoChannel) {
+                window.Echo.leaveChannel('whatsapp-dashboard');
+                echoChannel = null;
+            }
+        });
+
+        // --- Scroll to bottom ---
         $wire.on('scroll-to-bottom', () => {
             setTimeout(() => {
                 const el = document.getElementById('chatContainer');
