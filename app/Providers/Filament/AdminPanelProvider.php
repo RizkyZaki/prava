@@ -21,9 +21,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Models\Setting;
 use App\Http\Middleware\FilamentUserSettings;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Facades\Blade;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -39,19 +36,6 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
-            ->renderHook(
-                PanelsRenderHook::HEAD_END,
-                fn () => new HtmlString(
-                    '<meta name="reverb-key" content="' . e(config('broadcasting.connections.reverb.key')) . '">'
-                    . '<meta name="reverb-host" content="' . e(parse_url(config('app.url'), PHP_URL_HOST)) . '">'
-                    . '<meta name="reverb-port" content="' . e(parse_url(config('app.url'), PHP_URL_PORT) ?: (str_starts_with(config('app.url'), 'https') ? '443' : '80')) . '">'
-                    . '<meta name="reverb-scheme" content="' . e(parse_url(config('app.url'), PHP_URL_SCHEME) ?? 'https') . '">'
-                )
-            )
-            ->renderHook(
-                PanelsRenderHook::SCRIPTS_AFTER,
-                fn (): string => Blade::render("@vite('resources/js/app.js')")
-            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
