@@ -129,7 +129,7 @@
 
             {{-- Conversations list --}}
             <div class="flex-1 overflow-y-auto wa-scroll">
-                @forelse ($conversations as $conv)
+                @forelse ($this->conversations as $conv)
                     @php
                         $lastMsg = $conv->messages->last();
                         $initial = strtoupper(substr($conv->customer_name ?? 'U', 0, 1));
@@ -248,13 +248,13 @@
                 >
                     <div class="max-w-[800px] w-full mx-auto px-4 sm:px-8 py-4 flex flex-col gap-[2px]">
 
-                        @if ($messages->isNotEmpty())
+                        @if ($this->messages->isNotEmpty())
                             <div class="flex justify-center my-2">
-                                <span class="wa-date-pill">{{ $messages->first()->created_at->translatedFormat('d F Y') }}</span>
+                                <span class="wa-date-pill">{{ $this->messages->first()->created_at->translatedFormat('d F Y') }}</span>
                             </div>
                         @endif
 
-                        @forelse ($messages as $msg)
+                        @forelse ($this->messages as $msg)
                             @php
                                 $isCustomer = $msg->sender_type === 'customer';
                                 $isSystem = $msg->sender_type === 'system';

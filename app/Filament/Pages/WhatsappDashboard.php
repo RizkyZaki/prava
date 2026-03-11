@@ -42,17 +42,14 @@ class WhatsappDashboard extends Page
     public string $replyMessage = '';
     public string $search = '';
     public $mediaFile = null;
-    public Collection $conversations;
-    public Collection $messages;
 
     public function mount(): void
     {
-        $this->conversations = collect();
-        $this->messages = collect();
-        $this->loadConversations();
+        // No initialization needed — conversations and messages are computed fresh each render
     }
 
-    public function loadConversations(): void
+    #[Computed]
+    public function conversations(): Collection
     {
         $query = WhatsappConversation::active()
             ->with(['assignedAdmin', 'messages' => fn ($q) => $q->latest()->limit(1)])
@@ -67,31 +64,31 @@ class WhatsappDashboard extends Page
             });
         }
 
-        $this->conversations = $query->get();
+        return $query->get();
+    }
+
+    #[Computed]
+    public function messages(): Collection
+    {
+        if (! $this->selectedConversationId) {
+            return collect();
+        }
+
+        return WhatsappMessage::where('whatsapp_conversation_id', $this->selectedConversationId)
+            ->orderBy('created_at')
+            ->get();
     }
 
     public function selectConversation(int $conversationId): void
     {
         $this->selectedConversationId = $conversationId;
-        $this->loadMessages();
+        unset($this->conversations, $this->messages, $this->selectedConversation);
         $this->dispatch('scroll-to-bottom');
     }
 
     public function updatedSearch(): void
     {
-        $this->loadConversations();
-    }
-
-    public function loadMessages(): void
-    {
-        if (! $this->selectedConversationId) {
-            $this->messages = collect();
-            return;
-        }
-
-        $this->messages = WhatsappMessage::where('whatsapp_conversation_id', $this->selectedConversationId)
-            ->orderBy('created_at')
-            ->get();
+        unset($this->conversations);
     }
 
     #[Computed]
@@ -121,8 +118,7 @@ class WhatsappDashboard extends Page
         $service->sendAdminReply($conversation, $text, Auth::id());
 
         $this->replyMessage = '';
-        $this->loadMessages();
-        $this->loadConversations();
+        unset($this->conversations, $this->messages, $this->selectedConversation);
         $this->dispatch('scroll-to-bottom');
     }
 
@@ -152,8 +148,7 @@ class WhatsappDashboard extends Page
 
         $this->mediaFile = null;
         $this->replyMessage = '';
-        $this->loadMessages();
-        $this->loadConversations();
+        unset($this->conversations, $this->messages, $this->selectedConversation);
         $this->dispatch('scroll-to-bottom');
     }
 
@@ -177,8 +172,7 @@ class WhatsappDashboard extends Page
         $service->endChat($conversation);
 
         $this->selectedConversationId = null;
-        $this->messages = collect();
-        $this->loadConversations();
+        unset($this->conversations, $this->messages, $this->selectedConversation);
     }
 
     public function switchToAi(): void
@@ -196,8 +190,7 @@ class WhatsappDashboard extends Page
         $service->switchToAi($conversation);
 
         $this->selectedConversationId = null;
-        $this->messages = collect();
-        $this->loadConversations();
+        unset($this->conversations, $this->messages, $this->selectedConversation);
     }
 
     /**
@@ -205,11 +198,7 @@ class WhatsappDashboard extends Page
      */
     public function poll(): void
     {
-        $this->loadConversations();
-
-        if ($this->selectedConversationId) {
-            $this->loadMessages();
-        }
+        unset($this->conversations, $this->messages, $this->selectedConversation);
     }
 
     public static function canAccess(): bool
