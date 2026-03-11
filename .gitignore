@@ -25,3 +25,5 @@ yarn-error.log
 **/caddy
 frankenphp
 frankenphp-worker.php
+server_meta_whatsapp.js
+web_interface.html

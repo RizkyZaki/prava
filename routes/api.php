@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AttendanceApiController;
+use App\Http\Controllers\Api\WhatsappWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,9 @@ Route::prefix('attendance')->group(function () {
 
 // Get user list untuk mapping di device
 Route::get('/users', [AttendanceApiController::class, 'users']);
+
+// WhatsApp Meta Webhook
+Route::prefix('whatsapp')->middleware('throttle:60,1')->group(function () {
+    Route::get('/webhook', [WhatsappWebhookController::class, 'verify']);
+    Route::post('/webhook', [WhatsappWebhookController::class, 'handle']);
+});
