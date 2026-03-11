@@ -48,6 +48,7 @@
         .wa-msg-anim{animation:wa-fadein .15s ease-out}
         @keyframes wa-pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .wa-badge-pulse{animation:wa-pulse 2s ease-in-out infinite}
+        [x-cloak]{display:none!important}
     </style>
 
     @php
@@ -193,8 +194,9 @@
         {{-- ===== RIGHT PANEL ===== --}}
         <div class="flex-1 flex flex-col bg-[#eae6df] dark:bg-[#0b141a] min-w-0">
 
+            {{-- Chat panel - always in DOM, toggled by x-show --}}
+            <div wire:key="chat-panel" x-show="$wire.selectedConversationId" x-cloak class="flex flex-col flex-1 min-h-0">
             @if ($selectedConversationId && $this->selectedConversation)
-            <div wire:key="chat-{{ $selectedConversationId }}" class="flex flex-col flex-1 min-h-0">
 
                 {{-- Chat header --}}
                 <div class="wa-header-bar px-4 py-2.5 border-b border-[#d1d7db] dark:border-[#313d45] flex items-center justify-between shrink-0">
@@ -385,12 +387,11 @@
                 <div wire:loading wire:target="sendReply,sendMedia" class="wa-input-area px-4 py-1">
                     <p class="text-[11px] text-[#667781] dark:text-[#8696a0]">Mengirim...</p>
                 </div>
+            @endif
             </div>
 
-            @else
-
-                {{-- Welcome screen --}}
-                <div class="flex-1 flex flex-col items-center justify-center bg-[#f0f2f5] dark:bg-[#222e35]">
+                {{-- Welcome screen - always in DOM, toggled by x-show --}}
+                <div wire:key="welcome-panel" x-show="!$wire.selectedConversationId" class="flex-1 flex flex-col items-center justify-center bg-[#f0f2f5] dark:bg-[#222e35]">
                     <div class="text-center max-w-[480px] px-6">
                         <div class="mx-auto mb-8 relative w-[200px] h-[200px] flex items-center justify-center">
                             <div class="absolute w-[200px] h-[200px] rounded-full border border-[#25d366]/10"></div>
@@ -409,7 +410,6 @@
                         </div>
                     </div>
                 </div>
-            @endif
 
         </div>
     </div>
