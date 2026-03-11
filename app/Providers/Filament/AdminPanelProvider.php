@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::HEAD_END,
                 fn () => new HtmlString(
                     '<meta name="reverb-key" content="' . e(config('broadcasting.connections.reverb.key')) . '">'
-                    . '<meta name="reverb-host" content="' . e(config('broadcasting.connections.reverb.options.host')) . '">'
+                    . '<meta name="reverb-host" content="' . e(parse_url(config('app.url'), PHP_URL_HOST)) . '">'
                     . '<meta name="reverb-port" content="' . e(config('broadcasting.connections.reverb.options.port', 8085)) . '">'
                     . '<meta name="reverb-scheme" content="' . e(config('broadcasting.connections.reverb.options.scheme', 'http')) . '">'
                 )
