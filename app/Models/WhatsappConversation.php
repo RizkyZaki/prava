@@ -39,6 +39,11 @@ class WhatsappConversation extends Model
 
     public function scopeActive(Builder $query): Builder
     {
+        return $query->whereNull('ended_at');
+    }
+
+    public function scopeAdminMode(Builder $query): Builder
+    {
         return $query->where('mode', 'admin')->whereNull('ended_at');
     }
 

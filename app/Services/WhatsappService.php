@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Events\ConversationUpdated;
 use App\Events\NewWhatsappMessage;
+use App\Jobs\SendWhatsappMediaJob;
 use App\Jobs\SendWhatsappMessageJob;
 use App\Jobs\SendWhatsappInteractiveJob;
 use App\Models\WhatsappConversation;
 use App\Models\WhatsappMessage;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class WhatsappService
@@ -37,6 +39,11 @@ class WhatsappService
 
         if ($message['type'] === 'interactive') {
             $this->handleInteractiveReply($conversation, $message);
+            return;
+        }
+
+        if (in_array($message['type'], ['image', 'video', 'audio', 'document'])) {
+            $this->handleMediaMessage($conversation, $message);
             return;
         }
 
@@ -95,6 +102,97 @@ class WhatsappService
                 '👨‍💻 Mode Admin Aktif. AI dinonaktifkan. Mohon tunggu balasan dari tim kami.'
             );
         }
+    }
+
+    /**
+     * Handle incoming media message (image, video, audio, document).
+     */
+    protected function handleMediaMessage(WhatsappConversation $conversation, array $message): void
+    {
+        $type = $message['type'];
+        $mediaData = $message[$type] ?? [];
+        $mediaId = $mediaData['id'] ?? null;
+        $caption = $mediaData['caption'] ?? null;
+        $mime = $mediaData['mime_type'] ?? null;
+        $waMessageId = $message['id'] ?? null;
+
+        $mediaUrl = $mediaId ? $this->getMediaUrl($mediaId) : null;
+
+        $msg = $conversation->messages()->create([
+            'sender_type' => 'customer',
+            'body' => $caption ?? "[{$type}]",
+            'media_type' => $type,
+            'media_url' => $mediaUrl,
+            'media_mime' => $mime,
+            'whatsapp_message_id' => $waMessageId,
+        ]);
+
+        $conversation->update(['last_message_at' => now()]);
+
+        broadcast(new NewWhatsappMessage($msg, $conversation))->toOthers();
+
+        // If mode is selection, send selection buttons
+        if ($conversation->mode === 'selection') {
+            SendWhatsappInteractiveJob::dispatch(
+                $conversation->whatsapp_phone_number_id,
+                $conversation->phone
+            );
+        }
+    }
+
+    /**
+     * Get media URL from Meta using media ID.
+     */
+    protected function getMediaUrl(string $mediaId): ?string
+    {
+        $accessToken = config('whatsapp.access_token');
+        $apiVersion = config('whatsapp.api_version');
+        $baseUrl = config('whatsapp.api_base_url');
+
+        $response = Http::withToken($accessToken)
+            ->get("{$baseUrl}/{$apiVersion}/{$mediaId}");
+
+        if ($response->successful()) {
+            return $response->json('url');
+        }
+
+        Log::warning('Failed to get media URL', [
+            'media_id' => $mediaId,
+            'status' => $response->status(),
+        ]);
+
+        return null;
+    }
+
+    /**
+     * Send media from admin dashboard.
+     */
+    public function sendAdminMedia(WhatsappConversation $conversation, string $mediaUrl, string $mediaType, ?string $caption, int $adminUserId): WhatsappMessage
+    {
+        $msg = $conversation->messages()->create([
+            'sender_type' => 'admin',
+            'sender_id' => $adminUserId,
+            'body' => $caption ?? "[{$mediaType}]",
+            'media_type' => $mediaType,
+            'media_url' => $mediaUrl,
+        ]);
+
+        $conversation->update([
+            'last_message_at' => now(),
+            'assigned_to' => $conversation->assigned_to ?? $adminUserId,
+        ]);
+
+        SendWhatsappMediaJob::dispatch(
+            $conversation->whatsapp_phone_number_id,
+            $conversation->phone,
+            $mediaType,
+            $mediaUrl,
+            $caption
+        );
+
+        broadcast(new NewWhatsappMessage($msg, $conversation->fresh()))->toOthers();
+
+        return $msg;
     }
 
     /**

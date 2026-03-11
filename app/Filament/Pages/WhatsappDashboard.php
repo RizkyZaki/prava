@@ -10,10 +10,12 @@ use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\WithFileUploads;
 
 class WhatsappDashboard extends Page
 {
     use HasPageShield;
+    use WithFileUploads;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
     protected static string|\UnitEnum|null $navigationGroup = 'Customer Service';
@@ -39,6 +41,7 @@ class WhatsappDashboard extends Page
     public ?int $selectedConversationId = null;
     public string $replyMessage = '';
     public string $search = '';
+    public $mediaFile = null;
     public Collection $conversations;
     public Collection $messages;
 
@@ -121,6 +124,42 @@ class WhatsappDashboard extends Page
         $this->loadMessages();
         $this->loadConversations();
         $this->dispatch('scroll-to-bottom');
+    }
+
+    public function sendMedia(): void
+    {
+        if (! $this->mediaFile || ! $this->selectedConversationId) {
+            return;
+        }
+
+        $conversation = WhatsappConversation::find($this->selectedConversationId);
+        if (! $conversation || $conversation->ended_at) {
+            return;
+        }
+
+        $mime = $this->mediaFile->getMimeType();
+        $mediaType = str_starts_with($mime, 'image/') ? 'image'
+            : (str_starts_with($mime, 'video/') ? 'video'
+            : (str_starts_with($mime, 'audio/') ? 'audio' : 'document'));
+
+        $path = $this->mediaFile->store('whatsapp-media', 'public');
+        $mediaUrl = url('storage/' . $path);
+
+        $caption = trim($this->replyMessage) !== '' ? trim($this->replyMessage) : null;
+
+        $service = app(WhatsappService::class);
+        $service->sendAdminMedia($conversation, $mediaUrl, $mediaType, $caption, Auth::id());
+
+        $this->mediaFile = null;
+        $this->replyMessage = '';
+        $this->loadMessages();
+        $this->loadConversations();
+        $this->dispatch('scroll-to-bottom');
+    }
+
+    public function removeMedia(): void
+    {
+        $this->mediaFile = null;
     }
 
     public function endChat(): void
