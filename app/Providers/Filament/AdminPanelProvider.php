@@ -44,8 +44,8 @@ class AdminPanelProvider extends PanelProvider
                 fn () => new HtmlString(
                     '<meta name="reverb-key" content="' . e(config('broadcasting.connections.reverb.key')) . '">'
                     . '<meta name="reverb-host" content="' . e(parse_url(config('app.url'), PHP_URL_HOST)) . '">'
-                    . '<meta name="reverb-port" content="' . e(config('broadcasting.connections.reverb.options.port', 8085)) . '">'
-                    . '<meta name="reverb-scheme" content="' . e(config('broadcasting.connections.reverb.options.scheme', 'http')) . '">'
+                    . '<meta name="reverb-port" content="' . e(parse_url(config('app.url'), PHP_URL_PORT) ?: (str_starts_with(config('app.url'), 'https') ? '443' : '80')) . '">'
+                    . '<meta name="reverb-scheme" content="' . e(parse_url(config('app.url'), PHP_URL_SCHEME) ?? 'https') . '">'
                 )
             )
             ->renderHook(
