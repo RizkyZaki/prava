@@ -3,11 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ExternalLogin;
 use App\Livewire\ExternalDashboard;
+use App\Livewire\WhatsappChat;
 use App\Http\Controllers\Auth\GoogleController;
 
 Route::get('/', function () {
     return view('landing');
 });
+
+// WhatsApp CS (standalone page outside Filament)
+Route::get('/whatsapp-chat', WhatsappChat::class)
+    ->middleware(['auth'])
+    ->name('whatsapp.chat');
 
 // Google Authentication Routes
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
