@@ -33,4 +33,7 @@ Route::get('/users', [AttendanceApiController::class, 'users']);
 Route::prefix('whatsapp')->middleware('throttle:60,1')->group(function () {
     Route::get('/webhook', [WhatsappWebhookController::class, 'verify']);
     Route::post('/webhook', [WhatsappWebhookController::class, 'handle']);
+
+    // Proxy media WhatsApp agar bisa diakses frontend
+    Route::get('/media/{mediaId}', [\App\Http\Controllers\Api\WhatsappMediaController::class, 'show']);
 });
