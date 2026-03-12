@@ -14,6 +14,7 @@ class WhatsappMessage extends Model
         'body',
         'media_type',
         'media_url',
+        'media_id',
         'media_mime',
         'whatsapp_message_id',
     ];

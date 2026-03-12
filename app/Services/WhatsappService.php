@@ -114,6 +114,7 @@ class WhatsappService
      */
     protected function handleMediaMessage(WhatsappConversation $conversation, array $message): void
     {
+
         $type = $message['type'];
         $mediaData = $message[$type] ?? [];
         $mediaId = $mediaData['id'] ?? null;
@@ -121,13 +122,15 @@ class WhatsappService
         $mime = $mediaData['mime_type'] ?? null;
         $waMessageId = $message['id'] ?? null;
 
-        $mediaUrl = $mediaId ? $this->getMediaUrl($mediaId) : null;
+        // Gunakan URL proxy backend jika mediaId ada
+        $mediaUrl = $mediaId ? url("/api/whatsapp/media/{$mediaId}") : null;
 
         $msg = $conversation->messages()->create([
             'sender_type' => 'customer',
             'body' => $caption ?? "[{$type}]",
             'media_type' => $type,
             'media_url' => $mediaUrl,
+            'media_id' => $mediaId,
             'media_mime' => $mime,
             'whatsapp_message_id' => $waMessageId,
         ]);
