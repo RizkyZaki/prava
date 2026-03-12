@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css');
 
         FilamentView::registerRenderHook(
-            'panels::topbar.end',
+            'panels::user-menu.before',
             fn () => view('filament.partials.language-toggle')
         );
 

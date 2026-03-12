@@ -14,6 +14,11 @@ Route::get('/', function () {
 Route::get('/locale/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'id'])) {
         session(['app_locale' => $locale]);
+        $cookie = cookie('app_locale', $locale, 60 * 24 * 365);
+        if (url()->previous() && url()->previous() !== url()->current()) {
+            return redirect()->back()->withCookie($cookie);
+        }
+        return redirect('/admin')->withCookie($cookie);
     }
     return redirect('/admin');
 })->middleware('web')->name('locale.set');

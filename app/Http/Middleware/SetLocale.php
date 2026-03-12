@@ -11,7 +11,7 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = session('app_locale', config('app.locale', 'en'));
+        $locale = request()->cookie('app_locale', session('app_locale', config('app.locale', 'id')));
 
         if (!in_array($locale, ['en', 'id'])) {
             $locale = 'en';

@@ -53,19 +53,19 @@ class SystemSettings extends Page implements HasForms
     {
         return $schema
             ->components([
-                Section::make('Navigation Layout')
-                    ->description('Choose your preferred navigation style')
+                Section::make(__('page.layout_style'))
+                    ->description(__('page.layout_style_desc'))
                     ->icon('heroicon-o-bars-3')
                     ->schema([
                         Radio::make('navigation_style')
-                            ->label('Layout Style')
+                            ->label(__('page.layout_style'))
                             ->options([
-                                'sidebar' => 'Sidebar Navigation',
-                                'top' => 'Top Navigation',
+                                'sidebar' => __('page.sidebar_navigation'),
+                                'top' => __('page.top_navigation'),
                             ])
                             ->descriptions([
-                                'sidebar' => 'Classic sidebar layout (recommended for desktop)',
-                                'top' => 'Modern top navigation bar (great for tablets)',
+                                'sidebar' => __('page.sidebar_navigation_desc'),
+                                'top' => __('page.top_navigation_desc'),
                             ])
                             ->inline(false)
                             ->required()
@@ -75,12 +75,12 @@ class SystemSettings extends Page implements HasForms
                             }),
                     ]),
 
-                Section::make('Color Theme')
-                    ->description('Personalize your interface colors')
+                Section::make(__('page.color_theme'))
+                    ->description(__('page.color_theme_desc'))
                     ->icon('heroicon-o-swatch')
                     ->schema([
                         Select::make('panel_color')
-                            ->label('Primary Color')
+                            ->label(__('page.primary_color'))
                             ->options(ColorPalette::options())
                             ->required()
                             ->live()
@@ -99,10 +99,10 @@ class SystemSettings extends Page implements HasForms
         $this->dispatch('navigation-style-updated', style: $style);
 
         Notification::make()
-            ->title('Navigation Updated')
+            ->title(__('page.navigation_updated'))
             ->body($style === 'top'
-                ? 'Top navigation preference saved. Reload to apply.'
-                : 'Sidebar navigation preference saved.')
+                ? __('page.top_navigation_saved')
+                : __('page.sidebar_navigation_saved'))
             ->success()
             ->send();
     }
@@ -116,8 +116,8 @@ class SystemSettings extends Page implements HasForms
         $this->dispatch('color-theme-updated', color: $color);
 
         Notification::make()
-            ->title('Color Theme Updated')
-            ->body("Primary color changed to {$color}.")
+            ->title(__('page.color_theme_updated'))
+            ->body(__('page.primary_color_changed', ['color' => $color]))
             ->success()
             ->send();
     }
