@@ -56,9 +56,14 @@ class WhatsappWebhookController extends Controller
             return response()->json(['error' => 'Unknown object type'], 404);
         }
 
-        Log::info('WhatsApp webhook received', [
-            'entry_count' => count($payload['entry'] ?? []),
-        ]);
+        // Cek phone_number_id sebelum logging
+        $value = $payload['entry'][0]['changes'][0]['value'] ?? null;
+        $phoneNumberId = $value['metadata']['phone_number_id'] ?? null;
+        if ($phoneNumberId === '863011583558952') {
+            Log::info('WhatsApp webhook received', [
+                'entry_count' => count($payload['entry'] ?? []),
+            ]);
+        }
 
         $this->whatsappService->handleIncomingWebhook($payload);
 
