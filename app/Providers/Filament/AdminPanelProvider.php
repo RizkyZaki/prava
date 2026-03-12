@@ -21,7 +21,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Facades\Blade;
-use Filament\Navigation\MenuItem;
 use App\Models\Setting;
 use App\Http\Middleware\FilamentUserSettings;
 
@@ -67,13 +66,12 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->emailVerification()
             // ->profile() // Profile feature disabled
-            ->viteTheme('resources/css/filament/admin/theme.css')
-            ->userMenuItems([
-                MenuItem::make()
-                    ->label(fn () => app()->getLocale() === 'en' ? '🌐 Bahasa Indonesia' : '🌐 English')
-                    ->url(fn () => route('locale.set', app()->getLocale() === 'en' ? 'id' : 'en'))
-                    ->icon('heroicon-o-language'),
-            ]);
+            ->viteTheme('resources/css/filament/admin/theme.css');
+
+        FilamentView::registerRenderHook(
+            'panels::topbar.end',
+            fn () => view('filament.partials.language-toggle')
+        );
 
         FilamentView::registerRenderHook(
             'panels::head.end',

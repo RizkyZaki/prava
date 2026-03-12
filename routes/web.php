@@ -15,7 +15,7 @@ Route::get('/locale/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'id'])) {
         session(['app_locale' => $locale]);
     }
-    return back();
+    return redirect('/admin');
 })->middleware('web')->name('locale.set');
 
 // WhatsApp CS (standalone page outside Filament)
