@@ -8,7 +8,7 @@
     <meta name="reverb-host" content="{{ config('broadcasting.connections.reverb.options.host') }}">
     <meta name="reverb-port" content="{{ config('broadcasting.connections.reverb.options.port') }}">
     <meta name="reverb-scheme" content="{{ config('broadcasting.connections.reverb.options.scheme') }}">
-    <title>WhatsApp CS - Prava</title>
+    <title>WhatsApp Prava</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full antialiased bg-[#111b21]">
