@@ -19,6 +19,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\Support\Facades\FilamentView;
+use Illuminate\Support\Facades\Blade;
 use App\Models\Setting;
 use App\Http\Middleware\FilamentUserSettings;
 
@@ -65,6 +67,22 @@ class AdminPanelProvider extends PanelProvider
             ->emailVerification()
             // ->profile() // Profile feature disabled
             ->viteTheme('resources/css/filament/admin/theme.css');
+
+        FilamentView::registerRenderHook(
+            'panels::head.end',
+            fn () => Blade::render(
+                '<meta name="reverb-key" content="{{ $key }}">
+                <meta name="reverb-host" content="{{ $host }}">
+                <meta name="reverb-port" content="{{ $port }}">
+                <meta name="reverb-scheme" content="{{ $scheme }}">',
+                [
+                    'key'    => config('broadcasting.connections.reverb.key'),
+                    'host'   => config('broadcasting.connections.reverb.options.host'),
+                    'port'   => config('broadcasting.connections.reverb.options.port'),
+                    'scheme' => config('broadcasting.connections.reverb.options.scheme'),
+                ]
+            )
+        );
 
         return $panel;
     }
