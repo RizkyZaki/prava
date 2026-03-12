@@ -20,7 +20,7 @@ class UpcomingEventsWidget extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Kegiatan Akan Datang')
+            ->heading(__('widget.upcoming_events'))
             ->query(
                 Event::query()
                     ->upcoming()
@@ -32,12 +32,12 @@ class UpcomingEventsWidget extends BaseWidget
                     ->width('30px'),
 
                 Tables\Columns\TextColumn::make('title')
-                    ->label('Judul')
+                    ->label(__('widget.col.title'))
                     ->searchable()
                     ->limit(40),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->label('Tipe')
+                    ->label(__('widget.col.type'))
                     ->getStateUsing(fn ($record) => $record->type_label)
                     ->badge()
                     ->color(fn ($record) => match ($record->type) {
@@ -50,23 +50,23 @@ class UpcomingEventsWidget extends BaseWidget
                     }),
 
                 Tables\Columns\TextColumn::make('start_date')
-                    ->label('Waktu Mulai')
+                    ->label(__('widget.col.start_time'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('location')
-                    ->label('Lokasi')
+                    ->label(__('widget.col.location'))
                     ->limit(30)
                     ->placeholder('-'),
 
                 Tables\Columns\TextColumn::make('participants')
-                    ->label('Peserta')
+                    ->label(__('widget.col.participants'))
                     ->getStateUsing(function ($record) {
                         if (empty($record->participants)) {
                             return '-';
                         }
                         $count = count($record->participants);
-                        return $count . ' orang';
+                        return $count . ' ' . __('widget.col.people');
                     })
                     ->badge()
                     ->color('gray'),
@@ -79,7 +79,7 @@ class UpcomingEventsWidget extends BaseWidget
             ])
             ->actions([
                 Action::make('view')
-                    ->label('Lihat')
+                    ->label(__('widget.action.view'))
                     ->icon('heroicon-m-eye')
                     ->url(fn ($record) => route('filament.admin.resources.events.view', $record))
                     ->openUrlInNewTab(false),

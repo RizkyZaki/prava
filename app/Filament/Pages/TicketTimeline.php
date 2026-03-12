@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use Auth;
 use Carbon\Carbon;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -19,11 +20,23 @@ class TicketTimeline extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
-    protected static ?string $navigationLabel = 'Ticket Timeline';
-    protected static ?string $title = 'Ticket Timeline';
     protected static ?int $navigationSort = 6;
     protected string $view = 'filament.pages.ticket-timeline';
-    protected static string|\UnitEnum|null $navigationGroup = 'Project Management';
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.ticket_timeline');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('page.ticket_timeline');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.project_management');
+    }
     protected static ?string $slug = 'ticket-timeline/{project_id?}';
 
     public function getSubheading(): ?string

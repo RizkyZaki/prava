@@ -53,7 +53,12 @@ class ProjectResource extends Resource
     protected static ?string $model = Project::class;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static string | \UnitEnum | null $navigationGroup = 'Project Management';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.project_management');
+    }
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema

@@ -12,7 +12,12 @@ class MonthlyTicketTrendChart extends ChartWidget
 {
     use HasWidgetShield;
 
-    protected ?string $heading = 'Monthly Ticket Creation Trend';
+    protected ?string $heading = null;
+
+    public function getHeading(): ?string
+    {
+        return __('widget.monthly_ticket_trend');
+    }
 
     protected static ?int $sort = 4;
 

@@ -40,9 +40,15 @@ class ExpenseResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-receipt-percent';
 
-    protected static ?string $navigationLabel = 'Pengeluaran';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.expenses');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.finance');
+    }
 
     protected static ?int $navigationSort = 4;
 

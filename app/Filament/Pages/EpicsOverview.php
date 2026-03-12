@@ -6,6 +6,7 @@ use App\Models\Epic;
 use App\Models\Project;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 
@@ -13,10 +14,22 @@ class EpicsOverview extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-flag';
     protected string $view = 'filament.pages.epics-overview';
-    protected static string|\UnitEnum|null $navigationGroup = 'Project Management';
-    protected static ?string $navigationLabel = 'Epics';
-    protected static ?string $title = 'Epics Overview';
     protected static ?int $navigationSort = 7;
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.epics_overview');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('page.epics');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.project_management');
+    }
 
     public function getSubheading(): ?string
     {

@@ -12,7 +12,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    💰 My Salary Information
+                    {{ __('widget.my_salary') }}
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ $currentMonth }}
@@ -28,14 +28,14 @@
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <p class="text-xs font-medium text-green-600 dark:text-green-400 uppercase tracking-wide mb-1">
-                                Gross Salary
+                                {{ __('widget.gross_salary') }}
                             </p>
                             <div class="group cursor-help">
                                 <p class="blur-md group-hover:blur-none text-2xl font-bold text-green-700 dark:text-green-300 transition-all duration-300">
                                     Rp {{ number_format($salary->gross_salary, 0, ',', '.') }}
                                 </p>
                                 <p class="text-xs text-green-600 dark:text-green-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Hover to reveal
+                                    {{ __('widget.hover_to_reveal') }}
                                 </p>
                             </div>
                         </div>
@@ -52,14 +52,14 @@
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <p class="text-xs font-medium text-red-600 dark:text-red-400 uppercase tracking-wide mb-1">
-                                This Month's Deductions
+                                {{ __('widget.deductions_this_month') }}
                             </p>
                             <div class="group cursor-help">
                                 <p class="blur-md group-hover:blur-none text-2xl font-bold text-red-700 dark:text-red-300 transition-all duration-300">
                                     Rp {{ number_format($monthlyDeductions->sum('deduction_amount'), 0, ',', '.') }}
                                 </p>
                                 <p class="text-xs text-red-600 dark:text-red-400 mt-1">
-                                    {{ $monthlyDeductions->count() }} deduction(s)
+                                    {{ __('widget.deductions_count', ['count' => $monthlyDeductions->count()]) }}
                                 </p>
                             </div>
                         </div>
@@ -76,14 +76,14 @@
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
                             <p class="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">
-                                Estimated Net Salary
+                                {{ __('widget.estimated_net') }}
                             </p>
                             <div class="group cursor-help">
                                 <p class="blur-md group-hover:blur-none text-2xl font-bold text-blue-700 dark:text-blue-300 transition-all duration-300">
                                     Rp {{ number_format($salary->gross_salary - $monthlyDeductions->sum('deduction_amount'), 0, ',', '.') }}
                                 </p>
                                 <p class="text-xs text-blue-600 dark:text-blue-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Hover to reveal
+                                    {{ __('widget.hover_to_reveal') }}
                                 </p>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
             @if($monthlyDeductions->count() > 0)
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                        📋 This Month's Deduction Details
+                        {{ __('widget.deduction_details') }}
                     </h4>
                     <div class="space-y-2">
                         @foreach($monthlyDeductions as $deduction)
@@ -115,7 +115,7 @@
                                         </span>
                                         @if(!$deduction->is_approved)
                                             <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                                Pending
+                                                {{ __('widget.pending') }}
                                             </span>
                                         @endif
                                     </div>
@@ -142,7 +142,7 @@
             @else
                 <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
                     <p class="text-sm font-medium text-green-700 dark:text-green-400">
-                        🎉 No deductions this month! Keep up the good work!
+                        {{ __('widget.no_deductions') }}
                     </p>
                 </div>
             @endif
@@ -150,34 +150,34 @@
             <!-- Salary Breakdown -->
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                    💵 Salary Breakdown
+                    {{ __('widget.salary_breakdown') }}
                 </h4>
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="flex justify-between">
-                        <span class="text-gray-600 dark:text-gray-400">Base Salary:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ __('widget.base_salary') }}:</span>
                         <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($salary->base_salary, 0, ',', '.') }}</span>
                     </div>
                     @if($salary->transport_allowance > 0)
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Transport:</span>
+                            <span class="text-gray-600 dark:text-gray-400">{{ __('widget.transport_allowance') }}:</span>
                             <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($salary->transport_allowance, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     @if($salary->meal_allowance > 0)
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Meal:</span>
+                            <span class="text-gray-600 dark:text-gray-400">{{ __('widget.meal_allowance') }}:</span>
                             <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($salary->meal_allowance, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     @if($salary->position_allowance > 0)
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Position:</span>
+                            <span class="text-gray-600 dark:text-gray-400">{{ __('widget.position_allowance') }}:</span>
                             <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($salary->position_allowance, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     @if($salary->other_allowance > 0)
                         <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Other:</span>
+                            <span class="text-gray-600 dark:text-gray-400">{{ __('widget.other_allowance') }}:</span>
                             <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($salary->other_allowance, 0, ',', '.') }}</span>
                         </div>
                     @endif
@@ -190,10 +190,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
                 <h4 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-2">
-                    No Salary Configuration
+                    {{ __('widget.no_salary_config') }}
                 </h4>
                 <p class="text-sm text-yellow-700 dark:text-yellow-400">
-                    Your salary has not been configured yet. Please contact HR or your administrator.
+                    {{ __('widget.no_salary_desc') }}
                 </p>
             </div>
         @endif

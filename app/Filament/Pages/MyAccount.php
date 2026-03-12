@@ -25,8 +25,12 @@ class MyAccount extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationLabel = 'My Account';
     protected static ?int $navigationSort = 9999;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('page.my_account');
+    }
 
     protected string $view = 'filament.pages.my-account';
 

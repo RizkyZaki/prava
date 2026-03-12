@@ -36,9 +36,17 @@ class EventResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationLabel = 'Kegiatan';
+    protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Kalender & Kegiatan';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.events');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.calendar_events');
+    }
 
     protected static ?int $navigationSort = 1;
 

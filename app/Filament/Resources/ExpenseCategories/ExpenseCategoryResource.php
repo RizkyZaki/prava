@@ -25,9 +25,15 @@ class ExpenseCategoryResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
-    protected static ?string $navigationLabel = 'Kategori Pengeluaran';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.expense_categories');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.finance');
+    }
 
     protected static ?int $navigationSort = 2;
 

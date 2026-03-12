@@ -14,9 +14,15 @@ class FinanceDashboard extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static ?string $navigationLabel = 'Dashboard Keuangan';
+    public static function getNavigationLabel(): string
+    {
+        return __('page.finance_dashboard');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.finance');
+    }
 
     protected static ?int $navigationSort = 0;
 

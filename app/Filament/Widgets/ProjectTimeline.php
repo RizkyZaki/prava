@@ -12,7 +12,12 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 class ProjectTimeline extends Widget
 {
     use HasWidgetShield;
-    protected ?string $heading = 'Project Timeline';
+    protected ?string $heading = null;
+
+    public function getHeading(): ?string
+    {
+        return __('widget.project_timeline_widget');
+    }
 
     protected string $view = 'filament.widgets.project-timeline';
 

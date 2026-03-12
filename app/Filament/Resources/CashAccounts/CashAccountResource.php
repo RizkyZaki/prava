@@ -29,9 +29,15 @@ class CashAccountResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-wallet';
 
-    protected static ?string $navigationLabel = 'Sumber Dana';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.fund_sources');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.finance');
+    }
 
     protected static ?int $navigationSort = 3;
 

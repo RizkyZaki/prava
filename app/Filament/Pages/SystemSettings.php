@@ -7,6 +7,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Schemas\Schema;
@@ -24,8 +25,16 @@ class SystemSettings extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Cog6Tooth;
-    protected static string | UnitEnum | null $navigationGroup = 'Settings';
-    protected static ?string $title = 'UI Settings';
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.ui_settings');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.settings');
+    }
     protected string $view = 'filament.pages.system-settings';
 
     public ?array $data = [];

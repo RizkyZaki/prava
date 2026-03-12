@@ -63,17 +63,17 @@
 
             {{-- Top bar --}}
             <div class="wa-topbar px-4 py-3 flex items-center gap-3">
-                <a href="/admin" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" title="Kembali ke Dashboard">
+                <a href="/admin" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" title="{{ __('label.back_to_dashboard') }}">
                     <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
                 </a>
                 <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                     <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-[15px] font-semibold text-white">WhatsApp Prava</h3>
+                    <h3 class="text-[15px] font-semibold text-white">{{ __('wa.prava_whatsapp') }}</h3>
                     <p class="text-[11px] text-white/70 flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 bg-[#25d366] rounded-full inline-block"></span>
-                        Online
+                        {{ __('wa.online') }}
                     </p>
                 </div>
             </div>
@@ -84,12 +84,12 @@
                     wire:click="toggleHistory"
                     type="button"
                     class="flex-1 py-2.5 text-[13px] font-medium border-b-2 transition-colors {{ !$showHistory ? 'wa-tab-active' : 'wa-tab-inactive' }}"
-                >Aktif</button>
+                >{{ __('wa.tab_active') }}</button>
                 <button
                     wire:click="toggleHistory"
                     type="button"
                     class="flex-1 py-2.5 text-[13px] font-medium border-b-2 transition-colors {{ $showHistory ? 'wa-tab-active' : 'wa-tab-inactive' }}"
-                >Riwayat</button>
+                >{{ __('wa.tab_history') }}</button>
             </div>
 
             {{-- Search --}}
@@ -99,7 +99,7 @@
                     <input
                         type="text"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="Cari percakapan..."
+                        placeholder="{{ __('wa.search_conversations') }}"
                         class="flex-1 bg-transparent text-[13px] text-[#d1d7db] placeholder-[#8696a0] outline-none border-none focus:ring-0"
                     >
                 </div>
@@ -147,17 +147,17 @@
                                     @endif
                                 </p>
                                 @if ($showHistory)
-                                    <span class="text-[10px] bg-[#667781] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">SELESAI</span>
+                                    <span class="text-[10px] bg-[#667781] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">{{ __('wa.badge_done') }}</span>
                                 @elseif ($conv->mode === 'admin')
                                     <span class="text-[10px] bg-[#25d366] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0 wa-badge-pulse">ADMIN</span>
                                 @elseif ($conv->mode === 'ai')
                                     <span class="text-[10px] bg-[#7c5ce3] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">AI</span>
                                 @elseif ($conv->mode === 'selection')
-                                    <span class="text-[10px] bg-[#667781] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">BARU</span>
+                                    <span class="text-[10px] bg-[#667781] text-white px-[6px] py-[1px] rounded-full font-semibold shrink-0">{{ __('wa.badge_new') }}</span>
                                 @endif
                             </div>
                             @if ($showHistory && $conv->ended_at)
-                                <p class="text-[11px] text-[#667781] mt-0.5">Berakhir {{ $conv->ended_at->diffForHumans() }}</p>
+                                <p class="text-[11px] text-[#667781] mt-0.5">{{ __('wa.ended_at', ['time' => $conv->ended_at->diffForHumans()]) }}</p>
                             @endif
                         </div>
                     </button>
@@ -171,10 +171,10 @@
                             @endif
                         </div>
                         <p class="text-[#8696a0] text-sm">
-                            {{ $showHistory ? 'Belum ada riwayat percakapan' : 'Belum ada percakapan aktif' }}
+                            {{ $showHistory ? __('wa.no_conversation_history') : __('wa.no_active_conversations') }}
                         </p>
                         <p class="text-[#667781] text-xs mt-1">
-                            {{ $showHistory ? 'Percakapan yang diakhiri akan muncul di sini' : 'Chat baru akan muncul di sini' }}
+                            {{ $showHistory ? __('wa.ended_here') : __('wa.new_chats_here') }}
                         </p>
                     </div>
                 @endforelse
@@ -197,14 +197,14 @@
                         <div class="absolute w-1/2 h-1/2 rounded-full bg-[#25d366]/5"></div>
                         <svg class="w-12 h-12 sm:w-16 sm:h-16 text-[#25d366]/50" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </div>
-                    <h2 class="text-[22px] sm:text-[28px] font-light text-[#e9edef]">Prava WhatsApp</h2>
+                    <h2 class="text-[22px] sm:text-[28px] font-light text-[#e9edef]">{{ __('wa.prava_whatsapp') }}</h2>
                     <p class="text-[13px] sm:text-[14px] text-[#8696a0] mt-3 leading-relaxed">
-                        Kirim dan terima pesan WhatsApp langsung dari Prava ERP.<br>
-                        Pilih percakapan di panel kiri untuk mulai.
+                        {{ __('wa.welcome_desc_1') }}<br>
+                        {{ __('wa.welcome_desc_2') }}
                     </p>
                     <div class="mt-8 flex items-center justify-center gap-1.5 text-[12px] text-[#8696a0]">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                        End-to-end encrypted via Meta Cloud API
+                        {{ __('wa.encrypted') }}
                     </div>
                 </div>
             </div>
@@ -237,9 +237,9 @@
                                     @if ($conv0->mode === 'admin')
                                         <span class="hidden sm:inline text-[#e65100] font-medium">Admin</span>
                                     @elseif ($conv0->mode === 'ai')
-                                        <span class="hidden sm:inline text-[#7c5ce3] font-medium">AI Aktif</span>
+                                        <span class="hidden sm:inline text-[#7c5ce3] font-medium">{{ __('wa.ai_active') }}</span>
                                     @else
-                                        <span class="hidden sm:inline">Menunggu</span>
+                                        <span class="hidden sm:inline">{{ __('wa.waiting') }}</span>
                                     @endif
                                 @endif
                             </p>
@@ -249,15 +249,15 @@
                     <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
                         <button
                             wire:click="switchToAi"
-                            wire:confirm="Alihkan ke mode AI?"
+                            wire:confirm="{{ __('wa.confirm_ai') }}"
                             type="button"
                             class="text-[11px] sm:text-[12px] font-medium text-white bg-[#7c5ce3] hover:bg-[#6a4fd4] px-2 sm:px-3 py-1.5 rounded-lg transition-colors"
-                        >AI Mode</button>
+                        >{{ __('wa.ai_mode') }}</button>
                         <button
                             wire:click="confirmEndChat"
                             type="button"
                             class="text-[11px] sm:text-[12px] font-medium text-white bg-[#ea4335] hover:bg-[#d33426] px-2 sm:px-3 py-1.5 rounded-lg transition-colors"
-                        >Akhiri</button>
+                        >{{ __('wa.end_button') }}</button>
                     </div>
                     @endif
                 </div>
@@ -318,8 +318,8 @@
                                                             <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
                                                         </div>
                                                         <div class="flex-1 min-w-0">
-                                                            <p class="text-[12px] text-[#e9edef] font-medium truncate">Dokumen</p>
-                                                            <p class="text-[10px] text-[#8696a0]">Klik untuk download</p>
+                                                            <p class="text-[12px] text-[#e9edef] font-medium truncate">{{ __('wa.document') }}</p>
+                                                            <p class="text-[10px] text-[#8696a0]">{{ __('wa.click_download') }}</p>
                                                         </div>
                                                         <svg class="w-4 h-4 text-[#8696a0] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                                                     </a>
@@ -344,7 +344,7 @@
 
                         @if ($this->messages->isEmpty() && $selectedConversationId)
                             <div class="flex items-center justify-center py-16">
-                                <span class="wa-system-pill">Belum ada riwayat pesan</span>
+                                <span class="wa-system-pill">{{ __('wa.no_messages') }}</span>
                             </div>
                         @endif
                     </div>
@@ -382,7 +382,7 @@
                             type="text"
                             wire:model="replyMessage"
                             wire:keydown.enter.prevent="{{ $mediaFile ? 'sendMedia' : 'sendReply' }}"
-                            placeholder="{{ $mediaFile ? 'Tambahkan caption...' : 'Ketik pesan' }}"
+                            placeholder="{{ $mediaFile ? __('wa.caption_placeholder') : __('wa.message_placeholder') }}"
                             class="flex-1 bg-transparent text-[15px] text-[#d1d7db] placeholder-[#667781] outline-none border-none focus:ring-0 py-2"
                         >
                     </div>
@@ -398,12 +398,12 @@
                 </div>
 
                 <div wire:loading wire:target="sendReply,sendMedia" class="wa-input-area px-4 py-1">
-                    <p class="text-[11px] text-[#8696a0]">Mengirim...</p>
+                    <p class="text-[11px] text-[#8696a0]">{{ __('wa.sending') }}</p>
                 </div>
                 @else
                 {{-- Read-only bar for history --}}
                 <div class="wa-input-area px-4 py-3 text-center">
-                    <p class="text-[13px] text-[#667781]">Percakapan ini sudah berakhir</p>
+                    <p class="text-[13px] text-[#667781]">{{ __('wa.conversation_ended') }}</p>
                 </div>
                 @endif
             </div>
@@ -423,10 +423,10 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                     </svg>
                 </div>
-                <h3 class="text-[17px] font-semibold text-[#e9edef]">Akhiri Percakapan?</h3>
+                <h3 class="text-[17px] font-semibold text-[#e9edef]">{{ __('wa.end_modal_title') }}</h3>
                 <p class="text-[13px] text-[#8696a0] mt-2 leading-relaxed">
-                    Percakapan dengan <span class="text-[#e9edef] font-medium">{{ e($conv0?->customer_name ?? $conv0?->phone ?? '') }}</span> akan diakhiri.<br>
-                    Customer akan dikembalikan ke mode AI dan chat berpindah ke riwayat.
+                    {{ __('wa.conversation_with') }} <span class="text-[#e9edef] font-medium">{{ e($conv0?->customer_name ?? $conv0?->phone ?? '') }}</span> {{ __('wa.end_modal_will_end') }}<br>
+                    {{ __('wa.end_modal_desc') }}
                 </p>
             </div>
             {{-- Modal actions --}}
@@ -435,12 +435,12 @@
                     wire:click="cancelEndChat"
                     type="button"
                     class="flex-1 py-2.5 rounded-lg text-[13px] font-medium text-[#e9edef] bg-[#202c33] hover:bg-[#182229] transition-colors"
-                >Batal</button>
+                >{{ __('wa.cancel') }}</button>
                 <button
                     wire:click="endChat"
                     type="button"
                     class="flex-1 py-2.5 rounded-lg text-[13px] font-medium text-white bg-[#ea4335] hover:bg-[#d33426] transition-colors"
-                >Ya, Akhiri</button>
+                >{{ __('wa.yes_end') }}</button>
             </div>
         </div>
     </div>

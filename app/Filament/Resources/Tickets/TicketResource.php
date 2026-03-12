@@ -44,9 +44,15 @@ class TicketResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static ?string $navigationLabel = 'Tickets';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.tickets');
+    }
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Project Management';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.project_management');
+    }
 
     protected static ?int $navigationSort = 5;
 

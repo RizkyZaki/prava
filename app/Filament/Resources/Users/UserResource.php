@@ -33,7 +33,10 @@ class UserResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Users';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.users');
+    }
 
     public static function form(Schema $schema): Schema
     {

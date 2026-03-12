@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 
 class AttendanceCalendar extends Page
@@ -17,11 +18,20 @@ class AttendanceCalendar extends Page
 
     protected string $view = 'filament.pages.attendance-calendar';
 
-    protected static ?string $title = 'Kalender Absensi';
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.attendance_calendar');
+    }
 
-    protected static ?string $navigationLabel = 'Kalender Absensi';
+    public static function getNavigationLabel(): string
+    {
+        return __('page.attendance_calendar');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Human Resources';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.human_resources');
+    }
 
     protected static ?int $navigationSort = 2;
 

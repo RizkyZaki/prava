@@ -10,6 +10,7 @@ use App\Models\Ticket;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use App\Filament\Actions\ExportTicketsAction;
@@ -22,9 +23,20 @@ class ProjectBoard extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-view-columns';
     protected string $view = 'filament.pages.project-board';
-    protected static ?string $title = 'Project Board';
-    protected static ?string $navigationLabel = 'Project Board';
-    protected static string|\UnitEnum|null $navigationGroup = 'Project Management';
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.project_board');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('page.project_board');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.project_management');
+    }
     protected static ?int $navigationSort = 4;
 
     public function getSubheading(): ?string

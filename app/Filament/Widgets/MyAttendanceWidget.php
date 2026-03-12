@@ -27,7 +27,7 @@ class MyAttendanceWidget extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Absensi Saya Bulan Ini')
+            ->heading(__('widget.attendance_title'))
             ->query(
                 Attendance::query()
                     ->where('user_id', auth()->id())
@@ -36,7 +36,7 @@ class MyAttendanceWidget extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('attendance_date')
-                    ->label('Tanggal')
+                    ->label(__('widget.col.date'))
                     ->date('d/m/Y (l)')
                     ->sortable(),
 
@@ -53,7 +53,7 @@ class MyAttendanceWidget extends BaseWidget
                     ->color('info'),
 
                 Tables\Columns\TextColumn::make('work_duration')
-                    ->label('Durasi')
+                    ->label(__('widget.col.duration'))
                     ->getStateUsing(function ($record) {
                         if (!$record->work_duration) {
                             return '-';
@@ -72,18 +72,18 @@ class MyAttendanceWidget extends BaseWidget
                     ->color(fn ($record) => $record->status_color),
 
                 Tables\Columns\TextColumn::make('late_duration')
-                    ->label('Keterlambatan')
+                    ->label(__('widget.col.late_duration'))
                     ->getStateUsing(function ($record) {
                         if (!$record->late_duration) {
                             return '-';
                         }
-                        return $record->late_duration . ' menit';
+                        return $record->late_duration . ' ' . __('widget.minutes');
                     })
                     ->badge()
                     ->color('warning'),
 
                 Tables\Columns\TextColumn::make('notes')
-                    ->label('Catatan')
+                    ->label(__('widget.col.notes'))
                     ->limit(50)
                     ->placeholder('-'),
             ])

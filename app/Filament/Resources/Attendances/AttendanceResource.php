@@ -33,9 +33,15 @@ class AttendanceResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationLabel = 'Attendance';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.attendance');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Human Resources';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.human_resources');
+    }
 
     protected static ?int $navigationSort = 1;
 

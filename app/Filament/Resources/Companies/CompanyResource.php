@@ -28,9 +28,15 @@ class CompanyResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationLabel = 'Perusahaan (PT)';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.companies');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.finance');
+    }
 
     protected static ?int $navigationSort = 1;
 

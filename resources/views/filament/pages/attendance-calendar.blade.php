@@ -8,7 +8,7 @@
                     icon="heroicon-m-chevron-left"
                     size="sm"
                 >
-                    Prev
+                    {{ __('label.prev') }}
                 </x-filament::button>
 
                 <h2 class="text-xl font-bold">{{ $this->getMonthName() }}</h2>
@@ -19,7 +19,7 @@
                     icon-position="after"
                     size="sm"
                 >
-                    Next
+                    {{ __('label.next') }}
                 </x-filament::button>
 
                 <x-filament::button
@@ -27,7 +27,7 @@
                     size="sm"
                     color="gray"
                 >
-                    Hari Ini
+                    {{ __('label.today') }}
                 </x-filament::button>
             </div>
 
@@ -37,7 +37,7 @@
                         wire:model.live="selectedUserId"
                         class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     >
-                        <option value="">Semua User</option>
+                        <option value="">{{ __('label.all_users') }}</option>
                         @foreach($this->getUsers() as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach
@@ -53,32 +53,32 @@
             @endphp
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-                <div class="text-sm text-gray-600 dark:text-gray-400">Hari Kerja</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{{ __('label.work_days') }}</div>
                 <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['working_days'] }}</div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-                <div class="text-sm text-gray-600 dark:text-gray-400">Hadir</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{{ __('label.present') }}</div>
                 <div class="text-2xl font-bold text-success-600">{{ $stats['present'] }}</div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-                <div class="text-sm text-gray-600 dark:text-gray-400">Terlambat</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{{ __('label.late') }}</div>
                 <div class="text-2xl font-bold text-warning-600">{{ $stats['late'] }}</div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-                <div class="text-sm text-gray-600 dark:text-gray-400">Tidak Hadir</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{{ __('label.absent') }}</div>
                 <div class="text-2xl font-bold text-danger-600">{{ $stats['absent'] }}</div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-                <div class="text-sm text-gray-600 dark:text-gray-400">Cuti</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{{ __('label.leave') }}</div>
                 <div class="text-2xl font-bold text-info-600">{{ $stats['leave'] }}</div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-                <div class="text-sm text-gray-600 dark:text-gray-400">Weekend</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">{{ __('label.weekend') }}</div>
                 <div class="text-2xl font-bold text-gray-600">{{ $stats['weekends'] }}</div>
             </div>
         </div>
@@ -87,7 +87,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
             <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
                 {{-- Header Days --}}
-                @foreach(['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $day)
+                @foreach([__('days.mon'), __('days.tue'), __('days.wed'), __('days.thu'), __('days.fri'), __('days.sat'), __('days.sun')] as $day)
                     <div class="bg-gray-50 dark:bg-gray-800 p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {{ $day }}
                     </div>

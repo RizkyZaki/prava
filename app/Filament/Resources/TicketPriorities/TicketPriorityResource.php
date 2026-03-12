@@ -30,11 +30,15 @@ class TicketPriorityResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-flag';
 
-    protected static ?string $navigationLabel = 'Ticket Priorities';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.ticket_priorities');
+    }
 
-    protected static ?string $pluralLabel = 'Ticket Priorities';
-
-    protected static string | \UnitEnum | null $navigationGroup = 'Settings';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.settings');
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -10,7 +10,7 @@
         <form method="GET" class="flex items-center gap-4">
             <select name="company_id" onchange="this.form.submit()"
                 class="fi-select-input block w-64 rounded-lg border-gray-300 shadow-sm transition duration-75 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                <option value="">Semua Perusahaan</option>
+                <option value="">{{ __('label.all_companies') }}</option>
                 @foreach($companies as $company)
                     <option value="{{ $company->id }}" {{ $selectedCompanyId == $company->id ? 'selected' : '' }}>
                         {{ $company->name }}
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Saldo Kas</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('label.total_cash_balance') }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $formatRupiah($totalCashBalance) }}</p>
                 </div>
             </div>
@@ -46,11 +46,11 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pemasukan Bulan Ini</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('label.income_this_month') }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $formatRupiah($totalIncomesThisMonth) }}</p>
                     @if($incomeChange != 0)
                         <p class="text-xs mt-1 {{ $incomeChange > 0 ? 'text-success-600' : 'text-danger-600' }}">
-                            {{ $incomeChange > 0 ? '+' : '' }}{{ $incomeChange }}% dari bulan lalu
+                            {{ $incomeChange > 0 ? '+' : '' }}{{ $incomeChange }}% {{ __('label.from_last_month') }}
                         </p>
                     @endif
                 </div>
@@ -66,11 +66,11 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pengeluaran Bulan Ini</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('label.expenses_this_month') }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $formatRupiah($totalExpensesThisMonth) }}</p>
                     @if($expenseChange != 0)
                         <p class="text-xs mt-1 {{ $expenseChange > 0 ? 'text-danger-600' : 'text-success-600' }}">
-                            {{ $expenseChange > 0 ? '+' : '' }}{{ $expenseChange }}% dari bulan lalu
+                            {{ $expenseChange > 0 ? '+' : '' }}{{ $expenseChange }}% {{ __('label.from_last_month') }}
                         </p>
                     @endif
                 </div>
@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pemasukan Bulan Lalu</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('label.income_last_month') }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $formatRupiah($totalIncomesLastMonth) }}</p>
                 </div>
             </div>
@@ -101,7 +101,7 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pengeluaran Bulan Lalu</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('label.expenses_last_month') }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $formatRupiah($totalExpensesLastMonth) }}</p>
                 </div>
             </div>
@@ -116,7 +116,7 @@
                     </div>
                 </div>
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Menunggu Persetujuan</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('label.awaiting_approval') }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $pendingExpenses + $pendingIncomes }}</p>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $formatRupiah($pendingAmount + $pendingIncomeAmount) }}</p>
                 </div>
@@ -130,7 +130,7 @@
         <div class="lg:col-span-2 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 <x-heroicon-o-chart-bar class="inline-block h-5 w-5 mr-1" />
-                Pemasukan vs Pengeluaran (12 Bulan Terakhir)
+                {{ __('finance.chart.monthly_income_expense') }}
             </h3>
             <div style="height: 300px;">
                 <canvas id="monthlyIncomeExpenseChart"></canvas>
@@ -141,7 +141,7 @@
         <div class="lg:col-span-1 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 <x-heroicon-o-chart-pie class="inline-block h-5 w-5 mr-1" />
-                Pengeluaran per Kategori
+                {{ __('finance.chart.category_expense') }}
             </h3>
             <div style="height: 300px;">
                 <canvas id="categoryExpenseChart"></canvas>
@@ -155,7 +155,7 @@
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 <x-heroicon-o-building-office-2 class="inline-block h-5 w-5 mr-1" />
-                Pengeluaran per Perusahaan (Bulan Ini)
+                {{ __('finance.chart.company_expense') }}
             </h3>
             <div style="height: 250px;">
                 <canvas id="companyExpenseChart"></canvas>
@@ -166,7 +166,7 @@
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 <x-heroicon-o-wallet class="inline-block h-5 w-5 mr-1" />
-                Saldo Kas
+                {{ __('finance.chart.cash_balance') }}
             </h3>
             <div class="space-y-3 max-h-[250px] overflow-y-auto">
                 @forelse($cashAccounts as $account)
@@ -181,13 +181,13 @@
                             <p class="font-bold {{ $account->current_balance < 0 ? 'text-danger-600' : 'text-success-600' }}">
                                 {{ $formatRupiah($account->current_balance) }}
                             </p>
-                            <p class="text-xs text-gray-400">Awal: {{ $formatRupiah($account->initial_balance) }}</p>
+                            <p class="text-xs text-gray-400">{{ __('finance.chart.initial_prefix') }} {{ $formatRupiah($account->initial_balance) }}</p>
                         </div>
                     </div>
                 @empty
                     <div class="text-center py-6 text-gray-500 dark:text-gray-400">
                         <x-heroicon-o-wallet class="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <p>Belum ada kas yang dibuat</p>
+                        <p>{{ __('finance.chart.no_cash') }}</p>
                     </div>
                 @endforelse
             </div>

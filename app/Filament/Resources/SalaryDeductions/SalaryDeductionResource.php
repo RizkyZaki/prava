@@ -21,7 +21,10 @@ class SalaryDeductionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-currency-dollar';
 
-    protected static ?string $navigationLabel = 'Salary Deductions';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.salary_deductions');
+    }
 
     protected static ?int $navigationSort = 3;
 

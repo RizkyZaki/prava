@@ -54,23 +54,23 @@ class AttendanceStatsWidget extends BaseWidget
             ->count();
 
         return [
-            Stat::make('Hadir Hari Ini', $todayAttendance . ' / ' . $totalEmployees)
-                ->description('Total karyawan yang sudah absen')
+            Stat::make(__('widget.stat.present_today'), $todayAttendance . ' / ' . $totalEmployees)
+                ->description(__('widget.stat.desc.present_today'))
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('success'),
 
-            Stat::make('Total Kehadiran Bulan Ini', $thisMonthPresent)
-                ->description('Termasuk yang terlambat')
+            Stat::make(__('widget.stat.present_this_month'), $thisMonthPresent)
+                ->description(__('widget.stat.desc.present_this_month'))
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('info'),
 
-            Stat::make('Keterlambatan Bulan Ini', $thisMonthLate)
-                ->description('Total keterlambatan')
+            Stat::make(__('widget.stat.late_this_month'), $thisMonthLate)
+                ->description(__('widget.stat.desc.late_this_month'))
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            Stat::make('Cuti Bulan Ini', $thisMonthLeave)
-                ->description('Total yang sedang cuti')
+            Stat::make(__('widget.stat.leave_this_month'), $thisMonthLeave)
+                ->description(__('widget.stat.desc.leave_this_month'))
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('gray'),
         ];
@@ -110,31 +110,31 @@ class AttendanceStatsWidget extends BaseWidget
             ->avg('work_duration');
 
         $avgWorkHoursFormatted = $avgWorkHours
-            ? sprintf('%.1f jam', $avgWorkHours / 60)
-            : '0 jam';
+            ? sprintf('%.1f %s', $avgWorkHours / 60, __('widget.hours_abbr'))
+            : '0 ' . __('widget.hours_abbr');
 
         return [
-            Stat::make('Status Hari Ini', $todayAttendance ? $todayAttendance->status_label : 'Belum Absen')
+            Stat::make(__('widget.stat.today_status'), $todayAttendance ? $todayAttendance->status_label : __('widget.stat.not_checked_in'))
                 ->description(
                     $todayAttendance && $todayAttendance->check_in
-                        ? 'Masuk: ' . $todayAttendance->check_in->format('H:i')
-                        : 'Belum check-in'
+                        ? __('widget.stat.checkin_time') . ': ' . $todayAttendance->check_in->format('H:i')
+                        : __('widget.stat.not_checked_in_yet')
                 )
                 ->descriptionIcon('heroicon-m-clock')
                 ->color($todayAttendance ? $todayAttendance->status_color : 'gray'),
 
-            Stat::make('Kehadiran Bulan Ini', $thisMonthPresent . ' / ' . $workingDays)
-                ->description($attendanceRate . '% tingkat kehadiran')
+            Stat::make(__('widget.stat.attendance_this_month'), $thisMonthPresent . ' / ' . $workingDays)
+                ->description($attendanceRate . '% ' . __('widget.stat.desc.attendance_rate_suffix'))
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('success'),
 
-            Stat::make('Keterlambatan', $thisMonthLate)
-                ->description('Total keterlambatan bulan ini')
+            Stat::make(__('widget.stat.late'), $thisMonthLate)
+                ->description(__('widget.stat.desc.late_this_month_user'))
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($thisMonthLate > 0 ? 'warning' : 'success'),
 
-            Stat::make('Rata-rata Jam Kerja', $avgWorkHoursFormatted)
-                ->description('Per hari bulan ini')
+            Stat::make(__('widget.stat.avg_work_hours'), $avgWorkHoursFormatted)
+                ->description(__('widget.stat.desc.per_day'))
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('info'),
         ];

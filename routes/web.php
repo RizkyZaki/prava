@@ -10,6 +10,14 @@ Route::get('/', function () {
     return view('landing');
 });
 
+// Locale switcher
+Route::get('/locale/{locale}', function (string $locale) {
+    if (in_array($locale, ['en', 'id'])) {
+        session(['app_locale' => $locale]);
+    }
+    return back();
+})->middleware('web')->name('locale.set');
+
 // WhatsApp CS (standalone page outside Filament)
 Route::get('/whatsapp-chat', WhatsappChat::class)
     ->middleware(['auth'])

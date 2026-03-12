@@ -5,10 +5,10 @@
             <div class="fi-ta-actions flex shrink-0 items-center gap-3">
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="timeRange">
-                        <option value="1month">Last Month</option>
-                        <option value="3months">Last 3 Months</option>
-                        <option value="6months">Last 6 Months</option>
-                        <option value="1year">Last Year</option>
+                        <option value="1month">{{ __('label.last_month') }}</option>
+                        <option value="3months">{{ __('label.last_3_months') }}</option>
+                        <option value="6months">{{ __('label.last_6_months') }}</option>
+                        <option value="1year">{{ __('label.last_year') }}</option>
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
@@ -39,13 +39,13 @@
                                     {{ strtoupper(substr($userData['user']->name, 0, 2)) }}
                                 </span>
                             </div>
-                            
+
                             <div class="grid flex-1">
                                 <h3 class="fi-section-header-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
                                     {{ $userData['user']->name }}
                                 </h3>
                                 <p class="fi-section-header-description text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $this->getTimeRangeLabel() }} Activity
+                                    {{ $this->getTimeRangeLabel() }} {{ __('label.activity') }}
                                 </p>
                             </div>
                         </div>
@@ -56,13 +56,13 @@
                         <!-- Stats Row -->
                         <div class="rounded-lg bg-white p-3 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                             <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4">
-                               
+
                                  <!-- Ticket Created -->
                                 <div class="flex-1 text-center p-2 rounded-lg">
                                     <p class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ number_format($userData['stats']['tickets_created']) }}
                                     </p>
-                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Tickets Created</p>
+                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('label.tickets_created') }}</p>
                                 </div>
 
                                 <!-- Status Changes -->
@@ -70,7 +70,7 @@
                                     <p class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ number_format($userData['stats']['status_changes']) }}
                                     </p>
-                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Status Changes</p>
+                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('label.status_changes') }}</p>
                                 </div>
 
                                 <!-- Comments Made -->
@@ -78,7 +78,7 @@
                                     <p class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ number_format($userData['stats']['comments_made']) }}
                                     </p>
-                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Comments Made</p>
+                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('label.comments_made') }}</p>
                                 </div>
 
                                 <!-- Active Days -->
@@ -86,7 +86,7 @@
                                     <p class="text-lg font-bold text-gray-900 dark:text-white">
                                         {{ number_format($userData['stats']['active_days']) }}
                                     </p>
-                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Active Days</p>
+                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('label.active_days') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -95,12 +95,12 @@
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <h4 class="text-base font-semibold leading-6 text-gray-950 dark:text-white">
-                                    Daily Contributions
+                                    {{ __('label.daily_contributions') }}
                                 </h4>
-                                
+
                                 <!-- Legend -->
                                 <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                    <span>Less</span>
+                                    <span>{{ __('label.legend_less') }}</span>
                                     <div class="flex gap-1">
                                         <div class="h-3 w-3 rounded-sm bg-gray-200 dark:bg-gray-700" title="No activity"></div>
                                         <div class="h-3 w-3 rounded-sm" style="background-color: #9be9a8" title="Low activity (1-2)"></div>
@@ -108,7 +108,7 @@
                                         <div class="h-3 w-3 rounded-sm" style="background-color: #30a14e" title="High activity (6-10)"></div>
                                         <div class="h-3 w-3 rounded-sm" style="background-color: #216e39" title="Very high activity (11+)"></div>
                                     </div>
-                                    <span>More</span>
+                                    <span>{{ __('label.legend_more') }}</span>
                                 </div>
                             </div>
 
@@ -128,7 +128,7 @@
                                                 <div class="h-3 w-8 flex items-center justify-end text-xs text-gray-500 dark:text-gray-400 font-medium">Fri</div>
                                                 <div class="h-3 w-8 flex items-center justify-end text-xs text-gray-500 dark:text-gray-400 font-medium">Sat</div>
                                             </div>
-                                            
+
                                             <!-- Heatmap Weeks -->
                                             @foreach($this->getWeeksData() as $weekIndex => $week)
                                                 <div class="flex flex-col gap-1">
@@ -136,7 +136,7 @@
                                                         @php
                                                             $activityCount = $userData['activity'][$day['date']] ?? 0;
                                                             $level = $this->getActivityLevel($activityCount);
-                                                            
+
                                                             // GitHub-like green colors
                                                             $colorStyle = match($level) {
                                                                 'none' => 'background-color: #ebedf0',
@@ -146,7 +146,7 @@
                                                                 'very-high' => 'background-color: #216e39',
                                                                 default => 'background-color: #ebedf0'
                                                             };
-                                                            
+
                                                             // Dark mode colors
                                                             $darkColorStyle = match($level) {
                                                                 'none' => 'background-color: #161b22',
@@ -157,7 +157,7 @@
                                                                 default => 'background-color: #161b22'
                                                             };
                                                         @endphp
-                                                        <div 
+                                                        <div
                                                             class="contribution-square h-3 w-3 rounded-sm cursor-pointer transition-all duration-150 hover:ring-2 hover:ring-primary-500/50"
                                                             style="{{ $colorStyle }}"
                                                             data-dark-style="{{ $darkColorStyle }}"
@@ -170,7 +170,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -183,10 +183,10 @@
                             </svg>
                         </div>
                         <h4 class="fi-ta-empty-state-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
-                            No contributions found
+                            {{ __('label.no_contributions_found') }}
                         </h4>
                         <p class="fi-ta-empty-state-description text-sm text-gray-500 dark:text-gray-400">
-                            There are no user contributions to display for the selected time period.
+                            {{ __('label.no_contributions_desc') }}
                         </p>
                     </div>
                 </div>
@@ -203,7 +203,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
                     </svg>
-                    <span class="text-sm font-medium text-gray-950 dark:text-white">Loading contributions...</span>
+                    <span class="text-sm font-medium text-gray-950 dark:text-white">{{ __('label.loading_contributions') }}</span>
                 </div>
             </div>
         </div>
@@ -216,7 +216,7 @@
             function updateContributionColors() {
                 const isDark = document.documentElement.classList.contains('dark');
                 const squares = document.querySelectorAll('.contribution-square');
-                
+
                 squares.forEach(square => {
                     if (isDark) {
                         const darkStyle = square.getAttribute('data-dark-style');
@@ -267,7 +267,7 @@
         .overflow-x-auto::-webkit-scrollbar-thumb:hover {
             background: rgb(156 163 175);
         }
-        
+
         .dark .overflow-x-auto::-webkit-scrollbar-track {
             background: rgb(55 65 81);
         }

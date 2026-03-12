@@ -24,7 +24,10 @@ class WorkScheduleResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationLabel = 'Work Schedules';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.work_schedules');
+    }
 
     protected static ?int $navigationSort = 1;
 

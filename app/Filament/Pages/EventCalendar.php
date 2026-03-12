@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Event;
 use Carbon\Carbon;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 
 class EventCalendar extends Page
@@ -13,11 +14,20 @@ class EventCalendar extends Page
 
     protected string $view = 'filament.pages.event-calendar';
 
-    protected static ?string $title = 'Kalender Kegiatan';
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.event_calendar');
+    }
 
-    protected static ?string $navigationLabel = 'Kalender Kegiatan';
+    public static function getNavigationLabel(): string
+    {
+        return __('page.event_calendar');
+    }
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Kalender & Kegiatan';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.calendar_events');
+    }
 
     protected static ?int $navigationSort = 2;
 

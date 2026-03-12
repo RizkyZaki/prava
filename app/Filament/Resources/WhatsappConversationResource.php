@@ -17,11 +17,27 @@ class WhatsappConversationResource extends Resource
     protected static ?string $model = WhatsappConversation::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
-    protected static string|\UnitEnum|null $navigationGroup = 'Customer Service';
-    protected static ?string $navigationLabel = 'Riwayat WhatsApp';
-    protected static ?string $modelLabel = 'Conversation';
-    protected static ?string $pluralModelLabel = 'Conversations';
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.whatsapp_history');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resource.conversation');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resource.conversations');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.customer_service');
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -19,7 +19,10 @@ class MonthlyPayrollResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-currency-dollar';
 
-    protected static ?string $navigationLabel = 'Monthly Payrolls';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.monthly_payrolls');
+    }
 
     protected static ?int $navigationSort = 4;
 

@@ -24,24 +24,24 @@
                 </div>
             </div>
             <p class="text-white/90 text-sm mt-4 max-w-2xl">
-                Selamat datang kembali di sistem manajemen kantor. Semoga hari Anda produktif dan menyenangkan! 💼
+                {{ __('widget.welcome_message') }}
             </p>
         </div>
 
         <!-- Quick Info Cards -->
         <div class="hidden lg:flex gap-4">
             <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center min-w-[120px]">
-                <div class="text-white/80 text-xs uppercase tracking-wide mb-1">Waktu</div>
+                <div class="text-white/80 text-xs uppercase tracking-wide mb-1">{{ __('widget.time') }}</div>
                 <div class="text-white text-2xl font-bold" id="current-time">
                     {{ now()->format('H:i') }}
                 </div>
             </div>
             <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center min-w-[120px]">
-                <div class="text-white/80 text-xs uppercase tracking-wide mb-1">Hari Ke</div>
+                <div class="text-white/80 text-xs uppercase tracking-wide mb-1">{{ __('widget.day') }}</div>
                 <div class="text-white text-2xl font-bold">
                     {{ now()->dayOfYear }}
                 </div>
-                <div class="text-white/70 text-xs">dari {{ now()->daysInYear }} hari</div>
+                <div class="text-white/70 text-xs">{{ __('widget.of_days', ['total' => now()->daysInYear]) }}</div>
             </div>
         </div>
     </div>

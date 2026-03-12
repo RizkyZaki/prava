@@ -1,20 +1,20 @@
 <x-filament-panels::page>
     <div class="space-y-6">
-        <!-- Controls -->        
+        <!-- Controls -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <!-- Time Range Selector -->
             <div class="fi-ta-actions flex shrink-0 items-center gap-3">
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="timeRange">
-                        <option value="7days">Last 7 Days</option>
-                        <option value="30days">Last 30 Days</option>
+                        <option value="7days">{{ __('leaderboard.last_7_days') }}</option>
+                        <option value="30days">{{ __('leaderboard.last_30_days') }}</option>
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
-            
+
             <!-- Top Count Selector -->
             <div class="fi-ta-actions flex shrink-0 items-center gap-3">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Show Top:</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('leaderboard.show_top') }}</span>
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="topCount">
                         <option value="5">Top 5</option>
@@ -26,17 +26,17 @@
             </div>
         </div>
 
-        <!-- Leaderboard -->        
+        <!-- Leaderboard -->
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
             <!-- Section Header -->
             <div class="fi-section-header flex items-center gap-3 overflow-hidden px-6 py-4">
                 <div class="fi-section-header-wrapper flex flex-1 items-center gap-3">
                     <div class="grid flex-1">
                         <h3 class="fi-section-header-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
-                            🏆 Contribution Leaderboard
+                            {{ __('leaderboard.title') }}
                         </h3>
                         <p class="fi-section-header-description text-sm text-gray-500 dark:text-gray-400">
-                            {{ $this->getTimeRangeLabel() }} - Top {{ $topCount }} Contributors
+                            {{ $this->getTimeRangeLabel() }} - Top {{ $topCount }} {{ __('leaderboard.contributors') }}
                         </p>
                     </div>
                 </div>
@@ -88,36 +88,36 @@
                                             </div>
                                         </div>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            Total Score: <span class="font-bold text-blue-600 dark:text-blue-400">{{ number_format($entry['total_score']) }}</span>
+                                            {{ __('leaderboard.total_score') }}: <span class="font-bold text-blue-600 dark:text-blue-400">{{ number_format($entry['total_score']) }}</span>
                                         </p>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Mobile: Stats in 2x2 Grid -->
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['tickets_created']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Tickets</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.tickets_created') }}</p>
                                     </div>
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['status_changes']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Updates</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.status_changes') }}</p>
                                     </div>
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['comments_made']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Comments</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.comments_made') }}</p>
                                     </div>
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['active_days']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Active Days</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.active_days') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -156,38 +156,38 @@
                                                     {{ $entry['user']->name }}
                                                 </h4>
                                                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                    Total Score: <span class="font-bold text-blue-600 dark:text-blue-400 text-lg">{{ number_format($entry['total_score']) }}</span>
+                                                    {{ __('leaderboard.total_score') }}: <span class="font-bold text-blue-600 dark:text-blue-400 text-lg">{{ number_format($entry['total_score']) }}</span>
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Right Side: Stats in Horizontal Layout -->
                                 <div class="flex items-center gap-6 flex-shrink-0">
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['tickets_created']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Tickets</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.tickets_created') }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['status_changes']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Updates</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.status_changes') }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['comments_made']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Comments</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.comments_made') }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['active_days']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Active Days</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('label.active_days') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -196,8 +196,8 @@
                 @empty
                     <div class="text-center py-8">
                         <div class="text-gray-400 dark:text-gray-600 text-4xl mb-4">🏆</div>
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Contributors Found</h3>
-                        <p class="text-gray-500 dark:text-gray-400">No user activity found for the selected time period.</p>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('leaderboard.no_found') }}</h3>
+                        <p class="text-gray-500 dark:text-gray-400">{{ __('leaderboard.no_activity') }}</p>
                     </div>
                 @endforelse
             </div>
@@ -209,10 +209,10 @@
                 <div class="fi-section-header-wrapper flex flex-1 items-center gap-3">
                     <div class="grid flex-1">
                         <h3 class="fi-section-header-heading text-base font-semibold leading-6 text-gray-950 dark:text-white">
-                            📊 Scoring System
+                            {{ __('leaderboard.scoring_system') }}
                         </h3>
                         <p class="fi-section-header-description text-sm text-gray-500 dark:text-gray-400">
-                            How contribution scores are calculated
+                            {{ __('leaderboard.scoring_desc') }}
                         </p>
                     </div>
                 </div>
@@ -220,9 +220,9 @@
             <div class="fi-section-content p-6">
                 <!-- Formula Explanation -->
                 <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">📐 Score Calculation Formula:</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ __('leaderboard.formula_label') }}</h4>
                     <p class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-                        Total Score = (Status Changes × 5) + (Tickets Created × 2) + (Comments Made × 2) + (Active Days × 1)
+                        {{ __('leaderboard.formula') }}
                     </p>
                 </div>
             </div>

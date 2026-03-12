@@ -5,27 +5,27 @@
         $user = auth()->user();
 
         $fields = [
-            ['label' => 'NIK', 'value' => $profile?->national_id_number],
+            ['label' => __('label.nik'), 'value' => $profile?->national_id_number],
             [
-                'label' => 'Tempat/Tanggal Lahir',
+                'label' => __('label.birth_place_date'),
                 'value' => ($profile?->birth_city ? $profile->birth_city . ', ' : '') .
                           ($profile?->birth_date
                             ? \Carbon\Carbon::parse($profile->birth_date)->format('d M Y')
                             : '-'),
             ],
             [
-                'label' => 'Tanggal Masuk',
+                'label' => __('label.join_date'),
                 'value' => $profile?->hire_date
                     ? \Carbon\Carbon::parse($profile->hire_date)->format('d M Y')
                     : '-',
             ],
-            ['label' => 'No HP', 'value' => $profile?->phone_number ?? '-'],
-            ['label' => 'Alamat', 'value' => $profile?->address ?? '-', 'span' => 2],
-            ['label' => 'Pendidikan', 'value' => $profile?->last_education ?? '-'],
-            ['label' => 'Status', 'value' => ucfirst($profile?->marital_status ?? '-')],
-            ['label' => 'Rekening BJB', 'value' => $profile?->bjb_bank_account_number ?? '-'],
-            ['label' => 'NPWP', 'value' => $profile?->tax_identification_number ?? '-'],
-            ['label' => 'Email Pribadi', 'value' => $profile?->personal_email ?? '-'],
+            ['label' => __('label.phone_number'), 'value' => $profile?->phone_number ?? '-'],
+            ['label' => __('label.address'), 'value' => $profile?->address ?? '-', 'span' => 2],
+            ['label' => __('label.education_level'), 'value' => $profile?->last_education ?? '-'],
+            ['label' => __('label.marital_status'), 'value' => ucfirst($profile?->marital_status ?? '-')],
+            ['label' => __('label.bjb_account'), 'value' => $profile?->bjb_bank_account_number ?? '-'],
+            ['label' => __('label.npwp'), 'value' => $profile?->tax_identification_number ?? '-'],
+            ['label' => __('label.personal_email'), 'value' => $profile?->personal_email ?? '-'],
         ];
     @endphp
 
@@ -51,7 +51,7 @@
                         {{ $user->name }}
                     </h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        {{ $profile?->position_title ?? 'Belum diatur' }}
+                        {{ $profile?->position_title ?? __('label.not_set') }}
                     </p>
                     <p class="text-sm text-gray-400 mt-1">
                         {{ $user->email }}
@@ -78,7 +78,7 @@
 
                 {{-- show education and employment histories --}}
                 <div class="mt-6">
-                    <h3 class="text-lg font-semibold">Riwayat Pendidikan</h3>
+                    <h3 class="text-lg font-semibold">{{ __('label.education_history') }}</h3>
                     @if($profile && $profile->educationHistories->count())
                         <ul class="list-disc list-inside mt-2 space-y-1">
                             @foreach($profile->educationHistories as $edu)
@@ -86,11 +86,11 @@
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-sm text-gray-500">Tidak ada riwayat pendidikan.</p>
+                        <p class="text-sm text-gray-500">{{ __('label.no_education_history') }}</p>
                     @endif
                 </div>
                 <div class="mt-4">
-                    <h3 class="text-lg font-semibold">Riwayat Pekerjaan</h3>
+                    <h3 class="text-lg font-semibold">{{ __('label.work_history') }}</h3>
                     @if($profile && $profile->employmentHistories->count())
                         <ul class="list-disc list-inside mt-2 space-y-1">
                             @foreach($profile->employmentHistories as $job)
@@ -98,7 +98,7 @@
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-sm text-gray-500">Tidak ada riwayat pekerjaan.</p>
+                        <p class="text-sm text-gray-500">{{ __('label.no_work_history') }}</p>
                     @endif
                 </div>
 
@@ -111,7 +111,7 @@
                 @endphp
 
                 <div class="mt-8">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Attachments</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">{{ __('label.attachments') }}</h3>
                     <ul class="space-y-2">
                         @foreach ($attachments as $att)
                             @if ($att['path'])
@@ -124,7 +124,7 @@
                             @endif
                         @endforeach
                         @if (collect($attachments)->where('path')->isEmpty())
-                            <li class="text-sm text-gray-500">No attachments available.</li>
+                            <li class="text-sm text-gray-500">{{ __('label.no_attachments') }}</li>
                         @endif
                     </ul>
                 </div>
@@ -141,7 +141,7 @@
 
         <div class="flex justify-end pt-4">
             <x-filament::button type="submit" size="lg" class="px-10">
-                Save Changes
+                {{ __('label.save_changes') }}
             </x-filament::button>
         </div>
 

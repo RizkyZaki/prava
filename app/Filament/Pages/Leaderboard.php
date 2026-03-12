@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use App\Models\TicketHistory;
 use App\Models\TicketComment;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -19,11 +20,23 @@ class Leaderboard extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-trophy';
-    protected static ?string $navigationLabel = 'Leaderboard';
-    protected static ?string $title = 'Contribution Leaderboard';
     protected static ?int $navigationSort = 6;
     protected string $view = 'filament.pages.leaderboard';
-    protected static string | \UnitEnum | null $navigationGroup = 'Analytics';
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('page.contribution_leaderboard');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('page.leaderboard');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.analytics');
+    }
     protected static ?string $slug = 'leaderboard';
 
     public string $timeRange = '7days'; // Changed from 'thisweek' to '7days'
@@ -48,11 +61,11 @@ class Leaderboard extends Page implements HasForms
     {
         $users = User::orderBy('name')->get();
         $leaderboardData = [];
-        
+
         foreach ($users as $user) {
             $stats = $this->getUserStats($user->id);
             $totalScore = $this->calculateContributionScore($stats);
-            
+
             if ($totalScore > 0) { // Only include users with contributions
                 $leaderboardData[] = [
                     'user' => $user,
@@ -100,24 +113,24 @@ class Leaderboard extends Page implements HasForms
         $dateRange = $this->getDateRangeFromTimeRange();
         $startDate = $dateRange['start'];
         $endDate = $dateRange['end'];
-        
+
         try {
             return [
                 'tickets_created' => Ticket::where('created_by', $userId)
                     ->whereBetween('created_at', [
-                        $startDate->startOfDay()->utc(), 
+                        $startDate->startOfDay()->utc(),
                         $endDate->endOfDay()->utc()
                     ])
                     ->count(),
                 'status_changes' => TicketHistory::where('user_id', $userId)
                     ->whereBetween('created_at', [
-                        $startDate->startOfDay()->utc(), 
+                        $startDate->startOfDay()->utc(),
                         $endDate->endOfDay()->utc()
                     ])
                     ->count(),
                 'comments_made' => TicketComment::where('user_id', $userId)
                     ->whereBetween('created_at', [
-                        $startDate->startOfDay()->utc(), 
+                        $startDate->startOfDay()->utc(),
                         $endDate->endOfDay()->utc()
                     ])
                     ->count(),
@@ -139,35 +152,35 @@ class Leaderboard extends Page implements HasForms
         $dateRange = $this->getDateRangeFromTimeRange();
         $startDate = $dateRange['start'];
         $endDate = $dateRange['end'];
-        
+
         // Get unique dates where user had activity - simplified approach
         $ticketDates = Ticket::where('created_by', $userId)
             ->whereBetween('created_at', [
-                $startDate->startOfDay()->utc(), 
+                $startDate->startOfDay()->utc(),
                 $endDate->endOfDay()->utc()
             ])
             ->selectRaw('DATE(created_at) as activity_date')
             ->distinct()
             ->pluck('activity_date');
-            
+
         $historyDates = TicketHistory::where('user_id', $userId)
             ->whereBetween('created_at', [
-                $startDate->startOfDay()->utc(), 
+                $startDate->startOfDay()->utc(),
                 $endDate->endOfDay()->utc()
             ])
             ->selectRaw('DATE(created_at) as activity_date')
             ->distinct()
             ->pluck('activity_date');
-            
+
         $commentDates = TicketComment::where('user_id', $userId)
             ->whereBetween('created_at', [
-                $startDate->startOfDay()->utc(), 
+                $startDate->startOfDay()->utc(),
                 $endDate->endOfDay()->utc()
             ])
             ->selectRaw('DATE(created_at) as activity_date')
             ->distinct()
             ->pluck('activity_date');
-            
+
         // Merge and count unique dates
         return $ticketDates->merge($historyDates)
             ->merge($commentDates)
@@ -178,7 +191,7 @@ class Leaderboard extends Page implements HasForms
     private function getDateRangeFromTimeRange(): array
     {
         $endDate = Carbon::now(config('app.timezone'));
-        
+
         return match($this->timeRange) {
             '7days' => [
                 'start' => $endDate->copy()->subDays(6), // 7 days including today
@@ -207,7 +220,7 @@ class Leaderboard extends Page implements HasForms
     {
         return match($this->timeRange) {
             '7days' => 'Last 7 Days',
-            '30days' => 'Last 30 Days', 
+            '30days' => 'Last 30 Days',
             'thisweek' => 'This Week',
             '1month' => 'Last Month',
             default => 'Last 7 Days'

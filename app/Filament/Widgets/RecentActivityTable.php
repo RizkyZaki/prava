@@ -18,7 +18,12 @@ class RecentActivityTable extends BaseWidget
 {
     use HasWidgetShield;
 
-    protected static ?string $heading = 'Recent Activities';
+    protected static ?string $heading = null;
+
+    public function getHeading(): ?string
+    {
+        return __('widget.recent_activities');
+    }
 
     protected int | string | array $columnSpan = [
         'default' => 'full',
@@ -46,7 +51,7 @@ class RecentActivityTable extends BaseWidget
             )
             ->columns([
                 TextColumn::make('activity_summary')
-                    ->label('Activity')
+                    ->label(__('widget.col.activity'))
                     ->state(function (TicketHistory $record): string {
                         $ticketName = $record->ticket->name ?? 'Unknown ticket';
                         $trimmedName = strlen($ticketName) > 40 ? substr($ticketName, 0, 40) . '...' : $ticketName;
@@ -83,10 +88,10 @@ class RecentActivityTable extends BaseWidget
                 Filter::make('date_range')
                     ->schema([
                         DatePicker::make('start_date')
-                            ->label('Start Date')
+                            ->label(__('widget.col.start_date'))
                             ->default(today()),
                         DatePicker::make('end_date')
-                            ->label('End Date')
+                            ->label(__('widget.col.end_date'))
                             ->default(today()),
                     ])
                     ->query(function ($query, array $data) {
@@ -110,7 +115,7 @@ class RecentActivityTable extends BaseWidget
                     }),
 
                 Filter::make('today')
-                    ->label('Today Only')
+                    ->label(__('widget.filter.today_only'))
                     ->query(fn ($query) => $query->whereDate('created_at', today()))
                     ->toggle(),
 
@@ -137,8 +142,8 @@ class RecentActivityTable extends BaseWidget
             ->paginated([5, 25, 50])
             ->poll('30s')
             ->striped()
-            ->emptyStateHeading('No Activity Found')
-            ->emptyStateDescription('No ticket activities found for the selected period.')
+            ->emptyStateHeading(__('widget.no_activity_found'))
+            ->emptyStateDescription(__('widget.no_activity_desc'))
             ->emptyStateIcon('heroicon-o-clock');
     }
 }

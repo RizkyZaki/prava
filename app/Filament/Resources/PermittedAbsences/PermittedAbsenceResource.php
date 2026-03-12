@@ -21,13 +21,25 @@ class PermittedAbsenceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Perizinan';
+    public static function getNavigationLabel(): string
+    {
+        return __('resource.leave_requests');
+    }
 
-    protected static ?string $modelLabel = 'Perizinan';
+    public static function getModelLabel(): string
+    {
+        return __('resource.permission');
+    }
 
-    protected static ?string $pluralModelLabel = 'Perizinan';
+    public static function getPluralModelLabel(): string
+    {
+        return __('resource.permissions');
+    }
 
-    protected static UnitEnum|string|null $navigationGroup = 'Kepegawaian';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('nav.group.personnel');
+    }
 
     protected static ?int $navigationSort = 3;
 
