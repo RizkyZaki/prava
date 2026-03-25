@@ -28,10 +28,6 @@ class WhatsappService
         $message = $value['messages'][0] ?? null;
         $phoneNumberId = $value['metadata']['phone_number_id'] ?? null;
 
-        // Filter: hanya proses pesan untuk nomor perusahaan
-        if ($phoneNumberId !== '863011583558952') {
-            return;
-        }
 
         if (! $message || ! $phoneNumberId) {
             return;

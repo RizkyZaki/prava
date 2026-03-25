@@ -92,8 +92,14 @@
                 >{{ __('wa.tab_history') }}</button>
             </div>
 
-            {{-- Search --}}
-            <div class="px-2.5 py-1.5 bg-[#111b21]">
+            {{-- Phone Number Switcher & Search --}}
+            <div class="px-2.5 pt-1.5 bg-[#111b21]">
+                <div class="mb-2">
+                    <select wire:model="selectedPhoneNumberId" class="bg-[#202c33] text-[#d1d7db] rounded px-3 py-2 w-full">
+                        <option value="863011583558952">Kantor</option>
+                        <option value="901016943092093">Pemerintah Pusat</option>
+                    </select>
+                </div>
                 <div class="flex items-center gap-3 rounded-lg bg-[#202c33] px-3 py-[7px]">
                     <svg class="w-4 h-4 text-[#8696a0] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     <input

@@ -13,6 +13,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 
 #[Layout('layouts.whatsapp')]
+
 class WhatsappChat extends Component
 {
     use WithFileUploads;
@@ -24,6 +25,9 @@ class WhatsappChat extends Component
     public bool $showHistory = false;
     public bool $showEndChatModal = false;
     public bool $showMobileSidebar = true;
+
+    // Tambahan: filter nomor WhatsApp
+    public string $selectedPhoneNumberId = '863011583558952';
 
     public function mount(): void
     {
@@ -58,6 +62,11 @@ class WhatsappChat extends Component
             $query->whereNotNull('ended_at');
         } else {
             $query->whereNull('ended_at');
+        }
+
+        // Filter berdasarkan nomor WhatsApp yang dipilih
+        if ($this->selectedPhoneNumberId) {
+            $query->where('whatsapp_phone_number_id', $this->selectedPhoneNumberId);
         }
 
         if ($this->search !== '') {
