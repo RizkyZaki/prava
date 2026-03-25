@@ -36,6 +36,7 @@ class WhatsappChat extends Component
 
     public function updatedSelectedPhoneNumberId()
     {
+        $this->selectedConversationId = null;
         unset($this->conversations);
     }
 
