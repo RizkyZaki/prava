@@ -34,6 +34,11 @@ class WhatsappChat extends Component
         abort_unless(Auth::user()?->hasRole('super_admin'), 403);
     }
 
+    public function updatedSelectedPhoneNumberId()
+    {
+        unset($this->conversations);
+    }
+
     public function toggleHistory(): void
     {
         $this->showHistory = ! $this->showHistory;
