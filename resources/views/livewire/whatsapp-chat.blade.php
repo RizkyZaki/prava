@@ -95,7 +95,7 @@
             {{-- Phone Number Switcher & Search --}}
             <div class="px-2.5 pt-1.5 bg-[#111b21]">
                 <div class="mb-2">
-                    <select wire:model="selectedPhoneNumberId" class="bg-[#202c33] text-[#d1d7db] rounded px-3 py-2 w-full">
+                    <select wire:model.live="selectedPhoneNumberId" class="bg-[#202c33] text-[#d1d7db] rounded px-3 py-2 w-full">
                         <option value="863011583558952">Kantor</option>
                         <option value="901016943092093">Pemerintah Pusat</option>
                     </select>
