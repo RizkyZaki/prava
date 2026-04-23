@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
+use Dedoc\Scramble\Scramble;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Scramble::auth(function () {
+            return (bool) env('SCRAMBLE_ENABLED', false);
+        });
         // Register policies
         Gate::policy(\App\Models\Salary::class, \App\Policies\SalaryPolicy::class);
         Gate::policy(\App\Models\MonthlyPayroll::class, \App\Policies\MonthlyPayrollPolicy::class);
