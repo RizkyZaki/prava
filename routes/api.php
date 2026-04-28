@@ -117,8 +117,12 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
 
         Route::prefix('ticket')->group(function () {
             Route::get('/', [TicketController::class, 'index']);
+            Route::post('/', [TicketController::class, 'store']);
+            Route::get('/board', [TicketController::class, 'board']);
             Route::get('/timeline', [TicketController::class, 'timeline']);
             Route::get('/priorities', [TicketController::class, 'priorities']);
+            Route::patch('/{id}/status', [TicketController::class, 'updateStatus'])->whereNumber('id');
+            Route::patch('/{id}/done', [TicketController::class, 'markAsDone'])->whereNumber('id');
             Route::get('/{id}', [TicketController::class, 'show'])->whereNumber('id');
         });
 
