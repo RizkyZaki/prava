@@ -65,8 +65,8 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
 
         Route::prefix('notifications')->group(function () {
             Route::get('/', [NotificationController::class, 'index']);
-            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead'])->whereNumber('id');
-            Route::delete('/{id}', [NotificationController::class, 'destroy'])->whereNumber('id');
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::delete('/{id}', [NotificationController::class, 'destroy']);
         });
 
         Route::prefix('work-schedule')->group(function () {
@@ -92,7 +92,7 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
 
         Route::prefix('employees')->group(function () {
             Route::get('/', [EmployeeController::class, 'index']);
-            Route::get('/{id}', [EmployeeController::class, 'show'])->whereNumber('id');
+            Route::get('/{id}', [EmployeeController::class, 'show']);
         });
 
         Route::prefix('hr/attendance')->group(function () {
@@ -104,7 +104,7 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
 
         Route::prefix('activities')->group(function () {
             Route::get('/', [ActivityController::class, 'index']);
-            Route::get('/{id}', [ActivityController::class, 'show'])->whereNumber('id');
+            Route::get('/{id}', [ActivityController::class, 'show']);
         });
         Route::get('/activity-calendar', [ActivityController::class, 'calendar']);
 
@@ -112,7 +112,7 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
             Route::get('/', [ProjectController::class, 'index']);
             Route::get('/timeline', [ProjectController::class, 'timeline']);
             Route::get('/board', [ProjectController::class, 'board']);
-            Route::get('/{id}', [ProjectController::class, 'show'])->whereNumber('id');
+            Route::get('/{id}', [ProjectController::class, 'show']);
         });
 
         Route::prefix('ticket')->group(function () {
@@ -121,16 +121,16 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
             Route::get('/board', [TicketController::class, 'board']);
             Route::get('/timeline', [TicketController::class, 'timeline']);
             Route::get('/priorities', [TicketController::class, 'priorities']);
-            Route::patch('/{id}/status', [TicketController::class, 'updateStatus'])->whereNumber('id');
-            Route::patch('/{id}/done', [TicketController::class, 'markAsDone'])->whereNumber('id');
-            Route::get('/{id}', [TicketController::class, 'show'])->whereNumber('id');
+            Route::patch('/{id}/status', [TicketController::class, 'updateStatus']);
+            Route::patch('/{id}/done', [TicketController::class, 'markAsDone']);
+            Route::get('/{id}', [TicketController::class, 'show']);
         });
 
         Route::get('/epic', [TicketController::class, 'epic']);
 
         Route::prefix('permissions')->group(function () {
             Route::get('/', [PermissionController::class, 'index']);
-            Route::get('/{id}', [PermissionController::class, 'show'])->whereNumber('id');
+            Route::get('/{id}', [PermissionController::class, 'show']);
             Route::post('/', [PermissionController::class, 'store']);
         });
 
@@ -155,7 +155,7 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
 */
 Route::prefix('attendance')->group(function () {
     Route::post('/record', [AttendanceApiController::class, 'record']);
-    Route::get('/today/{user_id}', [AttendanceApiController::class, 'today'])->whereNumber('user_id');
+    Route::get('/today/{user_id}', [AttendanceApiController::class, 'today']);
 });
 
 Route::get('/users', [AttendanceApiController::class, 'users']);

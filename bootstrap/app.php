@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(prepend: [
             \App\Http\Middleware\Api\ForceJsonResponse::class,
+            \App\Http\Middleware\Api\TransformApiIdentifiers::class,
         ]);
 
         $middleware->alias([
