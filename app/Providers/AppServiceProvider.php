@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Filament\Resources\TicketResource\Pages\EditCommentModal;
+use Dedoc\Scramble\OpenApiContext;
+use Dedoc\Scramble\Scramble;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
@@ -29,6 +33,14 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('viewApiDocs', function () {
             return (bool) env('SCRAMBLE_ENABLED', false);
+        });
+
+        Scramble::afterOpenApiGenerated(function (OpenApi $openApi, OpenApiContext $context) {
+            $openApi->secure(
+                SecurityScheme::http('bearer')
+                    ->as('bearerAuth')
+                    ->setDescription('Use a Bearer token from POST /api/v1/auth/login.'),
+            );
         });
 
         // Register policies
