@@ -2,17 +2,30 @@
 
 namespace App\Support;
 
+use Hashids\Hashids;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
 use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
 
 final class ApiIdentifierTransformer
 {
+    private static ?Hashids $hashids = null;
+
+    private static function hashids(): Hashids
+    {
+        if (self::$hashids === null) {
+            self::$hashids = new Hashids(
+                config('app.key'),
+                8,
+                'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+            );
+        }
+
+        return self::$hashids;
+    }
     public static function handleRequest(Request $request): void
     {
         $request->replace(self::transformArray($request->all(), false));
@@ -140,9 +153,11 @@ final class ApiIdentifierTransformer
 
     private static function encodeIdentifier(string $value): string
     {
-        $encrypted = Crypt::encryptString($value);
+        if (!ctype_digit($value)) {
+            return $value;
+        }
 
-        return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
+        return self::hashids()->encode((int) $value);
     }
 
     private static function decodeIdentifier(string $value): mixed
@@ -151,26 +166,9 @@ final class ApiIdentifierTransformer
             return $value === '' ? $value : (int) $value;
         }
 
-        $base64 = strtr($value, '-_', '+/');
-        $padding = strlen($base64) % 4;
+        $decoded = self::hashids()->decode($value);
 
-        if ($padding > 0) {
-            $base64 .= str_repeat('=', 4 - $padding);
-        }
-
-        $encrypted = base64_decode($base64, true);
-
-        if ($encrypted === false) {
-            return $value;
-        }
-
-        try {
-            $decoded = Crypt::decryptString($encrypted);
-        } catch (Throwable) {
-            return $value;
-        }
-
-        return ctype_digit($decoded) ? (int) $decoded : $decoded;
+        return empty($decoded) ? $value : $decoded[0];
     }
 
     private static function decodeRouteIdentifier(mixed $value): int|string
