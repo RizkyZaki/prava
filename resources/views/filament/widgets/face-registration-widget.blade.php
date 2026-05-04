@@ -101,44 +101,167 @@
                     </button>
                 </div>
 
-                <form wire:submit="registerFace" class="space-y-4">
-                    {{ $this->form }}
+                {{-- Camera Section --}}
+                @if ($showCamera && !$previewImage)
+                    <div class="space-y-4">
+                        {{-- Video Stream --}}
+                        <div class="flex flex-col items-center gap-4">
+                            <video id="cameraStream"
+                                class="w-full max-w-sm rounded-xl bg-gray-900 object-cover ring-4 ring-indigo-300 dark:ring-indigo-700"
+                                style="display: none; aspect-ratio: 1;"
+                                playsinline
+                                autoplay
+                                muted>
+                            </video>
 
-                    {{-- Preview --}}
-                    @if ($previewImage)
+                            {{-- Fallback message --}}
+                            <div id="cameraLoading" class="w-full max-w-sm rounded-xl bg-gray-200 dark:bg-gray-700 p-8 flex items-center justify-center text-gray-600 dark:text-gray-400 aspect-square">
+                                <div class="text-center">
+                                    <p class="text-lg font-semibold mb-2">Mengakses kamera...</p>
+                                    <p class="text-sm">Klik izinkan ketika browser minta akses kamera</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Canvas untuk capture (hidden) --}}
+                        <canvas id="captureCanvas" style="display: none;"></canvas>
+
+                        {{-- Capture Button --}}
+                        <button type="button"
+                            id="captureBtn"
+                            class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-700 dark:hover:bg-indigo-600"
+                            onclick="capturePhoto()">
+                            📷 Ambil Foto
+                        </button>
+
+                        {{-- Tips --}}
+                        <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/40">
+                            <div class="text-sm">
+                                <p class="font-semibold mb-2 text-blue-900 dark:text-blue-50">💡 Tips untuk Hasil Terbaik:</p>
+                                <ul class="list-inside list-disc space-y-1 text-blue-800 dark:text-blue-100">
+                                    <li>Pastikan pencahayaan cukup baik dan merata</li>
+                                    <li>Wajah harus terlihat jelas dan menghadap kamera</li>
+                                    <li>Hindari kacamata hitam, kacamata biasa OK</li>
+                                    <li>Posisikan wajah di tengah frame</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Preview Section --}}
+                @if ($previewImage)
+                    <div class="space-y-4">
                         <div class="flex flex-col items-center gap-2">
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Preview:</p>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Preview Foto:</p>
                             <img src="{{ $previewImage }}" alt="Preview"
-                                class="h-40 w-40 rounded-xl object-cover ring-4 ring-indigo-300 dark:ring-indigo-700">
+                                class="h-56 w-56 rounded-xl object-cover ring-4 ring-indigo-300 dark:ring-indigo-700">
                         </div>
-                    @endif
 
-                    {{-- Buttons --}}
-                    <div class="flex flex-col gap-3 sm:flex-row">
-                        <button type="submit"
-                            class="flex items-center justify-center gap-2 flex-1 rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white transition hover:bg-green-700 active:bg-green-800 dark:bg-green-700 dark:hover:bg-green-600">
-                            ✓ Simpan Wajah
-                        </button>
-                        <button type="button" wire:click="hideRegisterForm"
-                            class="flex items-center justify-center gap-2 flex-1 rounded-lg bg-gray-200 px-4 py-2.5 font-medium text-gray-900 transition hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
-                            ❌ Batal
-                        </button>
+                        {{-- Buttons --}}
+                        <form wire:submit="registerFace" class="space-y-4">
+                            <div class="flex flex-col gap-3">
+                                <button type="submit"
+                                    class="flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white transition hover:bg-green-700 active:bg-green-800 dark:bg-green-700 dark:hover:bg-green-600">
+                                    ✓ Simpan Wajah
+                                </button>
+                                <button type="button" wire:click="retakePhoto"
+                                    class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white transition hover:bg-blue-700 active:bg-blue-800 dark:bg-blue-700 dark:hover:bg-blue-600">
+                                    🔄 Ambil Ulang
+                                </button>
+                                <button type="button" wire:click="hideRegisterForm"
+                                    class="flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-4 py-2.5 font-medium text-gray-900 transition hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                                    ❌ Batal
+                                </button>
+                            </div>
+                        </form>
                     </div>
-
-                    {{-- Tips --}}
-                    <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/40">
-                        <div class="text-sm">
-                            <p class="font-semibold mb-2 text-blue-900 dark:text-blue-50">💡 Tips untuk Hasil Terbaik:</p>
-                            <ul class="list-inside list-disc space-y-1 text-blue-800 dark:text-blue-100">
-                                <li>Pastikan pencahayaan cukup baik dan merata</li>
-                                <li>Wajah harus terlihat jelas dan menghadap kamera</li>
-                                <li>Hindari kacamata hitam, kacamata biasa OK</li>
-                                <li>Format: JPEG, PNG, GIF, WebP (max 5 MB)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </form>
+                @endif
             </div>
+
+            {{-- Auto-activate camera on load --}}
+            @script
+            <script>
+                let cameraStream = null;
+
+                document.addEventListener('livewire:navigated', function() {
+                    if (document.getElementById('cameraStream')) {
+                        activateCamera();
+                    }
+                });
+
+                // Initialize on first render
+                if (document.getElementById('cameraStream')) {
+                    setTimeout(() => {
+                        activateCamera();
+                    }, 500);
+                }
+
+                function activateCamera() {
+                    const video = document.getElementById('cameraStream');
+                    const loading = document.getElementById('cameraLoading');
+
+                    if (!video) return;
+
+                    navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'user',
+                            width: { ideal: 640 },
+                            height: { ideal: 640 }
+                        },
+                        audio: false
+                    }).then(stream => {
+                        cameraStream = stream;
+                        video.srcObject = stream;
+                        video.style.display = 'block';
+                        if (loading) loading.style.display = 'none';
+                    }).catch(err => {
+                        console.error('Error accessing camera:', err);
+                        if (loading) {
+                            loading.innerHTML = '<div class="text-center"><p class="text-lg font-semibold mb-2 text-red-600">❌ Akses Kamera Ditolak</p><p class="text-sm">Silakan izinkan akses kamera di browser settings</p></div>';
+                        }
+                    });
+                }
+
+                function capturePhoto() {
+                    const video = document.getElementById('cameraStream');
+                    const canvas = document.getElementById('captureCanvas');
+                    const ctx = canvas.getContext('2d');
+
+                    if (!video || !cameraStream) {
+                        alert('Kamera belum siap');
+                        return;
+                    }
+
+                    // Set canvas size sesuai video
+                    canvas.width = video.videoWidth || 640;
+                    canvas.height = video.videoHeight || 640;
+
+                    // Draw video frame to canvas
+                    ctx.drawImage(video, 0, 0);
+
+                    // Get image as data URL
+                    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+
+                    // Stop camera stream
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                        cameraStream = null;
+                    }
+
+                    // Send to Livewire
+                    @this.saveCapturedImage(imageData);
+                }
+
+                // Cleanup when component is destroyed
+                document.addEventListener('livewire:remove', function() {
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                        cameraStream = null;
+                    }
+                });
+            </script>
+            @endscript
         @endif
     </div>
 </div>

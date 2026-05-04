@@ -21,6 +21,9 @@ class FaceRegistrationWidget extends Widget implements HasForms
     public ?FaceData $userFace = null;
     public bool $showForm = false;
     public ?string $previewImage = null;
+    public bool $showCamera = false;
+    public bool $cameraActive = false;
+    public ?string $capturedImage = null;
 
     protected FaceRecognitionService $faceService;
 
@@ -33,14 +36,58 @@ class FaceRegistrationWidget extends Widget implements HasForms
     public function showRegisterForm(): void
     {
         $this->showForm = true;
+        $this->showCamera = true;
         $this->previewImage = null;
+        $this->capturedImage = null;
     }
 
     public function hideRegisterForm(): void
     {
         $this->showForm = false;
+        $this->showCamera = false;
+        $this->cameraActive = false;
         $this->previewImage = null;
+        $this->capturedImage = null;
         $this->data = [];
+    }
+
+    public function activateCamera(): void
+    {
+        $this->cameraActive = true;
+    }
+
+    public function saveCapturedImage(string $imageData): void
+    {
+        try {
+            if (!$imageData) {
+                Notification::make()
+                    ->title('Error')
+                    ->body('Gagal mengambil foto')
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            // Save base64 image to data property
+            $this->capturedImage = $imageData;
+            $this->previewImage = $imageData;
+            $this->showCamera = false;
+            $this->cameraActive = false;
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error')
+                ->body('Error: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function retakePhoto(): void
+    {
+        $this->showCamera = true;
+        $this->cameraActive = true;
+        $this->capturedImage = null;
+        $this->previewImage = null;
     }
 
     public function updatedDataFaceImage(): void
@@ -66,53 +113,51 @@ class FaceRegistrationWidget extends Widget implements HasForms
     public function registerFace(): void
     {
         try {
-            $data = $this->form->getState();
-
-            if (!isset($data['face_image']) || empty($data['face_image'])) {
+            if (!$this->capturedImage) {
                 Notification::make()
                     ->title('Error')
-                    ->body('Silakan pilih gambar wajah terlebih dahulu')
+                    ->body('Silakan ambil foto wajah Anda terlebih dahulu')
                     ->danger()
                     ->send();
                 return;
             }
 
-            $file = $data['face_image'];
-
-            // Jika file adalah temporary uploaded file
-            if ($file instanceof TemporaryUploadedFile) {
-                // Ambil file asli dari temporary storage
-                $uploadedFile = new \Illuminate\Http\UploadedFile(
-                    $file->getRealPath(),
-                    $file->getClientOriginalName(),
-                    $file->getMimeType(),
-                    null,
-                    true
-                );
-
-                // Register face menggunakan service
-                $faceData = $this->faceService->registerFace(auth()->user(), $uploadedFile);
-
-                // Refresh user face data
-                auth()->user()->refresh();
-                $this->userFace = auth()->user()->faceData?->active()->first();
-
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Wajah Anda berhasil didaftarkan')
-                    ->success()
-                    ->send();
-
-                $this->hideRegisterForm();
-                $this->form->fill();
-                $this->previewImage = null;
-            } else {
-                Notification::make()
-                    ->title('Error')
-                    ->body('Format file tidak valid')
-                    ->danger()
-                    ->send();
+            // Decode base64 image
+            $imageData = $this->capturedImage;
+            if (str_starts_with($imageData, 'data:image')) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
             }
+
+            $imageBinary = base64_decode($imageData);
+
+            // Create temporary file
+            $tempFile = tempnam(sys_get_temp_dir(), 'face_');
+            file_put_contents($tempFile, $imageBinary);
+
+            // Create UploadedFile instance
+            $uploadedFile = new \Illuminate\Http\UploadedFile(
+                $tempFile,
+                'face_' . time() . '.jpg',
+                'image/jpeg',
+                null,
+                true
+            );
+
+            // Register face using service
+            $faceData = $this->faceService->registerFace(auth()->user(), $uploadedFile);
+
+            // Refresh user face data
+            auth()->user()->refresh();
+            $this->userFace = auth()->user()->faceData?->active()->first();
+
+            Notification::make()
+                ->title('Success!')
+                ->body('Wajah Anda berhasil didaftarkan')
+                ->success()
+                ->send();
+
+            $this->hideRegisterForm();
+            $this->form->fill();
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Error')
