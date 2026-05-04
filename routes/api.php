@@ -136,9 +136,7 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
         });
 
         Route::prefix('face')->group(function () {
-            Route::post('/register', [FaceRecognitionController::class, 'registerFace']);
             Route::get('/check', [FaceRecognitionController::class, 'checkFace']);
-            Route::delete('/{userId}', [FaceRecognitionController::class, 'deleteFace']);
         });
 
         Route::post('/attendance/checkin-face', [FaceRecognitionController::class, 'checkInFace']);

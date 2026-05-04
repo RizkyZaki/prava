@@ -22,69 +22,6 @@ class FaceRecognitionController extends Controller
         $this->faceService = $faceService;
     }
 
-    /**
-     * Register/Update face user untuk Face Recognition
-     *
-     * Digunakan untuk mendaftarkan atau memperbarui foto wajah user di sistem.
-     * Endpoint ini hanya bisa diakses dari website dashboard, bukan dari Android app.
-     *
-     * @group Face Recognition
-     * @authenticated
-     * @bodyParam face_image file required Image file wajah user (JPEG, PNG, GIF, WebP). Max 5MB. Example: (uploaded_file)
-     * @response 201 {
-     *   "success": true,
-     *   "message": "Wajah berhasil didaftarkan",
-     *   "data": {
-     *     "face_id": 1,
-     *     "face_image_url": "http://example.com/storage/faces/1_xyz.jpg",
-     *     "registered_at": "2026-01-08 10:30:00"
-     *   }
-     * }
-     * @response 400 {
-     *   "success": false,
-     *   "message": "Gagal mendaftarkan wajah: ..."
-     * }
-     * @response 401 {
-     *   "success": false,
-     *   "message": "User tidak terautentikasi"
-     * }
-     */
-    public function registerFace(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'face_image' => 'required|image|mimes:jpeg,png,gif,webp|max:5120', // max 5MB
-            ]);
-
-            // Get authenticated user
-            $user = auth()->user();
-
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User tidak terautentikasi',
-                ], 401);
-            }
-
-            // Register face
-            $faceData = $this->faceService->registerFace($user, $request->file('face_image'));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Wajah berhasil didaftarkan',
-                'data' => [
-                    'face_id' => $faceData->id,
-                    'face_image_url' => $faceData->getFaceImageUrl(),
-                    'registered_at' => $faceData->registered_at,
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mendaftarkan wajah: ' . $e->getMessage(),
-            ], 400);
-        }
-    }
 
     /**
      * Check Status Registered Face User
@@ -446,52 +383,5 @@ class FaceRecognitionController extends Controller
         }
     }
 
-    /**
-     * Delete/Hapus Face Data User (Admin Only)
-     *
-     * Menghapus data wajah (face data) user dari sistem.
-     * Endpoint ini hanya bisa diakses oleh super admin.
-     * User akan perlu mendaftarkan wajah baru jika ingin menggunakan fitur face recognition lagi.
-     *
-     * @group Face Recognition - Admin
-     * @authenticated
-     * @urlParam userId integer required ID user yang face data-nya akan dihapus. Example: 1
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Face data berhasil dihapus"
-     * }
-     * @response 403 {
-     *   "success": false,
-     *   "message": "Anda tidak memiliki akses untuk menghapus face data"
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "User tidak ditemukan"
-     * }
-     */
-    public function deleteFace(Request $request, $userId): JsonResponse
-    {
-        try {
-            // Check if authorized (hanya admin)
-            if (!auth()->user()->hasRole('super_admin')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda tidak memiliki akses untuk menghapus face data',
-                ], 403);
-            }
 
-            $user = User::findOrFail($userId);
-            $this->faceService->deleteFace($user);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Face data berhasil dihapus',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-            ], 400);
-        }
-    }
 }
