@@ -3,6 +3,7 @@
     @php
         $profile = \App\Models\EmployeeProfile::where('user_id', auth()->id())->first();
         $user = auth()->user();
+        $isSuperAdmin = $user->hasRole('super_admin');
 
         $fields = [
             ['label' => __('label.nik'), 'value' => $profile?->national_id_number],
@@ -131,6 +132,13 @@
             </div>
         </div>
     </div>
+
+    {{-- Face Registration Widget (untuk non-superadmin) --}}
+    @if(!$isSuperAdmin)
+        <div class="mt-6">
+            @livewire(\App\Filament\Widgets\FaceRegistrationWidget::class)
+        </div>
+    @endif
 
     {{-- FORM --}}
     <form wire:submit.prevent="save" class="space-y-8">

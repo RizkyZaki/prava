@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\File\File;
 class FaceRecognitionService
 {
     protected $imagine;
-    protected $storagePath = 'faces';
+    protected $storagePath = 'face';
 
     public function __construct()
     {
@@ -38,13 +38,14 @@ class FaceRecognitionService
             $user->faceData?->delete();
 
             // Generate unique filename
-            $filename = 'faces/' . $user->id . '_' . uniqid() . '.' . $imageFile->getClientOriginalExtension();
+            $fileNameOnly = $user->id . '_' . uniqid() . '.' . $imageFile->getClientOriginalExtension();
+            $filename = $this->storagePath . '/' . $fileNameOnly;
 
             // Simpan file ke storage
-            Storage::disk('local')->putFileAs(
-                'faces',
+            Storage::disk('public')->putFileAs(
+                $this->storagePath,
                 $imageFile,
-                $user->id . '_' . uniqid() . '.' . $imageFile->getClientOriginalExtension()
+                $fileNameOnly
             );
 
             // Create FaceData record

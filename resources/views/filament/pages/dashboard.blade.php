@@ -9,13 +9,6 @@
         @livewire(\App\Filament\Widgets\WelcomeWidget::class)
     </div>
 
-    {{-- Face Registration Widget (untuk non-superadmin) --}}
-    @if(!$isSuperAdmin)
-        <div class="mb-6">
-            @livewire(\App\Filament\Widgets\FaceRegistrationWidget::class)
-        </div>
-    @endif
-
     {{-- My Salary Widget - Show for ALL users --}}
     @if(!$isSuperAdmin)
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

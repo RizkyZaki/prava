@@ -58,7 +58,7 @@ class FaceData extends Model
      */
     public function getFaceImagePath(): string
     {
-        return storage_path('app/' . $this->face_image);
+        return storage_path('app/public/' . $this->face_image);
     }
 
     /**
