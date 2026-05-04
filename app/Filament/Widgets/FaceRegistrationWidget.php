@@ -15,7 +15,7 @@ class FaceRegistrationWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string $view = 'filament.widgets.face-registration-widget';
+    protected string $view = 'filament.widgets.face-registration-widget';
 
     public ?array $data = [];
     public ?FaceData $userFace = null;
