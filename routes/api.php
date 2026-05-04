@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\AttendanceApiController;
 use App\Http\Controllers\Api\V1\Attendance\FaceRecognitionController;
 use App\Http\Controllers\Api\V1\Account\AccountController;
 use App\Http\Controllers\Api\V1\Activity\ActivityController;

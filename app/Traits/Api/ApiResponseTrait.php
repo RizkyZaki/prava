@@ -2,7 +2,11 @@
 
 namespace App\Traits\Api;
 
+use Carbon\Carbon;
+use DateTimeInterface;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\JsonResponse;
+use JsonSerializable;
 
 trait ApiResponseTrait
 {
@@ -22,7 +26,7 @@ trait ApiResponseTrait
         }
 
         if (!is_null($data)) {
-            $response['data'] = $data;
+            $response['data'] = $this->normalizeResponseData($data);
         }
 
         return response()->json($response, $statusCode);
@@ -39,7 +43,7 @@ trait ApiResponseTrait
         ];
 
         if (!is_null($errors)) {
-            $response['errors'] = $errors;
+            $response['errors'] = $this->normalizeResponseData($errors);
         }
 
         return response()->json($response, $statusCode);
@@ -52,7 +56,7 @@ trait ApiResponseTrait
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $resource->items(),
+            'data' => $this->normalizeResponseData($resource->items()),
             'meta' => [
                 'current_page' => $resource->currentPage(),
                 'last_page' => $resource->lastPage(),
@@ -68,6 +72,50 @@ trait ApiResponseTrait
                 'next' => $resource->nextPageUrl(),
             ],
         ]);
+    }
+
+    protected function normalizeResponseData(mixed $value): mixed
+    {
+        if ($value instanceof DateTimeInterface) {
+            return $this->formatDateTime($value);
+        }
+
+        if ($value instanceof Arrayable) {
+            return $this->normalizeResponseData($value->toArray());
+        }
+
+        if ($value instanceof JsonSerializable) {
+            return $this->normalizeResponseData($value->jsonSerialize());
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = $this->normalizeResponseData($item);
+            }
+
+            return $value;
+        }
+
+        if (is_string($value) && $this->isIsoDateTimeString($value)) {
+            return $this->formatDateTime(Carbon::parse($value));
+        }
+
+        return $value;
+    }
+
+    protected function formatDateTime(DateTimeInterface $value): string
+    {
+        return Carbon::instance($value)
+            ->setTimezone('Asia/Jakarta')
+            ->format('Y-m-d H:i:s') . ' WIB';
+    }
+
+    protected function isIsoDateTimeString(string $value): bool
+    {
+        return (bool) preg_match(
+            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/',
+            $value
+        );
     }
 
     protected function notFound(string $message = 'Data not found'): JsonResponse

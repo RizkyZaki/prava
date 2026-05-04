@@ -4,17 +4,18 @@ namespace App\Http\Controllers\Api\V1\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\FaceData;
 use App\Models\PermittedAbsence;
 use App\Models\User;
 use App\Services\FaceRecognitionService;
+use App\Traits\Api\ApiResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class FaceRecognitionController extends Controller
 {
+    use ApiResponseTrait;
+
     protected FaceRecognitionService $faceService;
 
     public function __construct(FaceRecognitionService $faceService)
@@ -51,28 +52,28 @@ class FaceRecognitionController extends Controller
             $user = auth()->user();
 
             if (!$user) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'User tidak terautentikasi',
-                ], 401);
+                ]), 401);
             }
 
             $hasFace = $this->faceService->userHasFace($user);
             $faceData = $user->faceData?->active()->first();
 
-            return response()->json([
+            return response()->json($this->normalizeResponseData([
                 'success' => true,
                 'has_face' => $hasFace,
                 'data' => $hasFace ? [
                     'registered_at' => $faceData->registered_at,
                     'face_image_url' => $faceData->getFaceImageUrl(),
                 ] : null,
-            ]);
+            ]));
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json($this->normalizeResponseData([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),
-            ], 400);
+            ]), 400);
         }
     }
 
@@ -135,31 +136,31 @@ class FaceRecognitionController extends Controller
                 ->first();
 
             if (!$remotePermission) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Anda belum mendapat izin remote untuk hari ini. Hubungi supervisor Anda.',
                     'code' => 'NO_REMOTE_PERMISSION',
-                ], 403);
+                ]), 403);
             }
 
             // ========== CHECK 2: Apakah user sudah punya registered face? ==========
             if (!$this->faceService->userHasFace($user)) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Wajah Anda belum terdaftar. Silakan daftarkan wajah Anda terlebih dahulu di dashboard.',
                     'code' => 'FACE_NOT_REGISTERED',
-                ], 400);
+                ]), 400);
             }
 
             // ========== CHECK 3: Face recognition - bandingkan dengan registered face ==========
             $faceMatched = $this->faceService->recognizeFace($user, $request->file('face_image'));
 
             if (!$faceMatched) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Wajah tidak cocok dengan data terdaftar. Silakan coba lagi.',
                     'code' => 'FACE_MISMATCH',
-                ], 400);
+                ]), 400);
             }
 
             // ========== CHECK 4: Apakah sudah ada attendance checkin untuk hari ini? ==========
@@ -170,7 +171,7 @@ class FaceRecognitionController extends Controller
 
             if ($existingAttendance) {
                 // Sudah checkin hari ini, tidak bisa checkin lagi
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Anda sudah melakukan check-in untuk hari ini. Gunakan fitur check-out untuk selesai bekerja.',
                     'code' => 'ALREADY_CHECKED_IN',
@@ -179,7 +180,7 @@ class FaceRecognitionController extends Controller
                         'check_in' => $existingAttendance->check_in,
                         'check_out' => $existingAttendance->check_out,
                     ],
-                ], 400);
+                ]), 400);
             }
 
             // ========== Create attendance record (check-in) ==========
@@ -189,7 +190,7 @@ class FaceRecognitionController extends Controller
                 'attendance_date' => $today,
             ]);
 
-            return response()->json([
+            return response()->json($this->normalizeResponseData([
                 'success' => true,
                 'message' => 'Check-in berhasil',
                 'type' => 'check_in',
@@ -199,13 +200,13 @@ class FaceRecognitionController extends Controller
                     'check_in' => $attendance->check_in,
                     'status' => $attendance->status,
                 ],
-            ], 201);
+            ]), 201);
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json($this->normalizeResponseData([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),
                 'code' => 'SERVER_ERROR',
-            ], 500);
+            ]), 500);
         }
     }
 
@@ -273,31 +274,31 @@ class FaceRecognitionController extends Controller
                 ->first();
 
             if (!$remotePermission) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Anda belum mendapat izin remote untuk hari ini. Hubungi supervisor Anda.',
                     'code' => 'NO_REMOTE_PERMISSION',
-                ], 403);
+                ]), 403);
             }
 
             // ========== CHECK 2: Apakah user sudah punya registered face? ==========
             if (!$this->faceService->userHasFace($user)) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Wajah Anda belum terdaftar. Silakan daftarkan wajah Anda terlebih dahulu di dashboard.',
                     'code' => 'FACE_NOT_REGISTERED',
-                ], 400);
+                ]), 400);
             }
 
             // ========== CHECK 3: Face recognition - bandingkan dengan registered face ==========
             $faceMatched = $this->faceService->recognizeFace($user, $request->file('face_image'));
 
             if (!$faceMatched) {
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Wajah tidak cocok dengan data terdaftar. Silakan coba lagi.',
                     'code' => 'FACE_MISMATCH',
-                ], 400);
+                ]), 400);
             }
 
             // ========== CHECK 4: Validasi time window untuk checkout (16:00 - 21:00) ==========
@@ -308,22 +309,22 @@ class FaceRecognitionController extends Controller
             if ($currentHour < $workEndHour) {
                 // Belum mencapai jam kerja berakhir
                 $waitMinutes = ($workEndHour - $currentHour) * 60 - $now->minute;
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => "Anda hanya bisa checkout setelah jam kerja berakhir (16:00). Tunggu {$waitMinutes} menit lagi.",
                     'code' => 'CHECKOUT_TOO_EARLY',
                     'earliest_checkout_time' => '16:00',
-                ], 400);
+                ]), 400);
             }
 
             if ($currentHour >= $checkoutMaxHour) {
                 // Sudah melewati batas maksimal checkout
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Sudah melewati batas waktu checkout maksimal (21:00). Hubungi supervisor Anda.',
                     'code' => 'CHECKOUT_TOO_LATE',
                     'checkout_deadline' => '21:00',
-                ], 400);
+                ]), 400);
             }
 
             // ========== CHECK 5: Apakah sudah ada attendance checkin untuk hari ini? ==========
@@ -334,16 +335,16 @@ class FaceRecognitionController extends Controller
 
             if (!$attendance) {
                 // Belum checkin
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Anda belum melakukan check-in untuk hari ini. Silakan check-in terlebih dahulu.',
                     'code' => 'NOT_CHECKED_IN',
-                ], 400);
+                ]), 400);
             }
 
             if ($attendance->check_out) {
                 // Sudah checkout
-                return response()->json([
+                return response()->json($this->normalizeResponseData([
                     'success' => false,
                     'message' => 'Anda sudah melakukan check-out untuk hari ini.',
                     'code' => 'ALREADY_CHECKED_OUT',
@@ -353,7 +354,7 @@ class FaceRecognitionController extends Controller
                         'check_out' => $attendance->check_out,
                         'work_duration' => $attendance->work_duration,
                     ],
-                ], 400);
+                ]), 400);
             }
 
             // ========== Update checkout ==========
@@ -361,7 +362,7 @@ class FaceRecognitionController extends Controller
                 'check_out' => $now,
             ]);
 
-            return response()->json([
+            return response()->json($this->normalizeResponseData([
                 'success' => true,
                 'message' => 'Check-out berhasil',
                 'type' => 'check_out',
@@ -373,13 +374,13 @@ class FaceRecognitionController extends Controller
                     'work_duration' => $attendance->work_duration,
                     'status' => $attendance->status,
                 ],
-            ], 200);
+            ]), 200);
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json($this->normalizeResponseData([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),
                 'code' => 'SERVER_ERROR',
-            ], 500);
+            ]), 500);
         }
     }
 
