@@ -135,10 +135,10 @@
                         </button>
 
                         {{-- Tips --}}
-                        <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/40">
+                        <div class="rounded-lg border border-blue-300 p-4 dark:border-blue-700">
                             <div class="text-sm">
-                                <p class="font-semibold mb-2 text-blue-900 dark:text-blue-50">💡 Tips untuk Hasil Terbaik:</p>
-                                <ul class="list-inside list-disc space-y-1 text-blue-800 dark:text-blue-100">
+                                <p class="font-semibold mb-2 text-blue-900 dark:text-blue-100">💡 Tips untuk Hasil Terbaik:</p>
+                                <ul class="list-inside list-disc space-y-1 text-blue-800 dark:text-blue-200">
                                     <li>Pastikan pencahayaan cukup baik dan merata</li>
                                     <li>Wajah harus terlihat jelas dan menghadap kamera</li>
                                     <li>Hindari kacamata hitam, kacamata biasa OK</li>
@@ -184,24 +184,11 @@
             <script>
                 let cameraStream = null;
 
-                document.addEventListener('livewire:navigated', function() {
-                    if (document.getElementById('cameraStream')) {
-                        activateCamera();
-                    }
-                });
-
-                // Initialize on first render
-                if (document.getElementById('cameraStream')) {
-                    setTimeout(() => {
-                        activateCamera();
-                    }, 500);
-                }
-
                 function activateCamera() {
                     const video = document.getElementById('cameraStream');
                     const loading = document.getElementById('cameraLoading');
 
-                    if (!video) return;
+                    if (!video || !video.parentElement) return;
 
                     navigator.mediaDevices.getUserMedia({
                         video: {
@@ -215,6 +202,7 @@
                         video.srcObject = stream;
                         video.style.display = 'block';
                         if (loading) loading.style.display = 'none';
+                        console.log('Camera activated successfully');
                     }).catch(err => {
                         console.error('Error accessing camera:', err);
                         if (loading) {
@@ -222,6 +210,22 @@
                         }
                     });
                 }
+
+                // Watch for form visibility changes
+                Livewire.hook('morph.updated', ({ el, component }) => {
+                    if (document.getElementById('cameraStream')) {
+                        setTimeout(() => {
+                            activateCamera();
+                        }, 100);
+                    }
+                });
+
+                // Initial activation
+                setTimeout(() => {
+                    if (document.getElementById('cameraStream')) {
+                        activateCamera();
+                    }
+                }, 500);
 
                 function capturePhoto() {
                     const video = document.getElementById('cameraStream');
