@@ -25,11 +25,13 @@ class FaceRegistrationWidget extends Widget implements HasForms
     public bool $cameraActive = false;
     public ?string $capturedImage = null;
 
-    protected FaceRecognitionService $faceService;
+    protected function getFaceService(): FaceRecognitionService
+    {
+        return app(FaceRecognitionService::class);
+    }
 
     public function mount(): void
     {
-        $this->faceService = app(FaceRecognitionService::class);
         $this->userFace = auth()->user()->faceData?->active()->first();
     }
 
@@ -39,7 +41,6 @@ class FaceRegistrationWidget extends Widget implements HasForms
         $this->showCamera = true;
         $this->previewImage = null;
         $this->capturedImage = null;
-        // Dispatch event to activate camera
         $this->dispatch('opening-camera-form');
     }
 
@@ -51,14 +52,12 @@ class FaceRegistrationWidget extends Widget implements HasForms
         $this->previewImage = null;
         $this->capturedImage = null;
         $this->data = [];
-        // Dispatch event to cleanup camera
         $this->dispatch('closing-camera-form');
     }
 
     public function capturePhoto(): void
     {
-        // This will be called from JavaScript via Livewire
-        // Just a placeholder - actual capture happens in JavaScript
+        // Placeholder - actual capture happens in JavaScript
     }
 
     public function activateCamera(): void
@@ -78,7 +77,6 @@ class FaceRegistrationWidget extends Widget implements HasForms
                 return;
             }
 
-            // Save base64 image to data property
             $this->capturedImage = $imageData;
             $this->previewImage = $imageData;
             $this->showCamera = false;
@@ -98,21 +96,17 @@ class FaceRegistrationWidget extends Widget implements HasForms
         $this->cameraActive = true;
         $this->capturedImage = null;
         $this->previewImage = null;
-        // Re-open camera after retake
         $this->dispatch('opening-camera-form');
     }
 
     public function updatedDataFaceImage(): void
     {
-        // Generate preview ketika file dipilih
         if ($this->data['face_image'] ?? null) {
             $file = $this->data['face_image'];
 
-            // Jika file adalah temporary uploaded file (dari input)
             if ($file instanceof TemporaryUploadedFile) {
                 $this->previewImage = $file->temporaryUrl();
             } elseif (is_string($file)) {
-                // Jika string, assume it's base64 atau URL
                 if (str_starts_with($file, 'data:')) {
                     $this->previewImage = $file;
                 } else {
@@ -134,7 +128,6 @@ class FaceRegistrationWidget extends Widget implements HasForms
                 return;
             }
 
-            // Decode base64 image
             $imageData = $this->capturedImage;
             if (str_starts_with($imageData, 'data:image')) {
                 $imageData = substr($imageData, strpos($imageData, ',') + 1);
@@ -142,11 +135,9 @@ class FaceRegistrationWidget extends Widget implements HasForms
 
             $imageBinary = base64_decode($imageData);
 
-            // Create temporary file
             $tempFile = tempnam(sys_get_temp_dir(), 'face_');
             file_put_contents($tempFile, $imageBinary);
 
-            // Create UploadedFile instance
             $uploadedFile = new \Illuminate\Http\UploadedFile(
                 $tempFile,
                 'face_' . time() . '.jpg',
@@ -155,10 +146,8 @@ class FaceRegistrationWidget extends Widget implements HasForms
                 true
             );
 
-            // Register face using service
-            $faceData = $this->faceService->registerFace(auth()->user(), $uploadedFile);
+            $this->getFaceService()->registerFace(auth()->user(), $uploadedFile);
 
-            // Refresh user face data
             auth()->user()->refresh();
             $this->userFace = auth()->user()->faceData?->active()->first();
 
@@ -186,7 +175,7 @@ class FaceRegistrationWidget extends Widget implements HasForms
                 return;
             }
 
-            $this->faceService->deleteFace(auth()->user());
+            $this->getFaceService()->deleteFace(auth()->user());
             auth()->user()->refresh();
             $this->userFace = null;
 
