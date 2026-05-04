@@ -91,9 +91,9 @@
             <div class="space-y-4 overflow-hidden rounded-lg border border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50 p-4 dark:border-indigo-900/30 dark:from-indigo-950/40 dark:to-blue-950/40 sm:p-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span class="text-2xl">📤</span>
+                        <span class="text-2xl">�</span>
                         <h4 class="font-semibold text-gray-900 dark:text-white">
-                            Upload Foto Wajah Anda
+                            Buka Kamera
                         </h4>
                     </div>
                     <button wire:click="hideRegisterForm" class="rounded-lg p-1 text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 text-xl">
@@ -126,10 +126,10 @@
                     </div>
 
                     {{-- Tips --}}
-                    <div class="rounded-lg bg-blue-100 p-4 dark:bg-blue-900/40">
-                        <div class="text-sm text-blue-700 dark:text-blue-300">
-                            <p class="font-semibold mb-2">💡 Tips untuk Hasil Terbaik:</p>
-                            <ul class="list-inside list-disc space-y-1">
+                    <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/50">
+                        <div class="text-sm">
+                            <p class="font-semibold mb-2 text-blue-900 dark:text-blue-100">💡 Tips untuk Hasil Terbaik:</p>
+                            <ul class="list-inside list-disc space-y-1 text-blue-800 dark:text-blue-200">
                                 <li>Pastikan pencahayaan cukup baik dan merata</li>
                                 <li>Wajah harus terlihat jelas dan menghadap kamera</li>
                                 <li>Hindari kacamata hitam, kacamata biasa OK</li>
