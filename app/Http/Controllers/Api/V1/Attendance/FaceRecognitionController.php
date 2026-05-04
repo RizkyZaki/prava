@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;

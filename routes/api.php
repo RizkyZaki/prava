@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AttendanceApiController;
-use App\Http\Controllers\Api\FaceRecognitionController;
+use App\Http\Controllers\Api\V1\Attendance\FaceRecognitionController;
 use App\Http\Controllers\Api\V1\Account\AccountController;
 use App\Http\Controllers\Api\V1\Activity\ActivityController;
 use App\Http\Controllers\Api\V1\Attendance\AttendanceController;
@@ -158,17 +158,6 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| Legacy integration endpoints
-|--------------------------------------------------------------------------
-*/
-Route::prefix('attendance')->group(function () {
-    Route::post('/record', [AttendanceApiController::class, 'record']);
-    Route::get('/today/{user_id}', [AttendanceApiController::class, 'today']);
-});
-
-Route::get('/users', [AttendanceApiController::class, 'users']);
 
 Route::prefix('whatsapp')->middleware('throttle:' . config('api.throttle.default', '60,1'))->group(function () {
     Route::get('/webhook', [WhatsappWebhookController::class, 'verify']);

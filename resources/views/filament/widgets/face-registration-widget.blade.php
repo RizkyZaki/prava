@@ -1,90 +1,105 @@
 <div class="fi-section rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
     <div class="space-y-6">
         {{-- Header --}}
-        <div class="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-            <div class="flex-1">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">📸</span>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Registrasi Wajah untuk Face Recognition
-                        </h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Daftarkan wajah Anda untuk attendance berbasis face recognition
-                        </p>
-                    </div>
-                </div>
+        <div class="flex items-center gap-3">
+            <span class="text-3xl">📸</span>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    Registrasi Wajah untuk Face Recognition
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Daftarkan wajah Anda untuk attendance berbasis face recognition
+                </p>
             </div>
         </div>
 
-        {{-- Status --}}
+        {{-- Status: Sudah Terdaftar --}}
         @if ($userFace)
             <div
-                class="overflow-hidden rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:border-green-900/30 dark:from-green-950/40 dark:to-emerald-950/40">
-                <div class="space-y-4 p-4 sm:p-6">
-                    {{-- Status Badge --}}
-                    <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-3xl">✅</span>
-                            <div>
-                                <p class="font-semibold text-green-900 dark:text-green-100">
-                                    Wajah Anda Sudah Terdaftar
-                                </p>
-                                <p class="text-sm text-green-700 dark:text-green-300">
-                                    Terdaftar pada: <span
-                                        class="font-medium">{{ $userFace->registered_at->format('d M Y, H:i') }}</span>
-                                </p>
-                            </div>
+                style="border-radius: 1rem; overflow: hidden; border: 1px solid #bbf7d0; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+                {{-- Top accent bar --}}
+                <div style="height: 4px; background: linear-gradient(90deg, #16a34a, #22c55e, #4ade80);"></div>
+
+                <div style="padding: 1.5rem;">
+                    {{-- Badge status --}}
+                    <div style="display: flex; align-items: center; gap: 0.625rem; margin-bottom: 1.25rem;">
+                        <div
+                            style="display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:9999px; background-color:#16a34a;">
+                            <span style="color:white; font-size:0.875rem;">✓</span>
+                        </div>
+                        <div>
+                            <p style="font-weight: 700; color: #14532d; font-size: 0.95rem;">Wajah Anda Sudah Terdaftar
+                            </p>
+                            <p style="font-size: 0.75rem; color: #166534;">
+                                Terdaftar pada: <strong>{{ $userFace->registered_at->format('d M Y, H:i') }}</strong>
+                            </p>
                         </div>
                     </div>
 
-                    {{-- Preview Registered Face --}}
-                    <div class="flex justify-center pt-2">
-                        <div class="relative">
-                            <img src="{{ $userFace->getFaceImageUrl() }}" alt="Registered Face"
-                                class="h-40 w-40 rounded-xl object-cover ring-4 ring-green-200 dark:ring-green-800">
+                    {{-- Face preview card --}}
+                    <div style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+                        <div style="position: relative; display: inline-block;">
+                            {{-- Glow ring --}}
                             <div
-                                class="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900 text-lg">
-                                ✓
+                                style="position:absolute; inset:-4px; border-radius:1.25rem; background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80); z-index:0;">
+                            </div>
+                            <img src="{{ $userFace->getFaceImageUrl() }}" alt="Registered Face"
+                                style="position:relative; z-index:1; width:10rem; height:10rem; border-radius:1rem; object-fit:cover; border: 3px solid white; display:block;">
+                            {{-- Verified badge --}}
+                            <div
+                                style="position:absolute; bottom:-10px; right:-10px; z-index:2; width:2.25rem; height:2.25rem; border-radius:9999px; background:linear-gradient(135deg,#16a34a,#22c55e); display:flex; align-items:center; justify-content:center; border: 2px solid white; box-shadow: 0 2px 8px rgba(22,163,74,0.4);">
+                                <span style="color:white; font-size:1rem; line-height:1;">✓</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Button Action --}}
-                    <div class="flex flex-col gap-3 pt-2 sm:flex-row">
-                        <button wire:click="showRegisterForm"
-                            class="flex items-center justify-center gap-2 flex-1 rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white transition hover:bg-blue-700 active:bg-blue-800 dark:bg-blue-700 dark:hover:bg-blue-600">
-                            🔄 Ganti Wajah
-                        </button>
-                        <button wire:click="deleteFace"
-                            onclick="return confirm('Anda yakin ingin menghapus data wajah? Anda harus mendaftarkan ulang untuk menggunakan face recognition.')"
-                            class="flex items-center justify-center gap-2 flex-1 rounded-lg bg-red-600 px-4 py-2.5 font-medium text-white transition hover:bg-red-700 active:bg-red-800 dark:bg-red-700 dark:hover:bg-red-600">
-                            🗑️ Hapus
-                        </button>
+                    {{-- Info pill --}}
+                    <div style="display:flex; justify-content:center; margin-bottom:1.25rem;">
+                        <div
+                            style="display:inline-flex; align-items:center; gap:0.375rem; background-color:#dcfce7; border:1px solid #86efac; border-radius:9999px; padding:0.25rem 0.875rem;">
+                            <span style="font-size:0.7rem;">🟢</span>
+                            <span style="font-size:0.75rem; font-weight:600; color:#15803d;">Aktif & Siap
+                                Digunakan</span>
+                        </div>
+                    </div>
+
+                    {{-- Buttons --}}
+                    <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button wire:click="showRegisterForm"
+                                style="flex:1; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.625rem; background:linear-gradient(135deg,#2563eb,#3b82f6); padding:0.65rem 1rem; font-weight:600; color:#ffffff; border:none; cursor:pointer; font-size:0.875rem; box-shadow: 0 2px 8px rgba(37,99,235,0.3); transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                🔄 Ganti Wajah
+                            </button>
+                            <button wire:click="deleteFace"
+                                onclick="return confirm('Anda yakin ingin menghapus data wajah? Anda harus mendaftarkan ulang untuk menggunakan face recognition.')"
+                                style="flex:1; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.625rem; background:linear-gradient(135deg,#dc2626,#ef4444); padding:0.65rem 1rem; font-weight:600; color:#ffffff; border:none; cursor:pointer; font-size:0.875rem; box-shadow: 0 2px 8px rgba(220,38,38,0.3); transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                🗑️ Hapus
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         @else
-            {{-- Not Registered Badge --}}
+            {{-- Not Registered --}}
             <div
-                class="overflow-hidden rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 dark:border-amber-900/30 dark:from-amber-950/40 dark:to-yellow-950/40">
-                <div class="space-y-4 p-4 sm:p-6">
-                    <div class="flex items-start gap-4">
-                        <span class="text-3xl">⚠️</span>
-                        <div class="flex-1">
-                            <p class="font-semibold text-amber-900 dark:text-amber-100">
-                                Wajah Belum Terdaftar
-                            </p>
-                            <p class="text-sm text-amber-700 dark:text-amber-300">
+                style="border-radius: 1rem; overflow: hidden; border: 1px solid #fde68a; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+                <div style="height: 4px; background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);"></div>
+                <div style="padding: 1.5rem;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem;">
+                        <span style="font-size: 2rem; line-height: 1;">⚠️</span>
+                        <div>
+                            <p style="font-weight: 700; color: #78350f; font-size: 0.95rem;">Wajah Belum Terdaftar</p>
+                            <p style="font-size: 0.8rem; color: #92400e; margin-top: 0.25rem;">
                                 Anda perlu mendaftarkan wajah untuk menggunakan fitur face recognition di attendance
                                 remote
                             </p>
                         </div>
                     </div>
-
-                    {{-- Register Button --}}
                     <button wire:click="showRegisterForm"
-                        class="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 font-medium text-white transition hover:bg-amber-700 active:bg-amber-800 dark:bg-amber-700 dark:hover:bg-amber-600">
+                        style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.625rem; background:linear-gradient(135deg,#d97706,#f59e0b); padding:0.75rem 1rem; font-weight:600; color:#ffffff; border:none; cursor:pointer; font-size:0.875rem; box-shadow: 0 2px 8px rgba(217,119,6,0.35);"
+                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
                         ➕ Daftarkan Wajah Sekarang
                     </button>
                 </div>
@@ -94,57 +109,56 @@
         {{-- Register Form --}}
         @if ($showForm)
             <div
-                class="space-y-4 overflow-hidden rounded-lg border border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50 p-4 dark:border-indigo-900/30 dark:from-indigo-950/40 dark:to-blue-950/40 sm:p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-2xl">📸</span>
-                        <h4 class="font-semibold text-gray-900 dark:text-white">
-                            Buka Kamera
-                        </h4>
+                style="border-radius: 1rem; overflow: hidden; border: 1px solid #c7d2fe; background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);">
+                <div style="height: 4px; background: linear-gradient(90deg, #4f46e5, #6366f1, #818cf8);"></div>
+                <div style="padding: 1.5rem;" class="space-y-4">
+
+                    {{-- Form Header --}}
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.5rem;">📸</span>
+                            <h4 style="font-weight: 700; color: #1e1b4b; font-size: 0.95rem;">Ambil Foto Wajah</h4>
+                        </div>
+                        <button wire:click="hideRegisterForm"
+                            style="display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:9999px; background-color:#e0e7ff; border:none; cursor:pointer; color:#4f46e5; font-size:1rem; font-weight:bold;"
+                            onmouseover="this.style.backgroundColor='#c7d2fe'"
+                            onmouseout="this.style.backgroundColor='#e0e7ff'">
+                            ✕
+                        </button>
                     </div>
-                    <button wire:click="hideRegisterForm"
-                        class="rounded-lg p-1 text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 text-xl">
-                        ✕
-                    </button>
-                </div>
 
-                {{-- Camera Section --}}
-                @if ($showCamera && !$previewImage)
-                    <div class="space-y-4">
-                        {{-- Video Stream --}}
-                        <div class="flex flex-col items-center gap-4">
-                            <video id="cameraStream"
-                                class="w-full max-w-sm rounded-xl bg-gray-900 object-cover ring-4 ring-indigo-300 dark:ring-indigo-700"
-                                style="display: none; aspect-ratio: 1;" playsinline autoplay muted>
-                            </video>
-
-                            {{-- Fallback message --}}
-                            <div id="cameraLoading"
-                                class="w-full max-w-sm rounded-xl bg-gray-200 dark:bg-gray-700 p-8 flex items-center justify-center text-gray-600 dark:text-gray-400 aspect-square">
-                                <div class="text-center">
-                                    <p class="text-lg font-semibold mb-2">Mengakses kamera...</p>
-                                    <p class="text-sm">Klik izinkan ketika browser minta akses kamera</p>
+                    {{-- Camera Section --}}
+                    @if ($showCamera && !$previewImage)
+                        <div class="space-y-4">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                                <video id="cameraStream"
+                                    style="display: none; width: 100%; max-width: 20rem; border-radius: 1rem; background: #111827; object-fit: cover; aspect-ratio: 1; border: 3px solid #6366f1; box-shadow: 0 0 0 4px #c7d2fe;"
+                                    playsinline autoplay muted>
+                                </video>
+                                <div id="cameraLoading"
+                                    style="width: 100%; max-width: 20rem; border-radius: 1rem; background: #e5e7eb; padding: 3rem 1rem; display: flex; align-items: center; justify-content: center; aspect-ratio: 1; color: #6b7280; text-align: center;">
+                                    <div>
+                                        <p style="font-weight: 600; margin-bottom: 0.5rem;">Mengakses kamera...</p>
+                                        <p style="font-size: 0.8rem;">Klik izinkan ketika browser minta akses kamera</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Canvas untuk capture (hidden) --}}
-                        <canvas id="captureCanvas" style="display: none;"></canvas>
+                            <canvas id="captureCanvas" style="display: none;"></canvas>
 
-                        {{-- Capture Button --}}
-                        <button type="button" id="captureBtn" onclick="window.capturePhotoFromCamera()"
-                            style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.5rem; background-color:#4f46e5; padding:0.75rem 1rem; font-weight:500; color:#ffffff; border:none; cursor:pointer;"
-                            onmouseover="this.style.backgroundColor='#4338ca'"
-                            onmouseout="this.style.backgroundColor='#4f46e5'">
-                            Ambil Foto
-                        </button>
+                            <button type="button" id="captureBtn" onclick="window.capturePhotoFromCamera()"
+                                style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.625rem; background:linear-gradient(135deg,#4f46e5,#6366f1); padding:0.75rem 1rem; font-weight:600; color:#ffffff; border:none; cursor:pointer; font-size:0.9rem; box-shadow: 0 2px 8px rgba(79,70,229,0.35);"
+                                onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                📷 Ambil Foto
+                            </button>
 
-                        {{-- Tips --}}
-                        <div class="rounded-lg border border-blue-300 p-4 dark:border-blue-700">
-                            <div class="text-sm">
-                                <p class="font-semibold mb-2 text-blue-900 dark:text-blue-100">💡 Tips untuk Hasil
-                                    Terbaik:</p>
-                                <ul class="list-inside list-disc space-y-1 text-blue-800 dark:text-blue-200">
+                            {{-- Tips --}}
+                            <div
+                                style="border-radius: 0.75rem; border: 1px solid #bfdbfe; background-color: #eff6ff; padding: 1rem;">
+                                <p style="font-weight: 600; color: #1e40af; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                                    💡 Tips untuk Hasil Terbaik:</p>
+                                <ul
+                                    style="list-style: disc inside; font-size: 0.8rem; color: #1d4ed8; line-height: 1.8;">
                                     <li>Pastikan pencahayaan cukup baik dan merata</li>
                                     <li>Wajah harus terlihat jelas dan menghadap kamera</li>
                                     <li>Hindari kacamata hitam, kacamata biasa OK</li>
@@ -152,40 +166,40 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
 
-                {{-- Preview Section --}}
-                @if ($previewImage)
-                    <div class="space-y-4">
-                        <div class="flex flex-col items-center gap-2">
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Preview Foto:</p>
-                            <img src="{{ $previewImage }}" alt="Preview"
-                                class="h-56 w-56 rounded-xl object-cover ring-4 ring-indigo-300 dark:ring-indigo-700">
-                        </div>
+                    {{-- Preview Section --}}
+                    @if ($previewImage)
+                        <div class="space-y-4">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                                <p style="font-size: 0.8rem; font-weight: 600; color: #4338ca;">Preview Foto:</p>
+                                <div style="position:relative; display:inline-block;">
+                                    <div
+                                        style="position:absolute; inset:-3px; border-radius:1.1rem; background:linear-gradient(135deg,#4f46e5,#818cf8); z-index:0;">
+                                    </div>
+                                    <img src="{{ $previewImage }}" alt="Preview"
+                                        style="position:relative; z-index:1; width:14rem; height:14rem; border-radius:1rem; object-fit:cover; border:3px solid white; display:block;">
+                                </div>
+                            </div>
 
-                        {{-- Buttons --}}
-                        <form wire:submit="registerFace" class="space-y-4">
-                            <div class="flex flex-col gap-3">
+                            <form wire:submit="registerFace" class="space-y-3">
                                 <button type="submit"
-                                    style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.5rem; background-color:#16a34a; padding:0.625rem 1rem; font-weight:500; color:#ffffff; border:none; cursor:pointer;"
-                                    onmouseover="this.style.backgroundColor='#15803d'"
-                                    onmouseout="this.style.backgroundColor='#16a34a'">
-                                    Simpan Wajah
+                                    style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.625rem; background:linear-gradient(135deg,#16a34a,#22c55e); padding:0.75rem 1rem; font-weight:600; color:#ffffff; border:none; cursor:pointer; font-size:0.9rem; box-shadow: 0 2px 8px rgba(22,163,74,0.35);"
+                                    onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                    ✅ Simpan Wajah
                                 </button>
                                 <button type="button" wire:click="hideRegisterForm"
-                                    style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.5rem; background-color:#e5e7eb; padding:0.625rem 1rem; font-weight:500; color:#111827; border:none; cursor:pointer;"
+                                    style="width:100%; display:flex; align-items:center; justify-content:center; gap:0.5rem; border-radius:0.625rem; background-color:#e5e7eb; padding:0.75rem 1rem; font-weight:600; color:#374151; border:none; cursor:pointer; font-size:0.9rem;"
                                     onmouseover="this.style.backgroundColor='#d1d5db'"
                                     onmouseout="this.style.backgroundColor='#e5e7eb'">
                                     Batal
                                 </button>
-                            </div>
-                        </form>
-                    </div>
-                @endif
+                            </form>
+                        </div>
+                    @endif
+                </div>
             </div>
 
-            {{-- Auto-activate camera on load --}}
             @script
                 <script>
                     let cameraStream = null;
@@ -197,7 +211,6 @@
 
                         if (!video || !video.parentElement) return;
 
-                        // Stop existing stream if any
                         if (cameraStream) {
                             cameraStream.getTracks().forEach(track => track.stop());
                             cameraStream = null;
@@ -219,12 +232,11 @@
                             video.srcObject = stream;
                             video.style.display = 'block';
                             if (loading) loading.style.display = 'none';
-                            console.log('Camera activated successfully');
                         }).catch(err => {
                             console.error('Error accessing camera:', err);
                             if (loading) {
                                 loading.innerHTML =
-                                    '<div class="text-center"><p class="text-lg font-semibold mb-2 text-red-600">Akses Kamera Ditolak</p><p class="text-sm">Silakan izinkan akses kamera di browser settings</p></div>';
+                                    '<div style="text-align:center"><p style="font-weight:600;color:#dc2626;margin-bottom:0.25rem;">Akses Kamera Ditolak</p><p style="font-size:0.8rem;">Silakan izinkan akses kamera di browser settings</p></div>';
                             }
                         });
                     }
@@ -246,49 +258,34 @@
                             return;
                         }
 
-                        // Set canvas size sesuai video
                         canvas.width = video.videoWidth || 640;
                         canvas.height = video.videoHeight || 640;
-
-                        // Draw video frame to canvas
                         ctx.drawImage(video, 0, 0);
 
-                        // Get image as data URL
                         const imageData = canvas.toDataURL('image/jpeg', 0.9);
-
-                        // Stop camera stream
                         stopCamera();
 
-                        // Send to Livewire via component instance
                         if (window.Livewire?.find(componentId)) {
                             window.Livewire.find(componentId).call('saveCapturedImage', imageData);
                         }
                     }
 
-                    // Store globally for Livewire access
                     window.capturePhotoFromCamera = capturePhotoFromCamera;
                     window.stopCamera = stopCamera;
                     window.activateCamera = activateCamera;
 
-                    // Watch for form visibility changes
                     Livewire.on('opening-camera-form', () => {
-                        setTimeout(() => {
-                            activateCamera();
-                        }, 100);
+                        setTimeout(() => activateCamera(), 100);
                     });
 
                     Livewire.on('closing-camera-form', () => {
                         stopCamera();
                     });
 
-                    // Initial activation
                     setTimeout(() => {
-                        if (document.getElementById('cameraStream')) {
-                            activateCamera();
-                        }
+                        if (document.getElementById('cameraStream')) activateCamera();
                     }, 500);
 
-                    // Cleanup when component is destroyed
                     document.addEventListener('livewire:remove', function() {
                         stopCamera();
                     });
