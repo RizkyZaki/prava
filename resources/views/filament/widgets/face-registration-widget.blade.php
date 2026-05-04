@@ -130,7 +130,8 @@
                         <button type="button"
                             id="captureBtn"
                             onclick="window.capturePhotoFromCamera()"
-                            class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-700 dark:hover:bg-indigo-600">
+                            class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-700 dark:hover:bg-indigo-600"
+                            style="background-color: #4f46e5; color: #ffffff;">
                             📷 Ambil Foto
                         </button>
 
@@ -166,7 +167,8 @@
                                     ✓ Simpan Wajah
                                 </button>
                                 <button type="button" wire:click="retakePhoto"
-                                    class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white transition hover:bg-blue-700 active:bg-blue-800 dark:bg-blue-700 dark:hover:bg-blue-600">
+                                    class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white transition hover:bg-blue-700 active:bg-blue-800 dark:bg-blue-700 dark:hover:bg-blue-600"
+                                    style="background-color: #2563eb; color: #ffffff;">
                                     🔄 Ambil Ulang
                                 </button>
                                 <button type="button" wire:click="hideRegisterForm"

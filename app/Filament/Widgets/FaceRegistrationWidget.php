@@ -98,6 +98,8 @@ class FaceRegistrationWidget extends Widget implements HasForms
         $this->cameraActive = true;
         $this->capturedImage = null;
         $this->previewImage = null;
+        // Re-open camera after retake
+        $this->dispatch('opening-camera-form');
     }
 
     public function updatedDataFaceImage(): void
