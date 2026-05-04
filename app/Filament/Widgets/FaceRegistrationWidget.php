@@ -39,6 +39,8 @@ class FaceRegistrationWidget extends Widget implements HasForms
         $this->showCamera = true;
         $this->previewImage = null;
         $this->capturedImage = null;
+        // Dispatch event to activate camera
+        $this->dispatch('opening-camera-form');
     }
 
     public function hideRegisterForm(): void
@@ -49,6 +51,14 @@ class FaceRegistrationWidget extends Widget implements HasForms
         $this->previewImage = null;
         $this->capturedImage = null;
         $this->data = [];
+        // Dispatch event to cleanup camera
+        $this->dispatch('closing-camera-form');
+    }
+
+    public function capturePhoto(): void
+    {
+        // This will be called from JavaScript via Livewire
+        // Just a placeholder - actual capture happens in JavaScript
     }
 
     public function activateCamera(): void

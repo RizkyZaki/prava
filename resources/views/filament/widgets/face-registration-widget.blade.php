@@ -129,8 +129,8 @@
                         {{-- Capture Button --}}
                         <button type="button"
                             id="captureBtn"
-                            class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-700 dark:hover:bg-indigo-600"
-                            onclick="capturePhoto()">
+                            onclick="window.capturePhotoFromCamera()"
+                            class="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition hover:bg-indigo-700 active:bg-indigo-800 dark:bg-indigo-700 dark:hover:bg-indigo-600">
                             📷 Ambil Foto
                         </button>
 
@@ -183,12 +183,19 @@
             @script
             <script>
                 let cameraStream = null;
+                let livewireComponent = @js($this);
 
                 function activateCamera() {
                     const video = document.getElementById('cameraStream');
                     const loading = document.getElementById('cameraLoading');
 
                     if (!video || !video.parentElement) return;
+
+                    // Stop existing stream if any
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                        cameraStream = null;
+                    }
 
                     navigator.mediaDevices.getUserMedia({
                         video: {
@@ -211,23 +218,14 @@
                     });
                 }
 
-                // Watch for form visibility changes
-                Livewire.hook('morph.updated', ({ el, component }) => {
-                    if (document.getElementById('cameraStream')) {
-                        setTimeout(() => {
-                            activateCamera();
-                        }, 100);
+                function stopCamera() {
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                        cameraStream = null;
                     }
-                });
+                }
 
-                // Initial activation
-                setTimeout(() => {
-                    if (document.getElementById('cameraStream')) {
-                        activateCamera();
-                    }
-                }, 500);
-
-                function capturePhoto() {
+                function capturePhotoFromCamera() {
                     const video = document.getElementById('cameraStream');
                     const canvas = document.getElementById('captureCanvas');
                     const ctx = canvas.getContext('2d');
@@ -248,21 +246,40 @@
                     const imageData = canvas.toDataURL('image/jpeg', 0.9);
 
                     // Stop camera stream
-                    if (cameraStream) {
-                        cameraStream.getTracks().forEach(track => track.stop());
-                        cameraStream = null;
-                    }
+                    stopCamera();
 
-                    // Send to Livewire
-                    @this.saveCapturedImage(imageData);
+                    // Send to Livewire via component reference
+                    if (window.livewireComponent) {
+                        window.livewireComponent.call('saveCapturedImage', imageData);
+                    }
                 }
+
+                // Store globally for Livewire access
+                window.capturePhotoFromCamera = capturePhotoFromCamera;
+                window.stopCamera = stopCamera;
+                window.activateCamera = activateCamera;
+
+                // Watch for form visibility changes
+                Livewire.on('opening-camera-form', () => {
+                    setTimeout(() => {
+                        activateCamera();
+                    }, 100);
+                });
+
+                Livewire.on('closing-camera-form', () => {
+                    stopCamera();
+                });
+
+                // Initial activation
+                setTimeout(() => {
+                    if (document.getElementById('cameraStream')) {
+                        activateCamera();
+                    }
+                }, 500);
 
                 // Cleanup when component is destroyed
                 document.addEventListener('livewire:remove', function() {
-                    if (cameraStream) {
-                        cameraStream.getTracks().forEach(track => track.stop());
-                        cameraStream = null;
-                    }
+                    stopCamera();
                 });
             </script>
             @endscript
