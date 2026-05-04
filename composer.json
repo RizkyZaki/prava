@@ -11,6 +11,7 @@
         "dedoc/scramble": "^0.13.20",
         "filament/filament": "^4.0",
         "hashids/hashids": "^5.0",
+        "imagine/imagine": "^1.5",
         "laravel/framework": "^12.0",
         "laravel/octane": "^2.9",
         "laravel/reverb": "^1.8",
