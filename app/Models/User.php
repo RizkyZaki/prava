@@ -146,6 +146,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(PermittedAbsence::class);
     }
 
+    public function faceData()
+    {
+        return $this->hasOne(FaceData::class);
+    }
+
     public function createdEvents(): HasMany
     {
         return $this->hasMany(Event::class, 'created_by');

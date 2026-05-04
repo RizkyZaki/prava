@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AttendanceApiController;
+use App\Http\Controllers\Api\FaceRecognitionController;
 use App\Http\Controllers\Api\V1\Account\AccountController;
 use App\Http\Controllers\Api\V1\Activity\ActivityController;
 use App\Http\Controllers\Api\V1\Attendance\AttendanceController;
@@ -133,6 +134,15 @@ Route::prefix($apiVersion)->group(function () use ($authThrottle, $defaultThrott
             Route::get('/{id}', [PermissionController::class, 'show']);
             Route::post('/', [PermissionController::class, 'store']);
         });
+
+        Route::prefix('face')->group(function () {
+            Route::post('/register', [FaceRecognitionController::class, 'registerFace']);
+            Route::get('/check', [FaceRecognitionController::class, 'checkFace']);
+            Route::delete('/{userId}', [FaceRecognitionController::class, 'deleteFace']);
+        });
+
+        Route::post('/attendance/checkin-face', [FaceRecognitionController::class, 'checkInFace']);
+        Route::post('/attendance/checkout-face', [FaceRecognitionController::class, 'checkOutFace']);
 
         Route::prefix('summary')->group(function () {
             Route::get('/', [DashboardController::class, 'overview']);
