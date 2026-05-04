@@ -183,7 +183,7 @@
             @script
             <script>
                 let cameraStream = null;
-                let livewireComponent = @js($this);
+                const componentId = @json($this->getId());
 
                 function activateCamera() {
                     const video = document.getElementById('cameraStream');
@@ -248,9 +248,9 @@
                     // Stop camera stream
                     stopCamera();
 
-                    // Send to Livewire via component reference
-                    if (window.livewireComponent) {
-                        window.livewireComponent.call('saveCapturedImage', imageData);
+                    // Send to Livewire via component instance
+                    if (window.Livewire?.find(componentId)) {
+                        window.Livewire.find(componentId).call('saveCapturedImage', imageData);
                     }
                 }
 
