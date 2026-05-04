@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 class DashboardController extends BaseApiController
 {
     /**
-    * Main dashboard payload.
+     * Main dashboard payload.
      * Endpoint: GET /api/v1/dashboard
      */
     public function index(Request $request): JsonResponse
@@ -29,7 +29,7 @@ class DashboardController extends BaseApiController
             ->whereMonth('attendance_date', $currentMonth);
 
         $assignedTicketsQuery = Ticket::query()
-            ->whereHas('assignees', fn ($q) => $q->where('users.id', $user->id));
+            ->whereHas('assignees', fn($q) => $q->where('users.id', $user->id));
 
         return $this->success([
             'user' => [
@@ -42,12 +42,12 @@ class DashboardController extends BaseApiController
                 ->whereDate('attendance_date', today())
                 ->first(),
             'metrics' => [
-                'projects' => Project::query()->whereHas('members', fn ($q) => $q->where('users.id', $user->id))->count(),
+                'projects' => Project::query()->whereHas('members', fn($q) => $q->where('users.id', $user->id))->count(),
                 'assigned_tickets_open' => (clone $assignedTicketsQuery)
-                    ->whereHas('status', fn ($q) => $q->where('is_completed', false))
+                    ->whereHas('status', fn($q) => $q->where('is_completed', false))
                     ->count(),
                 'assigned_tickets_completed' => (clone $assignedTicketsQuery)
-                    ->whereHas('status', fn ($q) => $q->where('is_completed', true))
+                    ->whereHas('status', fn($q) => $q->where('is_completed', true))
                     ->count(),
                 'unread_notifications' => Notification::query()->where('user_id', $user->id)->whereNull('read_at')->count(),
                 'pending_permissions' => PermittedAbsence::query()->where('user_id', $user->id)->where('status', 'pending')->count(),
@@ -58,17 +58,17 @@ class DashboardController extends BaseApiController
     }
 
     /**
-        * Greeting message for dashboard.
+     * Greeting message for dashboard.
      * Endpoint: GET /api/v1/dashboard/greeting
      */
     public function greeting(Request $request): JsonResponse
     {
         $hour = (int) now()->format('H');
         $greeting = match (true) {
-            $hour < 11 => 'Good morning',
-            $hour < 15 => 'Good afternoon',
-            $hour < 19 => 'Good evening',
-            default => 'Good night',
+            $hour < 11 => 'Selamat Pagi',
+            $hour < 15 => 'Selamat Siang',
+            $hour < 19 => 'Selamat Sore',
+            default => 'Selamat Malam',
         };
 
         return $this->success([
@@ -90,7 +90,7 @@ class DashboardController extends BaseApiController
     }
 
     /**
-        * Dashboard summary statistics.
+     * Dashboard summary statistics.
      * Endpoint: GET /api/v1/dashboard/statistics
      */
     public function statistics(Request $request): JsonResponse
@@ -104,7 +104,7 @@ class DashboardController extends BaseApiController
             ->whereYear('attendance_date', $year)
             ->whereMonth('attendance_date', $month);
 
-        $tickets = Ticket::query()->whereHas('assignees', fn ($q) => $q->where('users.id', $userId));
+        $tickets = Ticket::query()->whereHas('assignees', fn($q) => $q->where('users.id', $userId));
 
         return $this->success([
             'summary' => [],
@@ -116,8 +116,8 @@ class DashboardController extends BaseApiController
             ],
             'tickets' => [
                 'total' => (clone $tickets)->count(),
-                'completed' => (clone $tickets)->whereHas('status', fn ($q) => $q->where('is_completed', true))->count(),
-                'open' => (clone $tickets)->whereHas('status', fn ($q) => $q->where('is_completed', false))->count(),
+                'completed' => (clone $tickets)->whereHas('status', fn($q) => $q->where('is_completed', true))->count(),
+                'open' => (clone $tickets)->whereHas('status', fn($q) => $q->where('is_completed', false))->count(),
             ],
             'period' => [
                 'year' => $year,
@@ -127,7 +127,7 @@ class DashboardController extends BaseApiController
     }
 
     /**
-        * Main summary endpoint.
+     * Main summary endpoint.
      * Endpoint: GET /api/v1/overview
      */
     public function overview(Request $request): JsonResponse
@@ -136,7 +136,7 @@ class DashboardController extends BaseApiController
     }
 
     /**
-        * My project summary.
+     * My project summary.
      * Endpoint: GET /api/v1/overview/my-projects
      */
     public function overviewMyProjects(Request $request): JsonResponse
@@ -144,10 +144,10 @@ class DashboardController extends BaseApiController
         $userId = $request->user()->id;
 
         $projects = Project::query()
-            ->whereHas('members', fn ($q) => $q->where('users.id', $userId))
+            ->whereHas('members', fn($q) => $q->where('users.id', $userId))
             ->withCount('tickets')
             ->withCount([
-                'tickets as completed_tickets_count' => fn ($q) => $q->whereHas('status', fn ($sq) => $sq->where('is_completed', true)),
+                'tickets as completed_tickets_count' => fn($q) => $q->whereHas('status', fn($sq) => $sq->where('is_completed', true)),
             ])
             ->latest()
             ->limit(10)
@@ -173,7 +173,7 @@ class DashboardController extends BaseApiController
     }
 
     /**
-        * My ticket summary.
+     * My ticket summary.
      * Endpoint: GET /api/v1/overview/my-tickets
      */
     public function overviewMyTickets(Request $request): JsonResponse
@@ -181,7 +181,7 @@ class DashboardController extends BaseApiController
         $userId = $request->user()->id;
 
         $tickets = Ticket::query()
-            ->whereHas('assignees', fn ($q) => $q->where('users.id', $userId))
+            ->whereHas('assignees', fn($q) => $q->where('users.id', $userId))
             ->with(['project:id,name', 'status:id,name,is_completed'])
             ->latest()
             ->limit(20)
@@ -196,7 +196,7 @@ class DashboardController extends BaseApiController
     }
 
     /**
-        * Summary of created tickets.
+     * Summary of created tickets.
      * Endpoint: GET /api/v1/overview/created-tickets
      */
     public function overviewCreatedTickets(Request $request): JsonResponse
