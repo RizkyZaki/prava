@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PermittedAbsences\Schemas;
 
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -48,14 +49,22 @@ class PermittedAbsenceForm
                             ->label('Tanggal Mulai')
                             ->native(false)
                             ->minDate(now('Asia/Jakarta')->addDay())
-                            ->default(now('Asia/Jakarta')->addDay()),
+                            ->default(now('Asia/Jakarta')->addDay())
+                            ->validationMessages([
+                                'after_or_equal' => 'Tanggal mulai minimal H-1 dari hari ini.',
+                            ]),
 
                         DatePicker::make('end_date')
                             ->required()
                             ->label('Tanggal Selesai')
                             ->native(false)
-                            ->minDate(fn($get) => $get('start_date') ?? now('Asia/Jakarta')->addDay())
-                            ->default(now('Asia/Jakarta')->addDay()),
+                            ->minDate(fn($get) => $get('start_date')
+                                ? Carbon::parse($get('start_date'))
+                                : now('Asia/Jakarta')->addDay())
+                            ->default(now('Asia/Jakarta')->addDay())
+                            ->validationMessages([
+                                'after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
+                            ]),
 
                         Textarea::make('reason')
                             ->required()
