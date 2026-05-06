@@ -71,7 +71,7 @@ class FaceRecognitionService
     {
         try {
             // Cek apakah user punya registered face
-            $registeredFace = $user->faceData?->active()->first();
+            $registeredFace = $user->faceData()->active()->first();
             if (!$registeredFace) {
                 throw new \Exception('Wajah user belum terdaftar');
             }

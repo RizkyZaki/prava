@@ -59,7 +59,7 @@ class FaceRecognitionController extends Controller
             }
 
             $hasFace = $this->faceService->userHasFace($user);
-            $faceData = $user->faceData?->active()->first();
+            $faceData = $user->faceData()->active()->first();
 
             return response()->json($this->normalizeResponseData([
                 'success' => true,
