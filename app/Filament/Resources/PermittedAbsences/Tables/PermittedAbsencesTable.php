@@ -14,6 +14,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 
 class PermittedAbsencesTable
 {
@@ -105,6 +107,44 @@ class PermittedAbsencesTable
                     ]),
             ])
             ->recordActions([
+                Action::make('attachment')
+                    ->label('Lampiran')
+                    ->icon('heroicon-o-photo')
+                    ->color('gray')
+                    ->visible(fn($record) => !empty($record->attachment))
+                    ->modalHeading('Lampiran')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->modalContent(function ($record) {
+                        $path = $record->attachment;
+                        if (!$path) {
+                            return new HtmlString('<p>Lampiran tidak tersedia.</p>');
+                        }
+
+                        $diskName = config('filament.default_filesystem_disk', 'public');
+                        $disk = Storage::disk($diskName);
+                        $url = null;
+
+                        try {
+                            $url = $disk->temporaryUrl($path, now()->addMinutes(5));
+                        } catch (\Throwable $e) {
+                            if (method_exists($disk, 'url')) {
+                                $url = $disk->url($path);
+                            }
+                        }
+
+                        if (!$url) {
+                            return new HtmlString('<p>Lampiran tidak tersedia.</p>');
+                        }
+
+                        $escapedUrl = e($url);
+                        return new HtmlString(
+                            '<div style="display:flex;justify-content:center;align-items:center;">
+                                <img src="' . $escapedUrl . '" alt="Lampiran" style="max-width:100%;height:auto;border-radius:8px;" />
+                            </div>'
+                        );
+                    }),
+
                 Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
