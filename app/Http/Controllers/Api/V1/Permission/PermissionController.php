@@ -51,7 +51,7 @@ class PermissionController extends BaseApiController
         $validated = $request->validate([
             'type' => ['required', 'in:izin,sakit,remote'],
             'reason' => ['required', 'string', 'max:1000'],
-            'start_date' => ['required', 'date'],
+            'start_date' => ['required', 'date', 'after_or_equal:tomorrow'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
         ]);
 

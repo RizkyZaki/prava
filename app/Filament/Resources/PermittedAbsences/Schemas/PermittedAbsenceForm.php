@@ -47,15 +47,15 @@ class PermittedAbsenceForm
                             ->required()
                             ->label('Tanggal Mulai')
                             ->native(false)
-                            ->minDate(now()->subDays(7))
-                            ->default(now()),
+                            ->minDate(now()->addDay())
+                            ->default(now()->addDay()),
 
                         DatePicker::make('end_date')
                             ->required()
                             ->label('Tanggal Selesai')
                             ->native(false)
-                            ->minDate(fn($get) => $get('start_date') ?? now())
-                            ->default(now()),
+                            ->minDate(fn($get) => $get('start_date') ?? now()->addDay())
+                            ->default(now()->addDay()),
 
                         Textarea::make('reason')
                             ->required()
