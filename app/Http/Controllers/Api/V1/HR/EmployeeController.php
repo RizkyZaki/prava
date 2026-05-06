@@ -9,12 +9,27 @@ use Illuminate\Http\Request;
 
 class EmployeeController extends BaseApiController
 {
+    protected function ensureSuperAdmin(Request $request): ?JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user || !$user->hasRole('super_admin')) {
+            return $this->forbidden('Access denied');
+        }
+
+        return null;
+    }
+
     /**
      * Employee list.
      * Endpoint: GET /api/v1/employees
      */
     public function index(Request $request): JsonResponse
     {
+        if ($response = $this->ensureSuperAdmin($request)) {
+            return $response;
+        }
+
         $employees = User::query()
             ->with('employeeProfile')
             ->when($request->filled('search'), function ($q) use ($request) {
@@ -34,8 +49,12 @@ class EmployeeController extends BaseApiController
      * Employee details.
      * Endpoint: GET /api/v1/employees/{id}
      */
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
+        if ($response = $this->ensureSuperAdmin($request)) {
+            return $response;
+        }
+
         $employee = User::query()->with('employeeProfile')->find($id);
 
         if (!$employee) {
