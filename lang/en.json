@@ -116,6 +116,7 @@
     "label.attachments": "Attachments",
     "label.no_attachments": "No attachments available.",
     "label.save_changes": "Save Changes",
+    "validation.after_or_equal": "The start date must be at least one day from today.",
 
     "widget.welcome_message": "Welcome back to the office management system. Have a productive and enjoyable day! 💼",
     "widget.time": "Time",

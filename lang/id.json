@@ -115,6 +115,7 @@
     "label.attachments": "Lampiran",
     "label.no_attachments": "Tidak ada lampiran.",
     "label.save_changes": "Simpan Perubahan",
+    "validation.after_or_equal": "Tanggal mulai minimal H-1 dari hari ini.",
 
     "widget.welcome_message": "Selamat datang kembali di sistem manajemen kantor. Semoga hari Anda produktif dan menyenangkan! 💼",
     "widget.time": "Waktu",
