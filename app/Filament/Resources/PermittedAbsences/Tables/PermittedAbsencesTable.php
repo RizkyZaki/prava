@@ -55,12 +55,6 @@ class PermittedAbsencesTable
                     ->limit(30)
                     ->tooltip(fn($record) => $record->reason),
 
-                ImageColumn::make('attachment')
-                    ->label('Lampiran')
-                    ->size(40)
-                    ->defaultImageUrl(url('/images/no-image.png'))
-                    ->toggleable(),
-
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
