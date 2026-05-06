@@ -48,8 +48,9 @@ class PermittedAbsenceForm
                             ->required()
                             ->label('Tanggal Mulai')
                             ->native(false)
-                            ->minDate(now('Asia/Jakarta')->addDay())
-                            ->default(now('Asia/Jakarta')->addDay())
+                            ->format('Y-m-d')
+                            ->minDate(now('Asia/Jakarta')->addDay()->startOfDay())
+                            ->default(now('Asia/Jakarta')->addDay()->startOfDay())
                             ->validationMessages([
                                 'after_or_equal' => 'Tanggal mulai minimal H-1 dari hari ini.',
                             ]),
@@ -58,10 +59,11 @@ class PermittedAbsenceForm
                             ->required()
                             ->label('Tanggal Selesai')
                             ->native(false)
+                            ->format('Y-m-d')
                             ->minDate(fn($get) => $get('start_date')
-                                ? Carbon::parse($get('start_date'))
-                                : now('Asia/Jakarta')->addDay())
-                            ->default(now('Asia/Jakarta')->addDay())
+                                ? Carbon::parse($get('start_date'))->startOfDay()
+                                : now('Asia/Jakarta')->addDay()->startOfDay())
+                            ->default(now('Asia/Jakarta')->addDay()->startOfDay())
                             ->validationMessages([
                                 'after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
                             ]),
