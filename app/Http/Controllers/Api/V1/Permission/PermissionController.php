@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\BaseApiController;
 use App\Models\PermittedAbsence;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PermissionController extends BaseApiController
 {
@@ -53,7 +54,13 @@ class PermissionController extends BaseApiController
             'reason' => ['required', 'string', 'max:1000'],
             'start_date' => ['required', 'date', 'after_or_equal:tomorrow'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'attachment' => ['required_if:type,izin,sakit', 'nullable', 'file', 'mimes:jpeg,png,gif,webp,pdf', 'max:2048'],
         ]);
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('permitted-absences', 'public');
+        }
 
         $created = PermittedAbsence::query()->create([
             'user_id' => $request->user()->id,
@@ -61,6 +68,7 @@ class PermissionController extends BaseApiController
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
             'reason' => $validated['reason'],
+            'attachment' => $attachmentPath,
             'status' => 'pending',
         ]);
 
