@@ -49,12 +49,15 @@ class PermissionController extends BaseApiController
      */
     public function store(Request $request): JsonResponse
     {
+        $minStartDate = now('Asia/Jakarta')->addDay()->toDateString();
         $validated = $request->validate([
             'type' => ['required', 'in:izin,sakit,remote'],
             'reason' => ['required', 'string', 'max:1000'],
-            'start_date' => ['required', 'date', 'after_or_equal:tomorrow'],
+            'start_date' => ['required', 'date', 'after_or_equal:' . $minStartDate],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'attachment' => ['required_if:type,izin,sakit', 'nullable', 'file', 'mimes:jpeg,png,gif,webp,pdf', 'max:2048'],
+        ], [
+            'start_date.after_or_equal' => 'Tanggal mulai minimal H-1 dari hari ini.',
         ]);
 
         $attachmentPath = null;
